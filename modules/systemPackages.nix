@@ -1,4 +1,6 @@
-{ config, pkgs, rvcApp, ... }:
+{ config, pkgs, ... }:
+#{ config, pkgs, rvcApp, ... }:
+
 {
   environment.systemPackages = with pkgs; [
     # rvcApp.package
