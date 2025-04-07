@@ -5,11 +5,11 @@ in {
   networking = {
     wireless.enable = true;
     wireless.networks = {
-      "rvproblems-2ghz" = lib.optionalAttrs (wifiSecrets.rvproblems-2ghz != null) {
-        psk = wifiSecrets.rvproblems-2ghz.psk;
+      "iot" = {
+        psk = builtins.readFile config.sops.secrets.iot_psk.path;
       };
-      "iot" = lib.optionalAttrs (wifiSecrets.iot != null) {
-        psk = wifiSecrets.iot.psk;
+      "rvproblems-2ghz" = {
+        psk = builtins.readFile config.sops.secrets.rvproblems_2ghz_psk.path;
       };
     };
     useDHCP = true;

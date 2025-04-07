@@ -21,8 +21,8 @@
         ryan_ssh_public_key = {};
         ssh_host_ed25519_key = {};
         ssh_host_ed25519_key_pub = {};
-        iot = {};
-        rvproblems-2ghz = {};
+        iot_psk = {};
+        rvproblems-2ghz_psk = {};
       };
     };
   };
