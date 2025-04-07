@@ -23,7 +23,7 @@
 
     nixosHardware = fetchTarball {
       url = "https://github.com/NixOS/nixos-hardware/archive/a3f63440fcfb280d7c9c5dd83f6cc95051867b17.tar.gz";
-      sha256 = "sha256-ZI7A8dnwhO7tt4C9O0aMEoYwNHRVUgGexSBFyrCBmR4=";
+      sha256 = "sha256:0ay6mqbyjig6yksyg916dkz72p2n3lbzryxhvlx8ax4r0564r7fd";
     };
   in {
     packages.${system}.sdcard = nixos-generators.nixosGenerate {
