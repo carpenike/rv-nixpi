@@ -18,8 +18,6 @@
 
       secrets = {
         ryan_password = {};
-        ssh_host_ed25519_key = {};
-        ssh_host_ed25519_key_pub = {};
         IOT_WIFI_SSID = {};
         IOT_WIFI_PASSWORD = {};
         RVPROBLEMS_WIFI_SSID = {};
