@@ -40,6 +40,7 @@
         ./modules/services.nix
         ./modules/impermanence.nix
         ./modules/secrets.nix
+        ./modules/shell.nix
         ./modules/ssh.nix
         ./modules/sudo.nix
 
