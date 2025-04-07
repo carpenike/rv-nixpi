@@ -33,6 +33,7 @@
         ./hardware-configuration.nix
         "${nixosHardware}/raspberry-pi/4"
         sops-nix.nixosModules.sops
+        ./modules/system.nix
         ./modules/boot.nix
         ./modules/networking.nix
         ./modules/users.nix
