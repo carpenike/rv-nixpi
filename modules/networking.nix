@@ -38,8 +38,6 @@
         };
       };
     };
-
-    useDHCP = true;
     hostName = "nixpi";
   };
 }
