@@ -18,7 +18,6 @@
 
       secrets = {
         ryan_password = {};
-        ryan_ssh_public_key = {};
         ssh_host_ed25519_key = {};
         ssh_host_ed25519_key_pub = {};
         IOT_WIFI_SSID = {};
