@@ -1,16 +1,22 @@
 { config, pkgs, lib, ... }:
 {
   services.openssh = {
-    hostKeys = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    enable = true;
+    hostKeys = [
+      {
+        path = config.sops.secrets.ssh_host_ed25519_key.path;
+        type = "ed25519";
+      }
+    ];
   };
 
   environment.etc = {
     "ssh/ssh_host_ed25519_key" = {
-      text = config.sops.secrets.ssh_host_ed25519_key;
+      text = builtins.readFile config.sops.secrets.ssh_host_ed25519_key.path;
       mode = "0400";
     };
     "ssh/ssh_host_ed25519_key.pub" = {
-      text = config.sops.secrets.ssh_host_ed25519_key_pub;
+      text = builtins.readFile config.sops.secrets.ssh_host_ed25519_key_pub.path;
       mode = "0644";
     };
   };
