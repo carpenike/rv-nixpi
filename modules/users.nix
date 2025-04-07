@@ -8,7 +8,7 @@
     hashedPasswordFile = config.sops.secrets.ryan_password.path;
 
     openssh.authorizedKeys.keys = [
-      (builtins.readFile ../../config/ssh/ryan.pub)
+      (builtins.readFile ../config/ssh/ryan.pub)
     ];
   };
 }
