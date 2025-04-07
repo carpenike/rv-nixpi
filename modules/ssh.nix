@@ -1,7 +1,6 @@
 { config, pkgs, lib, ... }:
 {
   services.openssh = {
-    generateHostKeys = false;
     hostKeys = [ "/etc/ssh/ssh_host_ed25519_key" ];
   };
 
