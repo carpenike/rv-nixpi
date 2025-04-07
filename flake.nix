@@ -15,7 +15,8 @@
     # rvc-app.url = "github:yourusername/rvc-app";
   };
 
-  outputs = { self, nixpkgs, nixos-generators, sops-nix, rvc-app, ... }:
+  outputs = { self, nixpkgs, nixos-generators, sops-nix, ... }:
+  # outputs = { self, nixpkgs, nixos-generators, sops-nix, rvc-app, ... }:
   let
     system = "aarch64-linux";
   in {
