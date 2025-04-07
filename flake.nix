@@ -32,7 +32,7 @@
       modules = [
         ./hardware-configuration.nix
         "${nixosHardware}/raspberry-pi/4"
-
+        sops-nix.nixosModules.sops
         ./modules/boot.nix
         ./modules/networking.nix
         ./modules/users.nix
