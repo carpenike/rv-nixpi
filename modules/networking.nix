@@ -1,15 +1,13 @@
-{ config, pkgs, lib, ... }:
-let
-  wifiSecrets = config.sops.secrets or {};
-in {
+{ config, lib, ... }:
+{
   networking = {
     wireless.enable = true;
     wireless.networks = {
       "iot" = {
-        psk = builtins.readFile config.sops.secrets.iot_psk.path;
+        pskFile = config.sops.secrets.iot_psk.path;
       };
       "rvproblems-2ghz" = {
-        psk = builtins.readFile config.sops.secrets.rvproblems_2ghz_psk.path;
+        pskFile = config.sops.secrets.rvproblems_2ghz_psk.path;
       };
     };
     useDHCP = true;
