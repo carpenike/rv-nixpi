@@ -1,18 +1,44 @@
-{ config, lib, ... }:
+{ config, pkgs, ... }:
 
-let
-  wifiSecrets = config.sops.secrets;
-in {
+{
   networking = {
-    wireless.enable = true;
-    wireless.networks = {
-      "iot" = lib.mkIf (wifiSecrets ? iot_psk) {
-        pskRaw = builtins.readFile wifiSecrets.iot_psk.path;
-      };
-      "rvproblems-2ghz" = lib.mkIf (wifiSecrets ? rvproblems_2ghz_psk) {
-        pskRaw = builtins.readFile wifiSecrets.rvproblems_2ghz_psk.path;
+    networkmanager = {
+      enable = true;
+
+      ensureProfiles = {
+        environmentFiles = [
+          config.sops.secrets.IOT_WIFI_SSID.path
+          config.sops.secrets.IOT_WIFI_PASSWORD.path
+          config.sops.secrets.RVPROBLEMS_WIFI_SSID.path
+          config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path
+        ];
+
+        profiles = {
+          iot = {
+            connection.id = "iot";
+            connection.type = "wifi";
+            wifi.ssid = "$IOT_WIFI_SSID";
+            wifi-security = {
+              auth-alg = "open";
+              key-mgmt = "wpa-psk";
+              psk = "$IOT_WIFI_PASSWORD";
+            };
+          };
+
+          rvproblems = {
+            connection.id = "rvproblems-2ghz";
+            connection.type = "wifi";
+            wifi.ssid = "$RVPROBLEMS_WIFI_SSID";
+            wifi-security = {
+              auth-alg = "open";
+              key-mgmt = "wpa-psk";
+              psk = "$RVPROBLEMS_WIFI_PASSWORD";
+            };
+          };
+        };
       };
     };
+
     useDHCP = true;
     hostName = "nixpi";
   };
