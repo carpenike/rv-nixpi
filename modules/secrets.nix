@@ -21,8 +21,10 @@
         ryan_ssh_public_key = {};
         ssh_host_ed25519_key = {};
         ssh_host_ed25519_key_pub = {};
-        iot_psk = {};
-        rvproblems-2ghz_psk = {};
+        IOT_WIFI_SSID = {};
+        IOT_WIFI_PASSWORD = {};
+        RVPROBLEMS_WIFI_SSID = {};
+        RVPROBLEMS_WIFI_PASSWORD = {};
       };
     };
   };
