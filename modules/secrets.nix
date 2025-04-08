@@ -1,27 +1,27 @@
-{ pkgs, config, lib, ... }:
-
 let
   bootstrapAgeKey =
-    if builtins.hasEnv "AGE_BOOTSTRAP_KEY" then
+    if builtins.getEnv "AGE_BOOTSTRAP_KEY" != "" then
       builtins.toFile "age.key" (builtins.getEnv "AGE_BOOTSTRAP_KEY")
     else
-      throw "Environment variable AGE_BOOTSTRAP_KEY not set. Use --impure and export AGE_BOOTSTRAP_KEY.";
-in
-{
+      null;
+in {
   config = {
-    environment.systemPackages = with pkgs; [
-      sops
-      age
+    environment.systemPackages = [
+      pkgs.sops
+      pkgs.age
     ];
 
-    # Inject age key at build time
-    environment.etc."sops/age.key".source = bootstrapAgeKey;
+    # If the environment variable was passed, install it into /etc/sops
+    environment.etc."sops/age.key".source = lib.mkIf (bootstrapAgeKey != null) bootstrapAgeKey;
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
 
       age = {
-        keyFile = "/etc/sops/age.key";
+        # If the bootstrap key is present, set it as the key file
+        keyFile = lib.mkIf (bootstrapAgeKey != null) "/etc/sops/age.key";
+
+        # Still include ssh_host as a valid fallback if it exists
         sshKeyPaths = [
           "/etc/ssh/ssh_host_ed25519_key"
         ];
