@@ -6,6 +6,8 @@
       enable = true;
 
       ensureProfiles = {
+        force = true; # 👈 Required to actually install the profiles at runtime
+
         environmentFiles = [
           config.sops.secrets.IOT_WIFI_SSID.path
           config.sops.secrets.IOT_WIFI_PASSWORD.path
@@ -38,6 +40,7 @@
         };
       };
     };
+
     hostName = "nixpi";
   };
 }
