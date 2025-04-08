@@ -1,5 +1,4 @@
-{ config, pkgs, lib, ... }:
-
+{ config, pkgs, ... }:
 {
   boot = {
     loader.generic-extlinux-compatible.enable = true;
@@ -15,34 +14,19 @@
       "modules-load=dwc2,g_serial"
       "console=ttyGS0,115200"
     ];
+
+    # Ensures /boot/config.txt gets the dtoverlay=dwc2 line
+    extraSystemBuilderCmds = ''
+      mkdir -p $out/firmware
+      echo "[pi4]" > $out/firmware/config.txt
+      echo "kernel=u-boot-rpi4.bin" >> $out/firmware/config.txt
+      echo "enable_gic=1" >> $out/firmware/config.txt
+      echo "armstub=armstub8-gic.bin" >> $out/firmware/config.txt
+      echo "" >> $out/firmware/config.txt
+      echo "[all]" >> $out/firmware/config.txt
+      echo "arm_64bit=1" >> $out/firmware/config.txt
+      echo "enable_uart=1" >> $out/firmware/config.txt
+      echo "dtoverlay=dwc2" >> $out/firmware/config.txt
+    '';
   };
-
-  # Inject firmware config (config.txt) during image build
-  system.extraSystemBuilderCmds = ''
-    mkdir -p $out/firmware
-    cat <<EOF > $out/firmware/config.txt
-[pi3]
-kernel=u-boot-rpi3.bin
-
-[pi02]
-kernel=u-boot-rpi3.bin
-
-[pi4]
-kernel=u-boot-rpi4.bin
-enable_gic=1
-armstub=armstub8-gic.bin
-
-disable_overscan=1
-arm_boost=1
-
-[cm4]
-otg_mode=1
-
-[all]
-arm_64bit=1
-enable_uart=1
-avoid_warnings=1
-dtoverlay=dwc2
-EOF
-  '';
 }
