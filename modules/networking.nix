@@ -17,6 +17,7 @@
               interface-name = "wlan0";
               permissions = "user:root:";
               autoconnect = true;
+              uuid = "696c69a4-f0da-4be1-a773-40363d841364";
             };
             wifi = {
               mode = "infrastructure";
@@ -41,6 +42,7 @@
               interface-name = "wlan0";
               permissions = "user:root:";
               autoconnect = true;
+              uuid = "e356ddcb-e83c-4e28-af65-3fce873284a6";
             };
             wifi = {
               mode = "infrastructure";
