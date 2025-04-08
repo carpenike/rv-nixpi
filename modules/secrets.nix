@@ -29,13 +29,8 @@ in {
 
       secrets = {
         ryan_password = {};
-
-        wifiEnv = {
-          sopsFile = ../secrets/wifi.env.sops.yaml;
-          format = "dotenv";
-          mode = "0400";
-          restartUnits = [ "NetworkManager.service" ];
-        };
+        IOT_WIFI_PASSWORD = {};
+        RVPROBLEMS_WIFI_PASSWORD = {};
       };
     };
   };
