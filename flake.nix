@@ -40,6 +40,7 @@
       ./modules/secrets.nix
       ./modules/system.nix
       ./modules/boot.nix
+      ./modules/motd.nix
       ./modules/networking.nix
       ./modules/users.nix
       ./modules/services.nix
