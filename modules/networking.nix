@@ -11,20 +11,7 @@ in {
 
   # Declare iwd network profiles using environment.etc
   environment.etc = {
-    "iwd/iot.psk".text = ''
-        [Security]
-        PreSharedKey=${builtins.readFile config.sops.secrets.IOT_WIFI_PASSWORD.path}
-
-        [Settings]
-        AutoConnect=true
-      '';
-
-      "iwd/rvproblems-2ghz.psk".text = ''
-        [Security]
-        PreSharedKey=${builtins.readFile config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path}
-
-        [Settings]
-        AutoConnect=true
-      '';
+    "iwd/iot.psk".source = config.sops.secrets.IOT_WIFI_PASSWORD.path;
+    "iwd/rvproblems-2ghz.psk".source = config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path;
   };
 }
