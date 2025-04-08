@@ -1,7 +1,7 @@
 { pkgs, config, lib, ... }:
 
 let
-  bootstrapAgeKey = builtins.readFile ../secrets/age.key;
+  bootstrapAgeKeyFile = builtins.toFile "age.key" (builtins.readFile ../secrets/age.key);
 in {
   config = {
     environment.systemPackages = [
@@ -9,14 +9,7 @@ in {
       pkgs.age
     ];
 
-    # Embed the bootstrap age key into the image (works during image build)
-    environment.etc."sops/age.key".source =
-      pkgs.runCommand "bootstrap-age-key"
-        { }
-        ''
-          mkdir -p $out
-          echo '${bootstrapAgeKey}' > $out/age.key
-        '';
+    environment.etc."sops/age.key".source = bootstrapAgeKeyFile;
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
