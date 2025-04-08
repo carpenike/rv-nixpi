@@ -89,10 +89,16 @@ in {
     "d /run/NetworkManager-secrets 0700 root root -"
   ];
 
-  # Tighten service dependencies
   systemd.services.NetworkManager = {
     wants = ["sops-nix.service"];
     after = ["sops-nix.service"];
-    serviceConfig.SupplementaryGroups = [ "keys" ];
+    # Add explicit requirement
+    requires = ["NetworkManager-ensure-profiles.service"];
+  };
+
+  # Add ordering for profile generation
+  systemd.services.NetworkManager-ensure-profiles = {
+    after = ["sops-nix.service"];
+    requires = ["sops-nix.service"];
   };
 }
