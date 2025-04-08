@@ -37,19 +37,20 @@
       ./hardware-configuration.nix
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
+      ./modules/secrets.nix
       ./modules/system.nix
       ./modules/boot.nix
       ./modules/networking.nix
       ./modules/users.nix
       ./modules/services.nix
       # ./modules/impermanence.nix
-      ./modules/secrets.nix
       ./modules/shell.nix
       ./modules/ssh.nix
       ./modules/sudo.nix
       ./modules/systemPackages.nix
       # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; })
     ];
+
   in {
     packages.${system}.sdcard = nixos-generators.nixosGenerate {
       system = system;
