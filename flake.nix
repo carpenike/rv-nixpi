@@ -25,11 +25,19 @@
       url = "https://github.com/NixOS/nixos-hardware/archive/master.tar.gz";
       # sha256 = "sha256:0ay6mqbyjig6yksyg916dkz72p2n3lbzryxhvlx8ax4r0564r7fd";
     };
+
+    # ✅ Overlay to allow missing kernel modules like sun4i-drm
+    allowMissingModulesOverlay = final: super: {
+      makeModulesClosure = x:
+        super.makeModulesClosure (x // { allowMissing = true; });
+    };
+
   in {
     packages.${system}.sdcard = nixos-generators.nixosGenerate {
       system = system;
       format = "sd-aarch64";
       modules = [
+        { nixpkgs.overlays = [ allowMissingModulesOverlay ]; } # 👈 added here
         ./hardware-configuration.nix
         "${nixosHardware}/raspberry-pi/4"
         sops-nix.nixosModules.sops
@@ -43,10 +51,8 @@
         ./modules/shell.nix
         ./modules/ssh.nix
         ./modules/sudo.nix
-
         ./modules/systemPackages.nix
-        # If you later re-enable rvcApp:
-        # (./modules/systemPackages.nix { rvcApp = rvc-app; })
+        # (./modules/systemPackages.nix { rvcApp = rvc-app; }) # Optional
       ];
     };
   };
