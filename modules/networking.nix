@@ -12,19 +12,19 @@ in {
   # Declare iwd network profiles using environment.etc
   environment.etc = {
     "iwd/iot.psk".text = ''
-      [Security]
-      PreSharedKey=${config.sops.placeholder.IOT_WIFI_PASSWORD}
+        [Security]
+        PreSharedKey=${builtins.readFile config.sops.secrets.IOT_WIFI_PASSWORD.path}
 
-      [Settings]
-      AutoConnect=true
-    '';
+        [Settings]
+        AutoConnect=true
+      '';
 
-    "iwd/rvproblems-2ghz.psk".text = ''
-      [Security]
-      PreSharedKey=${config.sops.placeholder.RVPROBLEMS_WIFI_PASSWORD}
+      "iwd/rvproblems-2ghz.psk".text = ''
+        [Security]
+        PreSharedKey=${builtins.readFile config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path}
 
-      [Settings]
-      AutoConnect=true
-    '';
+        [Settings]
+        AutoConnect=true
+      '';
   };
 }
