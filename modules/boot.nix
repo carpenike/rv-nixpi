@@ -1,8 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
   boot = {
     loader.generic-extlinux-compatible.enable = true;
-    kernelModules = [ "dwc2" "g_serial" ];
+    kernelModules = lib.filter (mod: mod != "sun4i-drm") [ "dwc2" "g_serial" ];
     extraModprobeConfig = ''
       options g_serial use_acm=1
     '';
