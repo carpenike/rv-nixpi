@@ -7,5 +7,6 @@
     pkgs.can-utils
     pkgs.fish
     pkgs.vim
+    pkgs.git
   ];
 }
