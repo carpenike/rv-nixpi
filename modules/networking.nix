@@ -15,24 +15,48 @@
 
         profiles = {
           iot = {
-            connection.id = "iot";
-            connection.type = "wifi";
-            wifi.ssid = "$IOT_WIFI_SSID";
+            connection = {
+              id = "iot";
+              type = "wifi";
+            };
+            wifi = {
+              mode = "infrastructure";
+              ssid = "$IOT_WIFI_SSID";
+            };
             wifi-security = {
               auth-alg = "open";
               key-mgmt = "wpa-psk";
               psk = "$IOT_WIFI_PASSWORD";
             };
+            ipv4 = {
+              method = "auto";
+            };
+            ipv6 = {
+              addr-gen-mode = "stable-privacy";
+              method = "auto";
+            };
           };
 
           rvproblems = {
-            connection.id = "rvproblems-2ghz";
-            connection.type = "wifi";
-            wifi.ssid = "$RVPROBLEMS_WIFI_SSID";
+            connection = {
+              id = "rvproblems-2ghz";
+              type = "wifi";
+            };
+            wifi = {
+              mode = "infrastructure";
+              ssid = "$RVPROBLEMS_WIFI_SSID";
+            };
             wifi-security = {
               auth-alg = "open";
               key-mgmt = "wpa-psk";
               psk = "$RVPROBLEMS_WIFI_PASSWORD";
+            };
+            ipv4 = {
+              method = "auto";
+            };
+            ipv6 = {
+              addr-gen-mode = "stable-privacy";
+              method = "auto";
             };
           };
         };
