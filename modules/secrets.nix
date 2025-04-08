@@ -29,10 +29,26 @@ in {
 
       secrets = {
         ryan_password = {};
-        IOT_WIFI_SSID = {};
-        IOT_WIFI_PASSWORD = {};
-        RVPROBLEMS_WIFI_SSID = {};
-        RVPROBLEMS_WIFI_PASSWORD = {};
+
+        IOT_WIFI_SSID = {
+          mode = "0440";
+          restartUnits = ["NetworkManager.service"];
+        };
+
+        IOT_WIFI_PASSWORD = {
+          mode = "0440";
+          restartUnits = ["NetworkManager.service"];
+        };
+
+        RVPROBLEMS_WIFI_SSID = {
+          mode = "0440";
+          restartUnits = ["NetworkManager.service"];
+        };
+
+        RVPROBLEMS_WIFI_PASSWORD = {
+          mode = "0440";
+          restartUnits = ["NetworkManager.service"];
+        };
       };
     };
   };

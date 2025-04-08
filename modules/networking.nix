@@ -7,10 +7,10 @@
 
       ensureProfiles = {
         environmentFiles = [
-          config.sops.secrets.IOT_WIFI_SSID.path
-          config.sops.secrets.IOT_WIFI_PASSWORD.path
-          config.sops.secrets.RVPROBLEMS_WIFI_SSID.path
-          config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path
+          "/run/secrets/IOT_WIFI_SSID"
+          "/run/secrets/IOT_WIFI_PASSWORD"
+          "/run/secrets/RVPROBLEMS_WIFI_SSID"
+          "/run/secrets/RVPROBLEMS_WIFI_PASSWORD"
         ];
 
         profiles = {
@@ -18,6 +18,8 @@
             connection = {
               id = "iot";
               type = "wifi";
+              interface-name = "wlan0";
+              permissions = "user:root:";
             };
             wifi = {
               mode = "infrastructure";
@@ -41,6 +43,8 @@
             connection = {
               id = "rvproblems-2ghz";
               type = "wifi";
+              interface-name = "wlan0";
+              permissions = "user:root:";
             };
             wifi = {
               mode = "infrastructure";
@@ -64,5 +68,18 @@
     };
 
     hostName = "nixpi";
+  };
+
+  system.activationScripts.network-secrets = ''
+    mkdir -p /run/secrets
+    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/IOT_WIFI_SSID" "/run/secrets/IOT_WIFI_SSID"
+    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/IOT_WIFI_PASSWORD" "/run/secrets/IOT_WIFI_PASSWORD"
+    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/RVPROBLEMS_WIFI_SSID" "/run/secrets/RVPROBLEMS_WIFI_SSID"
+    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/RVPROBLEMS_WIFI_PASSWORD" "/run/secrets/RVPROBLEMS_WIFI_PASSWORD"
+  '';
+
+  systemd.services.NetworkManager = {
+    wants = ["sops-nix.service"];
+    after = ["sops-nix.service"];
   };
 }
