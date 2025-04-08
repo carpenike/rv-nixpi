@@ -31,7 +31,7 @@
       format = "sd-aarch64";
       modules = [
         ./hardware-configuration.nix
-        "${nixosHardware}/raspberry-pi/4"
+        #"${nixosHardware}/raspberry-pi/4"
         sops-nix.nixosModules.sops
         ./modules/system.nix
         ./modules/boot.nix
