@@ -24,7 +24,7 @@
 
     nixosHardware = fetchTarball {
       url = "https://github.com/NixOS/nixos-hardware/archive/8f44cbb48c2f4a54e35d991a903a8528178ce1a8.tar.gz";
-      sha256 = "0ay6mqbyjig6yksyg916dkz72p2n3lbzryxhvlx8ax4r0564r7fd";
+      sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
     };
 
     allowMissingModulesOverlay = final: super: {

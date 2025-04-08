@@ -14,10 +14,10 @@ in {
 
       ensureProfiles = {
         environmentFiles = [
-          "/run/NetworkManager-secrets/IOT_WIFI_SSID"
-          "/run/NetworkManager-secrets/IOT_WIFI_PASSWORD"
-          "/run/NetworkManager-secrets/RVPROBLEMS_WIFI_SSID"
-          "/run/NetworkManager-secrets/RVPROBLEMS_WIFI_PASSWORD"
+          config.sops.templates.IOT_WIFI_SSID.path
+          config.sops.templates.IOT_WIFI_PASSWORD.path
+          config.sops.templates.RVPROBLEMS_WIFI_SSID.path
+          config.sops.templates.RVPROBLEMS_WIFI_PASSWORD.path
         ];
         profiles = {
           iot = {
@@ -76,7 +76,6 @@ in {
     hostName = "nixpi";
   };
 
-  # Replace tmpfiles rules with SOPS templates
   sops.templates = {
     IOT_WIFI_SSID = mkSecretEnv "IOT_WIFI_SSID" "IOT_WIFI_SSID";
     IOT_WIFI_PASSWORD = mkSecretEnv "IOT_WIFI_PASSWORD" "IOT_WIFI_PASSWORD";
@@ -84,9 +83,8 @@ in {
     RVPROBLEMS_WIFI_PASSWORD = mkSecretEnv "RVPROBLEMS_WIFI_PASSWORD" "RVPROBLEMS_WIFI_PASSWORD";
   };
 
-  # Create directory for NM secrets
   systemd.tmpfiles.rules = [
-    "d /run/NetworkManager-secrets 0700 root root -"
+    "d /run/NetworkManager-secrets 0750 root keys -"
   ];
 
   systemd.services.NetworkManager = {
@@ -100,5 +98,10 @@ in {
   systemd.services.NetworkManager-ensure-profiles = {
     after = ["sops-nix.service"];
     requires = ["sops-nix.service"];
+    serviceConfig = {
+      ExecStartPre = pkgs.writeShellScript "check-secrets" ''
+        [ -f ${config.sops.templates.IOT_WIFI_SSID.path} ] || exit 1
+      '';
+    };
   };
 }
