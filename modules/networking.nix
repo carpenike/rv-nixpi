@@ -88,16 +88,12 @@ in {
   ];
 
   systemd.services.NetworkManager = {
-    wants = ["sops-nix.service"];
-    after = ["sops-nix.service"];
     # Add explicit requirement
     # requires = ["NetworkManager-ensure-profiles.service"];
   };
 
   # Add ordering for profile generation
   systemd.services.NetworkManager-ensure-profiles = {
-    after = ["sops-nix.service"];
-    requires = ["sops-nix.service"];
     serviceConfig = {
       ExecStartPre = pkgs.writeShellScript "check-secrets" ''
         [ -f ${config.sops.templates.IOT_WIFI_SSID.path} ] || exit 1
