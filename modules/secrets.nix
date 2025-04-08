@@ -52,4 +52,5 @@ in {
       };
     };
   };
+  systemd.services.sops-nix.wantedBy = ["multi-user.target"];
 }
