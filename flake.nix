@@ -14,46 +14,54 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Optional: Add your app repo here
     # rvc-app.url = "github:yourusername/rvc-app";
   };
 
-  outputs = { self, nixpkgs, nixos-generators, sops-nix, ... }:
+  outputs = { self, nixpkgs, nixos-generators, sops-nix, ... }@inputs:
   let
     system = "aarch64-linux";
 
     nixosHardware = fetchTarball {
       url = "https://github.com/NixOS/nixos-hardware/archive/8f44cbb48c2f4a54e35d991a903a8528178ce1a8.tar.gz";
-      sha256 = "sha256:0ay6mqbyjig6yksyg916dkz72p2n3lbzryxhvlx8ax4r0564r7fd";
+      sha256 = "0ay6mqbyjig6yksyg916dkz72p2n3lbzryxhvlx8ax4r0564r7fd";
     };
 
-    # ✅ Overlay to allow missing kernel modules like sun4i-drm
     allowMissingModulesOverlay = final: super: {
-      makeModulesClosure = x:
-        super.makeModulesClosure (x // { allowMissing = true; });
+      makeModulesClosure = args:
+        super.makeModulesClosure (args // { allowMissing = true; });
     };
 
+    commonModules = [
+      { nixpkgs.overlays = [ allowMissingModulesOverlay ]; }
+      ./hardware-configuration.nix
+      "${nixosHardware}/raspberry-pi/4"
+      sops-nix.nixosModules.sops
+      ./modules/system.nix
+      ./modules/boot.nix
+      ./modules/networking.nix
+      ./modules/users.nix
+      ./modules/services.nix
+      ./modules/impermanence.nix
+      ./modules/secrets.nix
+      ./modules/shell.nix
+      ./modules/ssh.nix
+      ./modules/sudo.nix
+      ./modules/systemPackages.nix
+      # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; }) # Optional if rvc-app is used
+    ];
   in {
+    # Buildable image for Pi SD card
     packages.${system}.sdcard = nixos-generators.nixosGenerate {
       system = system;
       format = "sd-aarch64";
-      modules = [
-        { nixpkgs.overlays = [ allowMissingModulesOverlay ]; } # 👈 added here
-        ./hardware-configuration.nix
-        "${nixosHardware}/raspberry-pi/4"
-        sops-nix.nixosModules.sops
-        ./modules/system.nix
-        ./modules/boot.nix
-        ./modules/networking.nix
-        ./modules/users.nix
-        ./modules/services.nix
-        ./modules/impermanence.nix
-        ./modules/secrets.nix
-        ./modules/shell.nix
-        ./modules/ssh.nix
-        ./modules/sudo.nix
-        ./modules/systemPackages.nix
-        # (./modules/systemPackages.nix { rvcApp = rvc-app; }) # Optional
-      ];
+      modules = commonModules;
+    };
+
+    # Optional: NixOS system configuration (e.g., for nixos-rebuild switch/build)
+    nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
+      system = system;
+      modules = commonModules;
     };
   };
 }

@@ -13,7 +13,9 @@ in {
       pkgs.age
     ];
 
-    environment.etc."sops/age.key".source = lib.mkIf (bootstrapAgeKey != null) bootstrapAgeKey;
+    environment.etc = lib.mkIf (bootstrapAgeKey != null) {
+      "sops/age.key".source = bootstrapAgeKey;
+    };
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
