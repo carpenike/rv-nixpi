@@ -1,3 +1,4 @@
+builtins.trace "SOPS placeholders available: ${builtins.toJSON (builtins.attrNames config.sops.placeholder)}" null;
 { config, pkgs, ... }:
 
 {
