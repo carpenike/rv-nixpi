@@ -1,3 +1,5 @@
+{ config, pkgs, lib, ... }:
+
 let
   bootstrapAgeKey =
     if builtins.getEnv "AGE_BOOTSTRAP_KEY" != "" then
@@ -11,17 +13,13 @@ in {
       pkgs.age
     ];
 
-    # If the environment variable was passed, install it into /etc/sops
     environment.etc."sops/age.key".source = lib.mkIf (bootstrapAgeKey != null) bootstrapAgeKey;
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
 
       age = {
-        # If the bootstrap key is present, set it as the key file
         keyFile = lib.mkIf (bootstrapAgeKey != null) "/etc/sops/age.key";
-
-        # Still include ssh_host as a valid fallback if it exists
         sshKeyPaths = [
           "/etc/ssh/ssh_host_ed25519_key"
         ];
