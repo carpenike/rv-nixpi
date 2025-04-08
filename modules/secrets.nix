@@ -51,9 +51,5 @@ in {
         };
       };
     };
-    # Critical for service activation
-    system.activationScripts.sops = {
-      deps = [ "setupRuntimeShell" ];
-    };
   };
 }
