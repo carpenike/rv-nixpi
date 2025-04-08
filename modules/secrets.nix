@@ -1,19 +1,11 @@
 { pkgs, config, lib, ... }:
 
 let
-  # Safely include age.key only if it exists (for --impure builds)
-  bootstrapAgeKeyFile =
-    if builtins.pathExists ../secrets/age.key then
-      builtins.toFile "age.key" (builtins.readFile ../secrets/age.key)
-    else
-      throw ''
-        Missing ../secrets/age.key during evaluation.
+  # Refer to the absolute path from outside the store
+  ageKeyHostPath = ../secrets/age.key;
 
-        You must build with:
-          nix build --impure --extra-experimental-features nix-command --extra-experimental-features flakes .#packages.aarch64-linux.sdcard
-
-        Or ensure age.key is placed at ../secrets/age.key.
-      '';
+  # Build-time reference using toFile so it gets copied into /etc/sops
+  bootstrapAgeKeyFile = builtins.toFile "age.key" (builtins.readFile ageKeyHostPath);
 in {
   config = {
     environment.systemPackages = [
@@ -21,14 +13,14 @@ in {
       pkgs.age
     ];
 
-    # Place the age key in the image under /etc/sops/
+    # Install the age key to the image
     environment.etc."sops/age.key".source = bootstrapAgeKeyFile;
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
 
       age = {
-        keyFile = "/etc/sops/age.key"; # This gets used at boot time
+        keyFile = "/etc/sops/age.key"; # used at runtime
         sshKeyPaths = [
           "/etc/ssh/ssh_host_ed25519_key"
         ];
