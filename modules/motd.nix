@@ -18,15 +18,17 @@ in {
         if [ -f "$PUBKEY_FILE" ]; then
           AGE_PUB="$(${pkgs.ssh-to-age}/bin/ssh-to-age < "$PUBKEY_FILE")"
 
-          echo "" > "${noticePath}"
-          echo "🔧 Provisioning Notice for $(hostname)" >> "${noticePath}"
-          echo "======================================" >> "${noticePath}"
-          echo "" >> "${noticePath}"
-          echo "🔑 SSH-to-Age public key:" >> "${noticePath}"
-          echo "$AGE_PUB" >> "${noticePath}"
-          echo "" >> "${noticePath}"
-          echo "📌 Add this key to .sops.yaml and re-encrypt your secrets." >> "${noticePath}"
-          echo "💡 This message will disappear once secrets decrypt successfully." >> "${noticePath}"
+          cat <<EOF > "${noticePath}"
+
+🔧 Provisioning Notice for $(hostname)
+======================================
+
+🔑 SSH-to-Age public key:
+$AGE_PUB
+
+📌 Add this key to .sops.yaml and re-encrypt your secrets.
+💡 This message will disappear once secrets decrypt successfully.
+EOF
         else
           echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
         fi
@@ -40,5 +42,12 @@ in {
   # Optional: Auto-remove notice once secrets decrypt correctly
   system.activationScripts.remove-motd-notice = lib.mkIf (config.sops.secrets ? IOT_WIFI_PASSWORD) ''
     rm -f ${noticePath}
+  '';
+
+  # Show MOTD notice in Fish shell sessions too
+  programs.fish.interactiveShellInit = ''
+    if test -f ${noticePath}
+      cat ${noticePath}
+    end
   '';
 }

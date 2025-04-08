@@ -5,15 +5,7 @@
     fish
   ];
 
-  programs.fish = {
-    enable = true;
-
-    interactiveShellInit = ''
-      if test -f /etc/motd_age_notice
-        cat /etc/motd_age_notice
-      end
-    '';
-  };
+  programs.fish.enable = true;
 
   # Optional: Set fish as the default shell system-wide (you already set it per user)
   # users.defaultUserShell = pkgs.fish;
