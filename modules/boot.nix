@@ -14,9 +14,5 @@
       "modules-load=dwc2,g_serial"
       "console=ttyGS0,115200"
     ];
-
-    loader.raspberryPi.firmwareConfig = ''
-      dtoverlay=dwc2
-    '';
   };
 }
