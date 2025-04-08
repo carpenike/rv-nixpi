@@ -8,7 +8,7 @@
     ];
 
     # Embed the bootstrap age key into the image
-    environment.etc."sops/age.key".source = ./secrets/age.key;
+    environment.etc."sops/age.key".source = ../../secrets/age.key;
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
