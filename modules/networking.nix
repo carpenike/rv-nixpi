@@ -1,7 +1,8 @@
-builtins.trace "SOPS placeholders available: ${builtins.toJSON (builtins.attrNames config.sops.placeholder)}" null;
 { config, pkgs, ... }:
+let
+  _ = builtins.trace "SOPS placeholders available: ${builtins.toJSON (builtins.attrNames config.sops.placeholder)}" null;
 
-{
+in {
   networking = {
     networkmanager.enable = false;
     wireless.iwd.enable = true;
