@@ -70,13 +70,12 @@
     hostName = "nixpi";
   };
 
-  system.activationScripts.network-secrets = ''
-    mkdir -p /run/secrets
-    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/IOT_WIFI_SSID" "/run/secrets/IOT_WIFI_SSID"
-    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/IOT_WIFI_PASSWORD" "/run/secrets/IOT_WIFI_PASSWORD"
-    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/RVPROBLEMS_WIFI_SSID" "/run/secrets/RVPROBLEMS_WIFI_SSID"
-    ${pkgs.coreutils}/bin/ln -sfn "${config.sops.secretsDir}/RVPROBLEMS_WIFI_PASSWORD" "/run/secrets/RVPROBLEMS_WIFI_PASSWORD"
-  '';
+  systemd.tmpfiles.rules = [
+    "L+ /run/secrets/IOT_WIFI_SSID - - - - ${config.sops.secrets.IOT_WIFI_SSID.path}"
+    "L+ /run/secrets/IOT_WIFI_PASSWORD - - - - ${config.sops.secrets.IOT_WIFI_PASSWORD.path}"
+    "L+ /run/secrets/RVPROBLEMS_WIFI_SSID - - - - ${config.sops.secrets.RVPROBLEMS_WIFI_SSID.path}"
+    "L+ /run/secrets/RVPROBLEMS_WIFI_PASSWORD - - - - ${config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path}"
+  ];
 
   systemd.services.NetworkManager = {
     wants = ["sops-nix.service"];
