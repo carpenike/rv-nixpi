@@ -7,8 +7,8 @@
     hostName = "nixpi";
   };
 
-  environment.etc = {
-    "var/lib/iwd/iot.psk".text = config.sops.secrets.IOT_WIFI_PASSWORD.content;
-    "var/lib/iwd/rvproblems-2ghz.psk".text = config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.content;
-  };
+  systemd.tmpfiles.rules = [
+    "C /var/lib/iwd/iot.psk 0600 root root - ${config.sops.secrets.IOT_WIFI_PASSWORD.path}"
+    "C /var/lib/iwd/rvproblems-2ghz.psk 0600 root root - ${config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path}"
+  ];
 }
