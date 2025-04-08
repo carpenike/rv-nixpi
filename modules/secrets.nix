@@ -29,7 +29,9 @@ in {
 
       secrets = {
         ryan_password = {};
+        IOT_WIFI_SSID = {};
         IOT_WIFI_PASSWORD = {};
+        RVPROBLEMS_WIFI_SSID = {};
         RVPROBLEMS_WIFI_PASSWORD = {};
       };
     };
