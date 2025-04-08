@@ -6,6 +6,6 @@
   };
 
   # Enable a serial console on ttyGS0 (USB gadget serial)
-  # systemd.services."serial-getty@ttyGS0".enable = true;
-  services.getty."ttyGS0".enable = true;
+  systemd.services."serial-getty@ttyGS0".enable = true;
+
 }
