@@ -50,7 +50,7 @@
         ./modules/secrets.nix
         ./modules/shell.nix
         ./modules/ssh.nix
-        ./modules/sudo.nix
+        # ./modules/sudo.nix
         ./modules/systemPackages.nix
         # (./modules/systemPackages.nix { rvcApp = rvc-app; }) # Optional
       ];
