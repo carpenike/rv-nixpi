@@ -51,6 +51,9 @@ in {
         };
       };
     };
-    systemd.services.sops-nix.wantedBy = ["multi-user.target"];
+    # Critical for service activation
+    system.activationScripts.sops = {
+      deps = [ "setupRuntimeShell" ];
+    };
   };
 }
