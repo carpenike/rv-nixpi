@@ -93,7 +93,7 @@ in {
     wants = ["sops-nix.service"];
     after = ["sops-nix.service"];
     # Add explicit requirement
-    requires = ["NetworkManager-ensure-profiles.service"];
+    # requires = ["NetworkManager-ensure-profiles.service"];
   };
 
   # Add ordering for profile generation
