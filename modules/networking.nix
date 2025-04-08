@@ -1,18 +1,24 @@
 { config, pkgs, ... }:
 
-{
+let
+  # Helper to create formatted env files from secrets
+  mkSecretEnv = name: secret: {
+    content = "${name}=${config.sops.placeholder.${secret}}";
+    path = "/run/NetworkManager-secrets/${name}";
+    mode = "0400";
+  };
+in {
   networking = {
     networkmanager = {
       enable = true;
 
       ensureProfiles = {
         environmentFiles = [
-          "/run/secrets/IOT_WIFI_SSID"
-          "/run/secrets/IOT_WIFI_PASSWORD"
-          "/run/secrets/RVPROBLEMS_WIFI_SSID"
-          "/run/secrets/RVPROBLEMS_WIFI_PASSWORD"
+          "/run/NetworkManager-secrets/IOT_WIFI_SSID"
+          "/run/NetworkManager-secrets/IOT_WIFI_PASSWORD"
+          "/run/NetworkManager-secrets/RVPROBLEMS_WIFI_SSID"
+          "/run/NetworkManager-secrets/RVPROBLEMS_WIFI_PASSWORD"
         ];
-
         profiles = {
           iot = {
             connection = {
@@ -70,15 +76,23 @@
     hostName = "nixpi";
   };
 
+  # Replace tmpfiles rules with SOPS templates
+  sops.templates = {
+    IOT_WIFI_SSID = mkSecretEnv "IOT_WIFI_SSID" "IOT_WIFI_SSID";
+    IOT_WIFI_PASSWORD = mkSecretEnv "IOT_WIFI_PASSWORD" "IOT_WIFI_PASSWORD";
+    RVPROBLEMS_WIFI_SSID = mkSecretEnv "RVPROBLEMS_WIFI_SSID" "RVPROBLEMS_WIFI_SSID";
+    RVPROBLEMS_WIFI_PASSWORD = mkSecretEnv "RVPROBLEMS_WIFI_PASSWORD" "RVPROBLEMS_WIFI_PASSWORD";
+  };
+
+  # Create directory for NM secrets
   systemd.tmpfiles.rules = [
-    "L+ /run/secrets/IOT_WIFI_SSID - - - - ${config.sops.secrets.IOT_WIFI_SSID.path}"
-    "L+ /run/secrets/IOT_WIFI_PASSWORD - - - - ${config.sops.secrets.IOT_WIFI_PASSWORD.path}"
-    "L+ /run/secrets/RVPROBLEMS_WIFI_SSID - - - - ${config.sops.secrets.RVPROBLEMS_WIFI_SSID.path}"
-    "L+ /run/secrets/RVPROBLEMS_WIFI_PASSWORD - - - - ${config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path}"
+    "d /run/NetworkManager-secrets 0700 root root -"
   ];
 
+  # Tighten service dependencies
   systemd.services.NetworkManager = {
     wants = ["sops-nix.service"];
     after = ["sops-nix.service"];
+    serviceConfig.SupplementaryGroups = [ "keys" ];
   };
 }

@@ -31,23 +31,27 @@ in {
         ryan_password = {};
 
         IOT_WIFI_SSID = {
-          mode = "0440";
+          mode = "0400";
           restartUnits = ["NetworkManager.service"];
+          neededBy = ["NetworkManager-ensure-profiles.service"];
         };
 
         IOT_WIFI_PASSWORD = {
-          mode = "0440";
+          mode = "0400";
           restartUnits = ["NetworkManager.service"];
+          neededBy = ["NetworkManager-ensure-profiles.service"];
         };
 
         RVPROBLEMS_WIFI_SSID = {
-          mode = "0440";
+          mode = "0400";
           restartUnits = ["NetworkManager.service"];
+          neededBy = ["NetworkManager-ensure-profiles.service"];
         };
 
         RVPROBLEMS_WIFI_PASSWORD = {
-          mode = "0440";
+          mode = "0400";
           restartUnits = ["NetworkManager.service"];
+          neededBy = ["NetworkManager-ensure-profiles.service"];
         };
       };
     };
