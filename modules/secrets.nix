@@ -31,21 +31,25 @@ in {
         ryan_password = {};
 
         IOT_WIFI_SSID = {
+          format = "dotenv";
           mode = "0400";
           restartUnits = ["NetworkManager.service"];
         };
 
         IOT_WIFI_PASSWORD = {
+          format = "dotenv";
           mode = "0400";
           restartUnits = ["NetworkManager.service"];
         };
 
         RVPROBLEMS_WIFI_SSID = {
+          format = "dotenv";
           mode = "0400";
           restartUnits = ["NetworkManager.service"];
         };
 
         RVPROBLEMS_WIFI_PASSWORD = {
+          format = "dotenv";
           mode = "0400";
           restartUnits = ["NetworkManager.service"];
         };

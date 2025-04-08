@@ -1,23 +1,16 @@
 { config, pkgs, ... }:
 
-let
-  # Helper to create formatted env files from secrets
-  mkSecretEnv = name: secret: {
-    content = "${name}=${config.sops.placeholder.${secret}}";
-    path = "/run/NetworkManager-secrets/${name}";
-    mode = "0400";
-  };
-in {
+{
   networking = {
     networkmanager = {
       enable = true;
 
       ensureProfiles = {
         environmentFiles = [
-          config.sops.templates.IOT_WIFI_SSID.path
-          config.sops.templates.IOT_WIFI_PASSWORD.path
-          config.sops.templates.RVPROBLEMS_WIFI_SSID.path
-          config.sops.templates.RVPROBLEMS_WIFI_PASSWORD.path
+          config.sops.secrets.IOT_WIFI_SSID.path
+          config.sops.secrets.IOT_WIFI_PASSWORD.path
+          config.sops.secrets.RVPROBLEMS_WIFI_SSID.path
+          config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path
         ];
         profiles = {
           iot = {
@@ -26,6 +19,7 @@ in {
               type = "wifi";
               interface-name = "wlan0";
               permissions = "user:root:";
+              autoconnect = true;
             };
             wifi = {
               mode = "infrastructure";
@@ -36,9 +30,7 @@ in {
               key-mgmt = "wpa-psk";
               psk = "$IOT_WIFI_PASSWORD";
             };
-            ipv4 = {
-              method = "auto";
-            };
+            ipv4.method = "auto";
             ipv6 = {
               addr-gen-mode = "stable-privacy";
               method = "auto";
@@ -51,6 +43,7 @@ in {
               type = "wifi";
               interface-name = "wlan0";
               permissions = "user:root:";
+              autoconnect = true;
             };
             wifi = {
               mode = "infrastructure";
@@ -61,9 +54,7 @@ in {
               key-mgmt = "wpa-psk";
               psk = "$RVPROBLEMS_WIFI_PASSWORD";
             };
-            ipv4 = {
-              method = "auto";
-            };
+            ipv4.method = "auto";
             ipv6 = {
               addr-gen-mode = "stable-privacy";
               method = "auto";
@@ -76,28 +67,22 @@ in {
     hostName = "nixpi";
   };
 
-  sops.templates = {
-    IOT_WIFI_SSID = mkSecretEnv "IOT_WIFI_SSID" "IOT_WIFI_SSID";
-    IOT_WIFI_PASSWORD = mkSecretEnv "IOT_WIFI_PASSWORD" "IOT_WIFI_PASSWORD";
-    RVPROBLEMS_WIFI_SSID = mkSecretEnv "RVPROBLEMS_WIFI_SSID" "RVPROBLEMS_WIFI_SSID";
-    RVPROBLEMS_WIFI_PASSWORD = mkSecretEnv "RVPROBLEMS_WIFI_PASSWORD" "RVPROBLEMS_WIFI_PASSWORD";
-  };
-
-  systemd.tmpfiles.rules = [
-    "d /run/NetworkManager-secrets 0750 root keys -"
-  ];
-
-  systemd.services.NetworkManager = {
-    # Add explicit requirement
-    # requires = ["NetworkManager-ensure-profiles.service"];
-  };
-
-  # Add ordering for profile generation
-  systemd.services.NetworkManager-ensure-profiles = {
-    serviceConfig = {
-      ExecStartPre = pkgs.writeShellScript "check-secrets" ''
-        [ -f ${config.sops.templates.IOT_WIFI_SSID.path} ] || exit 1
-      '';
-    };
-  };
+  # This is optional now; you *could* remove it too
+  # systemd.services.NetworkManager-ensure-profiles = {
+  #   description = "Ensure NetworkManager Wi-Fi profiles are created from SOPS secrets";
+  #   wantedBy = [ "multi-user.target" ];
+  #   before = [ "NetworkManager.service" ];
+  #   after = [ "network.target" ];
+  #   serviceConfig = {
+  #     Type = "oneshot";
+  #     ExecStart = pkgs.writeShellScript "ensure-profiles" ''
+  #       echo "Checking for Wi-Fi profile secrets..."
+  #       test -f ${config.sops.secrets.IOT_WIFI_SSID.path} || (echo "Missing IOT_WIFI_SSID secret" && exit 1)
+  #       test -f ${config.sops.secrets.IOT_WIFI_PASSWORD.path} || (echo "Missing IOT_WIFI_PASSWORD secret" && exit 1)
+  #       test -f ${config.sops.secrets.RVPROBLEMS_WIFI_SSID.path} || (echo "Missing RVPROBLEMS_WIFI_SSID secret" && exit 1)
+  #       test -f ${config.sops.secrets.RVPROBLEMS_WIFI_PASSWORD.path} || (echo "Missing RVPROBLEMS_WIFI_PASSWORD secret" && exit 1)
+  #       echo "Secrets verified. NetworkManager profiles should be applied by now."
+  #     '';
+  #   };
+  # };
 }
