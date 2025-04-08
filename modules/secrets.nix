@@ -1,26 +1,27 @@
 { pkgs, config, lib, ... }:
 
 let
-  # Refer to the absolute path from outside the store
-  ageKeyHostPath = ../secrets/age.key;
-
-  # Build-time reference using toFile so it gets copied into /etc/sops
-  bootstrapAgeKeyFile = builtins.toFile "age.key" (builtins.readFile ageKeyHostPath);
-in {
+  bootstrapAgeKey =
+    if builtins.hasEnv "AGE_BOOTSTRAP_KEY" then
+      builtins.toFile "age.key" (builtins.getEnv "AGE_BOOTSTRAP_KEY")
+    else
+      throw "Environment variable AGE_BOOTSTRAP_KEY not set. Use --impure and export AGE_BOOTSTRAP_KEY.";
+in
+{
   config = {
-    environment.systemPackages = [
-      pkgs.sops
-      pkgs.age
+    environment.systemPackages = with pkgs; [
+      sops
+      age
     ];
 
-    # Install the age key to the image
-    environment.etc."sops/age.key".source = bootstrapAgeKeyFile;
+    # Inject age key at build time
+    environment.etc."sops/age.key".source = bootstrapAgeKey;
 
     sops = {
       defaultSopsFile = ../secrets/secrets.sops.yaml;
 
       age = {
-        keyFile = "/etc/sops/age.key"; # used at runtime
+        keyFile = "/etc/sops/age.key";
         sshKeyPaths = [
           "/etc/ssh/ssh_host_ed25519_key"
         ];
