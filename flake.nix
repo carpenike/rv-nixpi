@@ -14,7 +14,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Optional: Add your app repo here
+    # Optional app input
     # rvc-app.url = "github:yourusername/rvc-app";
   };
 
@@ -48,17 +48,15 @@
       ./modules/ssh.nix
       ./modules/sudo.nix
       ./modules/systemPackages.nix
-      # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; }) # Optional if rvc-app is used
+      # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; })
     ];
   in {
-    # Buildable image for Pi SD card
     packages.${system}.sdcard = nixos-generators.nixosGenerate {
       system = system;
       format = "sd-aarch64";
       modules = commonModules;
     };
 
-    # Optional: NixOS system configuration (e.g., for nixos-rebuild switch/build)
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       system = system;
       modules = commonModules;
