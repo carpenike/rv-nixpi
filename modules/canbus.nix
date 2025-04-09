@@ -32,7 +32,6 @@
         / {
           compatible = "raspberrypi";
 
-          /* Add MCP2515 nodes on the SPI bus */
           fragment@0 {
             target-path = "/soc/spi@7e204000";
             __overlay__ {
@@ -42,9 +41,9 @@
               mcp2515@0 {
                 compatible = "microchip,mcp2515";
                 reg = <0>;  // Intended for chipselect 0.
-                spi-max-frequency = <16000000>;
+                spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
                 interrupt-parent = <&gpio>;
-                interrupts = <25 8>;
+                interrupts = <25 8>;  // GPIO 25, active low.
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
@@ -52,9 +51,9 @@
               mcp2515@1 {
                 compatible = "microchip,mcp2515";
                 reg = <1>;  // Intended for chipselect 1.
-                spi-max-frequency = <16000000>;
+                spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
                 interrupt-parent = <&gpio>;
-                interrupts = <24 8>;
+                interrupts = <24 8>;  // GPIO 24, active low.
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
