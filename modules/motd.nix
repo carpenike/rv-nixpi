@@ -17,14 +17,14 @@ in {
         PUBKEY_FILE="/etc/ssh/ssh_host_ed25519_key.pub"
         if [ -f "$PUBKEY_FILE" ]; then
           AGE_PUB="$(${pkgs.ssh-to-age}/bin/ssh-to-age < "$PUBKEY_FILE")"
+          HOSTNAME="$(hostname)"
 
-          cat <<EOF > "${noticePath}"
-
-🔧 Provisioning Notice for \$(hostname)
+          cat > "${noticePath}" <<EOF
+🔧 Provisioning Notice for ${HOSTNAME}
 ======================================
 
 🔑 SSH-to-Age public key:
-$AGE_PUB
+${AGE_PUB}
 
 📌 Add this key to .sops.yaml and re-encrypt your secrets.
 💡 This message will disappear once secrets decrypt successfully.
@@ -39,12 +39,12 @@ EOF
   # This message gets shown at login (PAM MOTD), not hard override of /etc/motd
   environment.etc."issue.d/10-age-key-notice.issue".source = noticePath;
 
-  # Optional: Auto-remove notice once secrets decrypt correctly
+  # Auto-remove notice once secrets decrypt correctly
   system.activationScripts.remove-motd-notice = lib.mkIf (config.sops.secrets ? IOT_WIFI_PASSWORD) ''
     rm -f ${noticePath}
   '';
 
-  # Show MOTD notice in Fish shell sessions too
+  # Show MOTD in Fish shell sessions too
   programs.fish.interactiveShellInit = ''
     if test -f ${noticePath}
       cat ${noticePath}
