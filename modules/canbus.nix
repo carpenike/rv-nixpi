@@ -8,12 +8,6 @@
       "can_dev"
       "spi_bcm2835"
     ];
-
-    extraFiles = {
-      # Include overlays in /boot/overlays
-      "overlays/mcp2515-can0.dtbo" = config.hardware.deviceTree.overlays."mcp2515-can0".dtbo;
-      "overlays/mcp2515-can1.dtbo" = config.hardware.deviceTree.overlays."mcp2515-can1".dtbo;
-    };
   };
 
   hardware.deviceTree = {
