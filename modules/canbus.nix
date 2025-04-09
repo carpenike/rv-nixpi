@@ -3,13 +3,17 @@
 {
   hardware.enableRedistributableFirmware = true;
 
-  # Enable static merging of device tree overlays
+  # Enable static merging of device tree overlays and skip the CPU revision overlay.
   hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
-  hardware.raspberry-pi."4".apply-overlays-dtmerge.extraFilters = [ "rpi4-cpu-revision" ];
 
-
-  # Create a device tree overlay for SPI and CAN controllers
+  # Apply overlays for enabling SPI and adding the MCP2515 nodes.
   hardware.deviceTree.overlays = [
+    # Overlay to enable SPI (from a dtso file)
+    {
+      name = "spi";
+      dtsoFile = ../firmware/spi0-0cd.dtso;
+    }
+    # Custom overlay for the MCP2515 CAN controllers on the SPI bus
     {
       name = "enable-spi-mcp2515";
       dtsText = ''
@@ -17,7 +21,7 @@
         /plugin/;
 
         / {
-          // Removed the "compatible" property from here
+          // No top-level "compatible" property
 
           fragment@0 {
             target = <&spi0>;
@@ -58,6 +62,15 @@
     }
   ];
 
+  # Create an SPI group
+  users.groups.spi = {};
+
+  # Set up udev rules for spidev
+  services.udev.extraRules = ''
+    SUBSYSTEM=="spidev", KERNEL=="spidev0.0", GROUP="spi", MODE="0660"
+  '';
+
+  # Systemd services for the CAN interfaces
   systemd.services."can0" = {
     description = "CAN0 Interface";
     wantedBy = [ "multi-user.target" ];
