@@ -17,6 +17,15 @@ pkgs.mkShell {
   shellHook = ''
     export FLAKE=$(git rev-parse --show-toplevel)
 
+    # Set AGE_BOOTSTRAP_KEY automatically from local secrets file
+    if [[ -f "$FLAKE/secrets/age.key" ]]; then
+      export AGE_BOOTSTRAP_KEY="$(<"$FLAKE/secrets/age.key")"
+      echo "🔑 AGE_BOOTSTRAP_KEY loaded from secrets/age.key"
+    else
+      echo "⚠️  secrets/age.key not found. Some builds may fail."
+    fi
+
+    echo ""
     echo "🔧 Devshell ready!"
     echo "  ➤ To build SD image:    build-image"
     echo "  ➤ To write image to SD: write-image /dev/sdX"
