@@ -12,6 +12,9 @@
       };
       DriverQuirks = {
         DefaultInterface = "wlan0";
+        DisableHt = false;
+        DisableVht = false;
+        DisableHe = true;
       };
     };
   };
