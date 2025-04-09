@@ -2,7 +2,18 @@
 
 {
   boot = {
-    loader.generic-extlinux-compatible.enable = true;
+    loader = {
+      generic-extlinux-compatible = {
+        enable = true;
+        configurationLimit = 1;
+        configuration = {
+          kernelParams = [
+            "dtoverlay=mcp2515-can0"
+            "dtoverlay=mcp2515-can1"
+          ];
+        };
+      };
+    };
 
     # Existing gadget config
     kernelModules = [ "dwc2" "g_serial" "vc4" "bcm2835_dma" ];
