@@ -23,14 +23,14 @@
   ];
 
   # Smart update of secrets and iwd restart on change
-  system.activationScripts.updateIwdSecrets = ''
+  system.activationScripts.updateIwdSecrets.text = ''
     echo "🔧 Checking for updated IWD secrets..."
 
     update_psk() {
       src="$1"
       dest="$2"
 
-      if ! cmp -s "$src" "$dest"; then
+      if ! ${pkgs.diffutils}/bin/cmp -s "$src" "$dest"; then
         echo "🔐 Updating $dest from $src..."
         cp "$src" "$dest"
         chmod 600 "$dest"
@@ -53,7 +53,7 @@
 
     if [ "$updated" -eq 1 ]; then
       echo "🔁 Restarting iwd due to updated secrets..."
-      systemctl restart iwd
+      ${pkgs.systemd}/bin/systemctl restart iwd
     else
       echo "📡 No IWD secret changes detected. Skipping restart."
     fi
