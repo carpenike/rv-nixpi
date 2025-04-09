@@ -1,5 +1,3 @@
-{ config, pkgs, ... }:
-
 {
   boot = {
     loader.generic-extlinux-compatible = {
@@ -12,6 +10,8 @@
       "g_serial"
       "vc4"
       "bcm2835_dma"
+      "spi-bcm2835"
+      "mcp251x"
     ];
 
     initrd.kernelModules = [ "dwc2" ];
