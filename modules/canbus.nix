@@ -18,7 +18,7 @@
     "dtparam=spi=on" 
   ];
 
-  # Create a device tree overlay for SPI and CAN controllers
+  # Create a device tree overlay for SPI and CAN controllers using alias target
   hardware.deviceTree.overlays = [
     {
       name = "enable-spi-mcp2515";
@@ -30,14 +30,14 @@
           compatible = "brcm,bcm2835";
 
           fragment@0 {
-            target-path = "/soc/spi@7e204000";
+            target = <&spi0>;
             __overlay__ {
               status = "okay";
             };
           };
 
           fragment@1 {
-            target-path = "/soc/spi@7e204000";
+            target = <&spi0>;
             __overlay__ {
               #address-cells = <2>;
               #size-cells = <1>;
@@ -76,7 +76,8 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";  # Increased delay to 5s for testing
+      # Increase delay (for example, to 5 seconds) to give hardware extra time to initialize
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";  
       ExecStart = "${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
     };
@@ -89,7 +90,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";  # Increased delay to 5s for testing
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
       ExecStart = "${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
     };
@@ -97,7 +98,7 @@
 
   # Add diagnostic tools
   environment.systemPackages = with pkgs; [
-    dtc  # Device Tree Compiler
+    dtc     # Device Tree Compiler
     usbutils
     pciutils
     i2c-tools
