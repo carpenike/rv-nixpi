@@ -6,6 +6,12 @@
   # Enable static merging of device tree overlays and skip the CPU revision overlay.
   hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
 
+  # Enable device tree with a filter so that only DTBs matching the standard Pi 4 are processed.
+  hardware.deviceTree = {
+    enable = true;
+    filter = "*-rpi-4-*.dtb";
+  };
+
   # Apply overlays for enabling SPI and adding the MCP2515 nodes.
   hardware.deviceTree.overlays = [
     # Overlay to enable SPI (from a dtso file)
