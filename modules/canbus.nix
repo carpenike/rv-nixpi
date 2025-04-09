@@ -101,6 +101,5 @@
     usbutils
     pciutils
     i2c-tools
-    raspberrypi-tools  # This might not exist in your nixpkgs, it will be ignored if so
   ];
 }
