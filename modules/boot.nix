@@ -29,4 +29,7 @@
   };
 
   hardware.enableRedistributableFirmware = true;
+
+  # Enable static merging of device tree overlays for Raspberry Pi 4
+  hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
 }
