@@ -34,7 +34,8 @@
                   reg = <0>; // CE0
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <25 0x2>; // falling edge
+                  interrupts = <25 0x2>; // GPIO25, falling edge
+                  oscillator-frequency = <16000000>;
                   status = "okay";
                 };
               };
@@ -60,7 +61,8 @@
                   reg = <1>; // CE1
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <24 0x2>; // falling edge
+                  interrupts = <24 0x2>; // GPIO24, falling edge
+                  oscillator-frequency = <16000000>;
                   status = "okay";
                 };
               };
@@ -71,7 +73,7 @@
     ];
   };
 
-  # Optional: bring up can interfaces at boot with bitrate
+  # Bring up CAN interfaces at boot with bitrate
   systemd.services."can0" = {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
