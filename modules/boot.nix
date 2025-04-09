@@ -20,7 +20,7 @@
       options g_serial use_acm=1
     '';
 
-    # Only keep the essential kernel parameters
+    # Keep only the essential kernel parameters here
     kernelParams = [
       "modules-load=dwc2,g_serial"
       "console=tty1"

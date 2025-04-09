@@ -8,24 +8,17 @@
     "can_dev"
   ];
 
-  # Raspberry Pi specific configuration
+  # Raspberry Pi 4 specific configuration for 3D acceleration
   hardware.raspberry-pi."4".fkms-3d.enable = true;
   
-  # Enable device tree support
+  # Enable device tree and add SPI to kernel params
   hardware.deviceTree.enable = true;
-  
-  # Force enable SPI in kernel parameters
-  boot.kernelParams = [ "spi=on" ];
+  boot.kernelParams = [ 
+    "spi=on"
+    "dtparam=spi=on" 
+  ];
 
-  # Configure Raspberry Pi hardware
-  hardware.raspberry-pi = {
-    enable = true;
-    config = ''
-      dtparam=spi=on
-    '';
-  };
-
-  # Create a more explicit device tree overlay for SPI and CAN controllers
+  # Create a device tree overlay for SPI and CAN controllers
   hardware.deviceTree.overlays = [
     {
       name = "enable-spi-mcp2515";
@@ -40,24 +33,6 @@
             target = <&spi0>;
             __overlay__ {
               status = "okay";
-              
-              spidev@0 {
-                compatible = "spidev";
-                reg = <0>;
-                #address-cells = <1>;
-                #size-cells = <0>;
-                spi-max-frequency = <1000000>;
-                status = "okay";
-              };
-              
-              spidev@1 {
-                compatible = "spidev";
-                reg = <1>;
-                #address-cells = <1>;
-                #size-cells = <0>;
-                spi-max-frequency = <1000000>;
-                status = "okay";
-              };
             };
           };
           
@@ -120,8 +95,12 @@
     };
   };
   
-  # Add the device tree compiler to help with debugging
+  # Add diagnostic tools
   environment.systemPackages = with pkgs; [
     dtc  # Device Tree Compiler
+    usbutils
+    pciutils
+    i2c-tools
+    raspberrypi-tools  # This might not exist in your nixpkgs, it will be ignored if so
   ];
 }
