@@ -1,0 +1,51 @@
+# default_language_version:
+#   python: python3
+
+# repos:
+#   - repo: local
+#     hooks:
+#       - id: nixfmt
+#         name: Nix Formatter
+#         entry: nixfmt
+#         language: system
+#         types: [nix]
+
+#       - id: flake-lock-is-up-to-date
+#         name: Check that flake.lock is up to date
+#         entry: bash -c 'nix flake lock --dry-run > /dev/null'
+#         language: system
+#         types: [file]
+#         files: ^flake\.nix$|^flake\.lock$
+
+#       - id: update-flake-lock
+#         name: Auto-update flake.lock
+#         entry: nix flake update
+#         language: system
+#         stages: [manual]
+
+#   - repo: https://github.com/astro/deadnix
+#     rev: d75457b
+#     hooks:
+#       - id: deadnix
+
+#   - repo: https://github.com/nerdypepper/statix
+#     rev: 33db3fb
+#     hooks:
+#       - id: statix
+
+#   # - repo: https://github.com/pre-commit/pre-commit-hooks
+#   #   rev: v4.4.0
+#   #   hooks:
+#   #     - id: trailing-whitespace
+#   #     - id: end-of-file-fixer
+#   #     - id: check-added-large-files
+
+#   - repo: https://github.com/adrienverge/yamllint.git
+#     rev: v1.32.0
+#     hooks:
+#       - id: yamllint
+
+#   - repo: https://github.com/markdownlint/markdownlint
+#     rev: v0.11.0
+#     hooks:
+#       - id: markdownlint
