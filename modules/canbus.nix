@@ -36,13 +36,13 @@
           fragment@0 {
             target-path = "/soc/spi@7e204000";
             __overlay__ {
-              #address-cells = <2>;
-              #size-cells = <1>;
+              #address-cells = <1>;
+              #size-cells = <0>;
 
               mcp2515@0 {
                 compatible = "microchip,mcp2515";
-                reg = <0 0 0>;  // Intended for chipselect 0.
-                spi-max-frequency = <10000000>;
+                reg = <0>;  // Intended for chipselect 0.
+                spi-max-frequency = <16000000>;
                 interrupt-parent = <&gpio>;
                 interrupts = <25 8>;
                 oscillator-frequency = <16000000>;
@@ -51,8 +51,8 @@
 
               mcp2515@1 {
                 compatible = "microchip,mcp2515";
-                reg = <0 1 0>;  // Intended for chipselect 1.
-                spi-max-frequency = <10000000>;
+                reg = <1>;  // Intended for chipselect 1.
+                spi-max-frequency = <16000000>;
                 interrupt-parent = <&gpio>;
                 interrupts = <24 8>;
                 oscillator-frequency = <16000000>;
@@ -84,7 +84,7 @@
     }
   ];
 
-  # Create an SPI group.
+  # Create an SPI group for permissions.
   users.groups.spi = {};
 
   # Set up udev rules for spidev.
@@ -119,7 +119,9 @@
     };
   };
 
+  # Add can-utils and debugging tools.
   environment.systemPackages = with pkgs; [
+    can-utils
     dtc
     usbutils
     pciutils
