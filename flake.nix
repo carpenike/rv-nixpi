@@ -45,7 +45,7 @@
       ./modules/networking.nix
       ./modules/users.nix
       ./modules/services.nix
-      # ./modules/impermanence.nix
+      ./modules/storage.nix
       ./modules/shell.nix
       ./modules/ssh.nix
       ./modules/sudo.nix
