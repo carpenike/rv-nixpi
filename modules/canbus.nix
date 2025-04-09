@@ -17,7 +17,7 @@
     # Overlay to enable SPI (from a dtso file)
     {
       name = "spi";
-      dtsoFile = ./firmware/spi0-0cs.dtso;
+      dtboFile = ./firmware/spi0-0cs.dtbo;
     }
     # Custom overlay for the MCP2515 CAN controllers on the SPI bus
     # {
