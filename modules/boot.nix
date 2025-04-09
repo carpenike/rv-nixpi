@@ -24,8 +24,8 @@
       "modules-load=dwc2,g_serial"
       "console=tty1"
       "console=ttyGS0,115200"
-      "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25"
-      "dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=24"
     ];
   };
+
+  hardware.enableRedistributableFirmware = true;
 }
