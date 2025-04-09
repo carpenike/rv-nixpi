@@ -11,5 +11,17 @@
     pkgs.fbterm
     pkgs.kmscon
     pkgs.kbd
+
+    (pkgs.writeShellScriptBin "update-nix" ''
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      echo "📦 Updating system from remote flake..."
+
+      sudo nixos-rebuild switch \
+        --flake github:carpenike/rv-nixpi#nixpi \
+        --option accept-flake-config true \
+        --refresh
+    '')
   ];
 }
