@@ -1,5 +1,4 @@
 { config, pkgs, lib, ... }: {
-  # Required kernel modules
   boot = {
     kernelModules = [
       "mcp251x"
@@ -13,8 +12,8 @@
   hardware.deviceTree = {
     enable = true;
 
-    overlays = {
-      "mcp2515-can0" = {
+    overlays = [
+      {
         name = "mcp2515-can0";
         dtsText = ''
           /dts-v1/;
@@ -39,9 +38,9 @@
             };
           };
         '';
-      };
+      }
 
-      "mcp2515-can1" = {
+      {
         name = "mcp2515-can1";
         dtsText = ''
           /dts-v1/;
@@ -66,11 +65,10 @@
             };
           };
         '';
-      };
-    };
+      }
+    ];
   };
 
-  # Bring up CAN interfaces at boot with bitrate
   systemd.services."can0" = {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
