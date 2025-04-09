@@ -47,7 +47,7 @@
                 reg = <0 0 0>;
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
-                interrupts = <25 8>; /* active-low */
+                interrupts = <25 8>;  /* active-low */
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
@@ -57,7 +57,7 @@
                 reg = <0 1 0>;
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
-                interrupts = <24 8>; /* active-low */
+                interrupts = <24 8>;  /* active-low */
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
@@ -76,7 +76,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";  # Add delay to ensure device appears
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";  # Increased delay to 5s for testing
       ExecStart = "${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
     };
@@ -89,7 +89,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 2";  # Add delay to ensure device appears
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";  # Increased delay to 5s for testing
       ExecStart = "${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
     };
