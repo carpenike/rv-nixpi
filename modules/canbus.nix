@@ -19,54 +19,54 @@
   ];
 
   # Create a device tree overlay for SPI and CAN controllers
-hardware.deviceTree.overlays = [
-  {
-    name = "enable-spi-mcp2515";
-    dtsText = ''
-      /dts-v1/;
-      /plugin/;
+  hardware.deviceTree.overlays = [
+    {
+      name = "enable-spi-mcp2515";
+      dtsText = ''
+        /dts-v1/;
+        /plugin/;
 
-      / {
-        compatible = "brcm,bcm2835";
+        / {
+          compatible = "brcm,bcm2835";
 
-        fragment@0 {
-          target = <&spi0>;
-          __overlay__ {
-            status = "okay";
-          };
-        };
-
-        fragment@1 {
-          target = <&spi0>;
-          __overlay__ {
-            #address-cells = <2>;
-            #size-cells = <1>;
-
-            mcp2515@0 {
-              compatible = "microchip,mcp2515";
-              reg = <0 0 0>;
-              spi-max-frequency = <10000000>;
-              interrupt-parent = <&gpio>;
-              interrupts = <25 8>; /* active-low */
-              oscillator-frequency = <16000000>;
-              status = "okay";
-            };
-
-            mcp2515@1 {
-              compatible = "microchip,mcp2515";
-              reg = <0 1 0>;
-              spi-max-frequency = <10000000>;
-              interrupt-parent = <&gpio>;
-              interrupts = <24 8>; /* active-low */
-              oscillator-frequency = <16000000>;
+          fragment@0 {
+            target-path = "/soc/spi@7e204000";
+            __overlay__ {
               status = "okay";
             };
           };
+
+          fragment@1 {
+            target-path = "/soc/spi@7e204000";
+            __overlay__ {
+              #address-cells = <2>;
+              #size-cells = <1>;
+
+              mcp2515@0 {
+                compatible = "microchip,mcp2515";
+                reg = <0 0 0>;
+                spi-max-frequency = <10000000>;
+                interrupt-parent = <&gpio>;
+                interrupts = <25 8>; /* active-low */
+                oscillator-frequency = <16000000>;
+                status = "okay";
+              };
+
+              mcp2515@1 {
+                compatible = "microchip,mcp2515";
+                reg = <0 1 0>;
+                spi-max-frequency = <10000000>;
+                interrupt-parent = <&gpio>;
+                interrupts = <24 8>; /* active-low */
+                oscillator-frequency = <16000000>;
+                status = "okay";
+              };
+            };
+          };
         };
-      };
-    '';
-  }
-];
+      '';
+    }
+  ];
 
   # SystemD services to bring up CAN interfaces
   systemd.services."can0" = {
@@ -94,7 +94,7 @@ hardware.deviceTree.overlays = [
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
     };
   };
-  
+
   # Add diagnostic tools
   environment.systemPackages = with pkgs; [
     dtc  # Device Tree Compiler
