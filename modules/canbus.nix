@@ -127,5 +127,6 @@
     usbutils
     pciutils
     i2c-tools
+    python3Packages.spidev  # For SPI tools
   ];
 }
