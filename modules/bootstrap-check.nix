@@ -2,9 +2,14 @@
 
 let
   bootstrapKey = builtins.getEnv "AGE_BOOTSTRAP_KEY";
+
+  # Only assert during a top-level system image build
+  isImageBuild =
+    # This is true during `nix build .#packages.aarch64-linux.sdcard`
+    lib.inPureEvalMode;
 in
 {
-  config = lib.mkIf (lib.inPureEvalMode or false) {
+  config = lib.mkIf isImageBuild {
     assertions = [
       {
         assertion = bootstrapKey != "";
