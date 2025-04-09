@@ -37,6 +37,7 @@
       ./hardware-configuration.nix
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
+      ./modules/bootstrap-check.nix
       ./modules/secrets.nix
       ./modules/system.nix
       ./modules/boot.nix
