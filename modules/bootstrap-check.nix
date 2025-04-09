@@ -3,10 +3,9 @@
 let
   bootstrapKey = builtins.getEnv "AGE_BOOTSTRAP_KEY";
 
-  # Only assert during a top-level system image build
-  isImageBuild =
-    # This is true during `nix build .#packages.aarch64-linux.sdcard`
-    lib.inPureEvalMode;
+  # Check if we are building the sdcard image
+  isImageBuild = builtins.trace "NIX_BUILD_TOP: ${builtins.getEnv "NIX_BUILD_TOP"}" (builtins.getEnv "NIX_BUILD_TOP" != "");
+
 in
 {
   config = lib.mkIf isImageBuild {
