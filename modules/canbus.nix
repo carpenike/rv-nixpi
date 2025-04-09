@@ -19,53 +19,53 @@
       name = "spi";
       dtboFile = ./firmware/spi0-0cs.dtbo;
     }
-    # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
-    {
-      name = "enable-spi-mcp2515";
-      dtsText = ''
-        /dts-v1/;
-        /plugin/;
+    # # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
+    # {
+    #   name = "enable-spi-mcp2515";
+    #   dtsText = ''
+    #     /dts-v1/;
+    #     /plugin/;
 
-        / {
-          // No top-level "compatible" property
+    #     / {
+    #       // No top-level "compatible" property
 
-          fragment@0 {
-            target-path = "/soc/spi@7e204000";
-            __overlay__ {
-              status = "okay";
-            };
-          };
+    #       fragment@0 {
+    #         target-path = "/soc/spi@7e204000";
+    #         __overlay__ {
+    #           status = "okay";
+    #         };
+    #       };
 
-          fragment@1 {
-            target-path = "/soc/spi@7e204000";
-            __overlay__ {
-              #address-cells = <2>;
-              #size-cells = <1>;
+    #       fragment@1 {
+    #         target-path = "/soc/spi@7e204000";
+    #         __overlay__ {
+    #           #address-cells = <2>;
+    #           #size-cells = <1>;
 
-              mcp2515@0 {
-                compatible = "microchip,mcp2515";
-                reg = <0 0 0>;
-                spi-max-frequency = <10000000>;
-                interrupt-parent = <&gpio>;
-                interrupts = <25 8>;
-                oscillator-frequency = <16000000>;
-                status = "okay";
-              };
+    #           mcp2515@0 {
+    #             compatible = "microchip,mcp2515";
+    #             reg = <0 0 0>;
+    #             spi-max-frequency = <10000000>;
+    #             interrupt-parent = <&gpio>;
+    #             interrupts = <25 8>;
+    #             oscillator-frequency = <16000000>;
+    #             status = "okay";
+    #           };
 
-              mcp2515@1 {
-                compatible = "microchip,mcp2515";
-                reg = <0 1 0>;
-                spi-max-frequency = <10000000>;
-                interrupt-parent = <&gpio>;
-                interrupts = <24 8>;
-                oscillator-frequency = <16000000>;
-                status = "okay";
-              };
-            };
-          };
-        };
-      '';
-    }
+    #           mcp2515@1 {
+    #             compatible = "microchip,mcp2515";
+    #             reg = <0 1 0>;
+    #             spi-max-frequency = <10000000>;
+    #             interrupt-parent = <&gpio>;
+    #             interrupts = <24 8>;
+    #             oscillator-frequency = <16000000>;
+    #             status = "okay";
+    #           };
+    #         };
+    #       };
+    #     };
+    #   '';
+    # }
   ];
 
   # Create an SPI group.
