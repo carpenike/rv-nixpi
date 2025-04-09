@@ -63,6 +63,14 @@
               };
             };
           };
+
+          // Disable the default spidev node (which uses chipselect 0)
+          fragment@2 {
+            target-path = "/soc/spi@7e204000/spidev@0";
+            __overlay__ {
+              status = "disabled";
+            };
+          };
         };
       '';
     }
