@@ -20,7 +20,7 @@ in {
 
           cat <<EOF > "${noticePath}"
 
-🔧 Provisioning Notice for $(hostname)
+🔧 Provisioning Notice for \$(hostname)
 ======================================
 
 🔑 SSH-to-Age public key:
