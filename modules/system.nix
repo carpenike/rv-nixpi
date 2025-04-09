@@ -8,4 +8,6 @@
   nix.settings = {
     download-buffer-size = 33554432; # 32 MiB
   };
+
+  nixpkgs.config.allowUnfree = true;
 }
