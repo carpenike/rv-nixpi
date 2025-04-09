@@ -1,66 +1,30 @@
 { config, pkgs, lib, ... }: {
-  boot = {
-    kernelModules = [
-      "mcp251x"
-      "can"
-      "can_raw"
-      "can_dev"
-      "spi_bcm2835"
-    ];
-  };
-
+  # Enable firmware and hardware support
+  hardware.enableAllFirmware = true;
+  
+  # Raspberry Pi 4 specific configuration for 3D acceleration
+  hardware.raspberry-pi."4".fkms-3d.enable = true;
+  
+  # Device tree configuration
   hardware.deviceTree = {
     enable = true;
-
+    filter = "bcm2711-rpi-4-*.dtb";
+    
+    # Use this simple overlay to ensure SPI is enabled
     overlays = [
       {
-        name = "mcp2515-can0";
+        name = "spi-on";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-
+          
           / {
             compatible = "brcm,bcm2835";
-
+            
             fragment@0 {
-              target-path = "/soc/spi@7e204000";
+              target = <&spi>;
               __overlay__ {
-                can0: mcp2515@0 {
-                  compatible = "microchip,mcp2515";
-                  reg = <0>; // CE0
-                  spi-max-frequency = <10000000>;
-                  interrupt-parent = <&gpio>;
-                  interrupts = <25 0x2>; // GPIO25, falling edge
-                  oscillator-frequency = <16000000>;
-                  status = "okay";
-                };
-              };
-            };
-          };
-        '';
-      }
-
-      {
-        name = "mcp2515-can1";
-        dtsText = ''
-          /dts-v1/;
-          /plugin/;
-
-          / {
-            compatible = "brcm,bcm2835";
-
-            fragment@0 {
-              target-path = "/soc/spi@7e204000";
-              __overlay__ {
-                can1: mcp2515@1 {
-                  compatible = "microchip,mcp2515";
-                  reg = <1>; // CE1
-                  spi-max-frequency = <10000000>;
-                  interrupt-parent = <&gpio>;
-                  interrupts = <24 0x2>; // GPIO24, falling edge
-                  oscillator-frequency = <16000000>;
-                  status = "okay";
-                };
+                status = "okay";
               };
             };
           };
@@ -69,21 +33,40 @@
     ];
   };
 
+  # CAN-related kernel modules (will be merged with those in boot.nix)
+  boot.kernelModules = [
+    "mcp251x"
+    "can"
+    "can_raw"
+    "can_dev"
+    "spi_bcm2835"
+  ];
+  
+  # IMPORTANT: Remove these kernel parameters since they've been moved to boot.nix
+  # boot.kernelParams = [ ... ];  <- REMOVE THIS
+
+  # SystemD services to bring up CAN interfaces
   systemd.services."can0" = {
+    description = "CAN0 Interface";
     wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-modules-load.service" ];
     serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
       ExecStart = "${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
-      Restart = "on-failure";
     };
   };
 
   systemd.services."can1" = {
+    description = "CAN1 Interface";
     wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-modules-load.service" ];
     serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
       ExecStart = "${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
-      Restart = "on-failure";
     };
   };
 }
