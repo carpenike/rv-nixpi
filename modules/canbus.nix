@@ -15,18 +15,30 @@
           compatible = "brcm,bcm2835";
 
           fragment@0 {
-            target-path = "/soc/spi@7e204000";
+            target = <&spi0>;
             __overlay__ {
-              # MCP2515 on CS0 (CE0)
               can0: mcp2515@0 {
                 compatible = "microchip,mcp2515";
                 reg = <0>; // CE0
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
-                interrupts = <25 0x2>; // GPIO25
+                interrupts = <25 0x2>; // GPIO25, falling edge
                 status = "okay";
               };
             };
+          };
+
+          fragment@1 {
+            target = <&gpio>;
+            __overlay__ {
+              pinctrl-names = "default";
+              pinctrl-0 = <&can0_pins>;
+            };
+          };
+
+          __overrides__ {
+            spi0 = "/soc/spi@7e204000";
+            gpio = "/soc/gpio@7e200000";
           };
         };
       '';
@@ -42,18 +54,30 @@
           compatible = "brcm,bcm2835";
 
           fragment@0 {
-            target-path = "/soc/spi@7e204000";
+            target = <&spi0>;
             __overlay__ {
-              # MCP2515 on CS1 (CE1)
               can1: mcp2515@1 {
                 compatible = "microchip,mcp2515";
                 reg = <1>; // CE1
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
-                interrupts = <24 0x2>; // GPIO24
+                interrupts = <24 0x2>; // GPIO24, falling edge
                 status = "okay";
               };
             };
+          };
+
+          fragment@1 {
+            target = <&gpio>;
+            __overlay__ {
+              pinctrl-names = "default";
+              pinctrl-0 = <&can1_pins>;
+            };
+          };
+
+          __overrides__ {
+            spi0 = "/soc/spi@7e204000";
+            gpio = "/soc/gpio@7e200000";
           };
         };
       '';
