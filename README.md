@@ -3,6 +3,11 @@ NixOS Configuration for my RV's Raspberry Pi 4
 
 # Useful commands
 
+## Create age.key env variable
+```bash
+set -gx AGE_BOOTSTRAP_KEY (tail -n +3 secrets/age.key | string join '\n')
+```
+
 ## Updating ssh-age when host key changes
 ```bash
 nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
