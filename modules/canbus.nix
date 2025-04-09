@@ -19,7 +19,7 @@
       name = "spi";
       dtboFile = ./firmware/spi0-0cs.dtbo;
     }
-    # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
+    # Custom overlay for the MCP2515 CAN controllers.
     {
       name = "enable-spi-mcp2515";
       dtsText = ''
@@ -29,13 +29,15 @@
         / {
           compatible = "raspberrypi";
 
+          /* First, disable the default spidev node for chipselect 0 */
           fragment@0 {
-            target-path = "/soc/spi@7e204000";
+            target-path = "/soc/spi@7e204000/spidev@0";
             __overlay__ {
-              status = "okay";
+              status = "disabled";
             };
           };
 
+          /* Then, add your MCP2515 nodes on the SPI bus */
           fragment@1 {
             target-path = "/soc/spi@7e204000";
             __overlay__ {
@@ -44,7 +46,7 @@
 
               mcp2515@0 {
                 compatible = "microchip,mcp2515";
-                reg = <0 0 0>;
+                reg = <0 0 0>;  // Chipselect 0
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
                 interrupts = <25 8>;
@@ -54,7 +56,7 @@
 
               mcp2515@1 {
                 compatible = "microchip,mcp2515";
-                reg = <0 1 0>;
+                reg = <0 1 0>;  // Chipselect 1
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
                 interrupts = <24 8>;
@@ -64,11 +66,11 @@
             };
           };
 
-          // Disable the default spidev node (which uses chipselect 0)
+          /* Finally, explicitly ensure that the SPI controller itself is enabled. */
           fragment@2 {
-            target-path = "/soc/spi@7e204000/spidev@0";
+            target-path = "/soc/spi@7e204000";
             __overlay__ {
-              status = "disabled";
+              status = "okay";
             };
           };
         };
