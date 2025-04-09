@@ -23,32 +23,32 @@
       dtboFile = ./firmware/spi0-0cs.dtbo;
     }
     # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
-    # {
-    #   name = "enable-spi-mcp2515";
-    #   dtsText = ''
-    #     /dts-v1/;
-    #     /plugin/;
+    {
+      name = "enable-spi-mcp2515";
+      dtsText = ''
+        /dts-v1/;
+        /plugin/;
 
-    #     / {
-    #       compatible = "raspberrypi";
+        / {
+          compatible = "raspberrypi";
 
-    #       fragment@0 {
-    #         target-path = "/soc/spi@7e204000";
-    #         __overlay__ {
-    #           #address-cells = <1>;
-    #           #size-cells = <0>;
-    #           cs-gpios = <&gpio 8 1>, <&gpio 7 1>;  // GPIO 8 for CS0, GPIO 7 for CS1.
-    #           status = "okay";
+          fragment@0 {
+            target-path = "/soc/spi@7e204000";
+            __overlay__ {
+              #address-cells = <1>;
+              #size-cells = <0>;
+              cs-gpios = <&gpio 8 1>, <&gpio 7 1>;  // GPIO 8 for CS0, GPIO 7 for CS1.
+              status = "okay";
 
-    #           mcp2515@0 {
-    #             compatible = "microchip,mcp2515";
-    #             reg = <0>;  // Chipselect 0.
-    #             spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
-    #             interrupt-parent = <&gpio>;
-    #             interrupts = <25 8>;  // GPIO 25, active low.
-    #             oscillator-frequency = <16000000>;
-    #             status = "okay";
-    #           };
+              mcp2515@0 {
+                compatible = "microchip,mcp2515";
+                reg = <0>;  // Chipselect 0.
+                spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
+                interrupt-parent = <&gpio>;
+                interrupts = <25 8>;  // GPIO 25, active low.
+                oscillator-frequency = <16000000>;
+                status = "okay";
+              };
 
     #           mcp2515@1 {
     #             compatible = "microchip,mcp2515";
@@ -59,30 +59,31 @@
     #             oscillator-frequency = <16000000>;
     #             status = "okay";
     #           };
-    #         };
-    #       };
-    #     };
-    #   '';
-    # }
+            };
+          };
+        };
+      '';
+    }
+
     # Overlay to disable the default spidev node for chipselect 0.
-    # {
-    #   name = "disable-spidev0";
-    #   dtsText = ''
-    #     /dts-v1/;
-    #     /plugin/;
+    {
+      name = "disable-spidev0";
+      dtsText = ''
+        /dts-v1/;
+        /plugin/;
 
-    #     / {
-    #       compatible = "raspberrypi";
+        / {
+          compatible = "raspberrypi";
 
-    #       fragment@0 {
-    #         target-path = "/soc/spi@7e204000/spidev@0";
-    #         __overlay__ {
-    #           status = "disabled";
-    #         };
-    #       };
-    #     };
-    #   '';
-    # }
+          fragment@0 {
+            target-path = "/soc/spi@7e204000/spidev@0";
+            __overlay__ {
+              status = "disabled";
+            };
+          };
+        };
+      '';
+    }
   ];
 
   # Create an SPI group for permissions.
