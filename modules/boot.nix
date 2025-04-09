@@ -20,15 +20,11 @@
       options g_serial use_acm=1
     '';
 
-    # Remove the dtoverlay parameters that weren't being processed correctly
+    # Only keep the essential kernel parameters
     kernelParams = [
       "modules-load=dwc2,g_serial"
       "console=tty1"
       "console=ttyGS0,115200"
-      "dtparam=spi=on"
-      # Remove these two lines:
-      # "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25"
-      # "dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=24"
     ];
   };
 
