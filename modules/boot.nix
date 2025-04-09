@@ -2,21 +2,18 @@
 
 {
   boot = {
-    loader = {
-      generic-extlinux-compatible = {
-        enable = true;
-        configurationLimit = 1;
-        configuration = {
-          kernelParams = [
-            "dtoverlay=mcp2515-can0"
-            "dtoverlay=mcp2515-can1"
-          ];
-        };
-      };
+    loader.generic-extlinux-compatible = {
+      enable = true;
+      configurationLimit = 1;
     };
 
-    # Existing gadget config
-    kernelModules = [ "dwc2" "g_serial" "vc4" "bcm2835_dma" ];
+    kernelModules = [
+      "dwc2"
+      "g_serial"
+      "vc4"
+      "bcm2835_dma"
+    ];
+
     initrd.kernelModules = [ "dwc2" ];
 
     extraModprobeConfig = ''
@@ -27,6 +24,8 @@
       "modules-load=dwc2,g_serial"
       "console=tty1"
       "console=ttyGS0,115200"
+      "dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25"
+      "dtoverlay=mcp2515-can1,oscillator=16000000,interrupt=24"
     ];
   };
 }
