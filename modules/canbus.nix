@@ -1,17 +1,12 @@
 { config, pkgs, lib, ... }: {
-  # Removed the enableAllFirmware line since it conflicts with enableRedistributableFirmware
-  # hardware.enableAllFirmware is not needed since you have allowUnfree=true
-  
   # Raspberry Pi 4 specific configuration for 3D acceleration
   hardware.raspberry-pi."4".fkms-3d.enable = true;
   
   # Device tree configuration
   hardware.deviceTree = {
     enable = true;
-    # Removed the filter line that was causing conflicts
-    # filter = "bcm2711-rpi-4-*.dtb";
     
-    # Use this simple overlay to ensure SPI is enabled
+    # Use proper overlays with overlay package
     overlays = [
       {
         name = "spi-on";
@@ -31,10 +26,88 @@
           };
         '';
       }
+      {
+        name = "mcp2515-can0";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+          
+          / {
+            compatible = "brcm,bcm2835";
+            
+            fragment@0 {
+              target = <&spi>;
+              __overlay__ {
+                status = "okay";
+                
+                mcp2515@0 {
+                  compatible = "microchip,mcp2515";
+                  reg = <0>;
+                  spi-max-frequency = <10000000>;
+                  interrupt-parent = <&gpio>;
+                  interrupts = <25 8>; /* active-low */
+                  oscillator-frequency = <16000000>;
+                  status = "okay";
+                };
+              };
+            };
+            
+            fragment@1 {
+              target-path = "/";
+              __overlay__ {
+                can0_osc: can0_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
+              };
+            };
+          };
+        '';
+      }
+      {
+        name = "mcp2515-can1";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+          
+          / {
+            compatible = "brcm,bcm2835";
+            
+            fragment@0 {
+              target = <&spi>;
+              __overlay__ {
+                status = "okay";
+                
+                mcp2515@1 {
+                  compatible = "microchip,mcp2515";
+                  reg = <1>;
+                  spi-max-frequency = <10000000>;
+                  interrupt-parent = <&gpio>;
+                  interrupts = <24 8>; /* active-low */
+                  oscillator-frequency = <16000000>;
+                  status = "okay";
+                };
+              };
+            };
+            
+            fragment@1 {
+              target-path = "/";
+              __overlay__ {
+                can1_osc: can1_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
+              };
+            };
+          };
+        '';
+      }
     ];
   };
 
-  # CAN-related kernel modules (will be merged with those in boot.nix)
+  # CAN-related kernel modules
   boot.kernelModules = [
     "mcp251x"
     "can"
@@ -42,6 +115,9 @@
     "can_dev"
     "spi_bcm2835"
   ];
+
+  # And now we also need to update boot.nix to remove the dtoverlay parameters
+  # that aren't being recognized correctly
 
   # SystemD services to bring up CAN interfaces
   systemd.services."can0" = {
