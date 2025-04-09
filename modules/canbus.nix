@@ -5,7 +5,8 @@
 
   # Enable static merging of device tree overlays
   hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
-  hardware.raspberry-pi."4".cpu-revision.enable = false;
+  hardware.raspberry-pi."4".apply-overlays-dtmerge.overlays.rpi4-cpu-revision.enable = false;
+
 
   # Create a device tree overlay for SPI and CAN controllers
   hardware.deviceTree.overlays = [
