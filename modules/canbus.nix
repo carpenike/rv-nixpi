@@ -11,11 +11,19 @@
   # Raspberry Pi specific configuration
   hardware.raspberry-pi."4".fkms-3d.enable = true;
   
-  # Enable SPI via dtparams in boot config (specific to Raspberry Pi)
+  # Enable device tree support
   hardware.deviceTree.enable = true;
   
   # Force enable SPI in kernel parameters
   boot.kernelParams = [ "spi=on" ];
+
+  # Configure Raspberry Pi hardware
+  hardware.raspberry-pi = {
+    enable = true;
+    config = ''
+      dtparam=spi=on
+    '';
+  };
 
   # Create a more explicit device tree overlay for SPI and CAN controllers
   hardware.deviceTree.overlays = [
@@ -85,12 +93,6 @@
     }
   ];
 
-  # This setting might help by creating a /boot/config.txt on Raspberry Pi
-  hardware.raspberry-pi.apply-overlays-dtmerge.enable = true;
-  hardware.raspberry-pi.config = ''
-    dtparam=spi=on
-  '';
-
   # SystemD services to bring up CAN interfaces
   systemd.services."can0" = {
     description = "CAN0 Interface";
@@ -117,4 +119,9 @@
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
     };
   };
+  
+  # Add the device tree compiler to help with debugging
+  environment.systemPackages = with pkgs; [
+    dtc  # Device Tree Compiler
+  ];
 }
