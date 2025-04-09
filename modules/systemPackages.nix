@@ -10,6 +10,6 @@
     pkgs.git
     pkgs.fbterm
     pkgs.kmscon
-    pkgs.setfont
+    pkgs.kbd
   ];
 }
