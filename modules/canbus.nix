@@ -29,7 +29,7 @@
         / {
           compatible = "raspberrypi";
 
-          /* First, disable the default spidev node for chipselect 0 */
+          /* Disable the default spidev node for chipselect 0 */
           fragment@0 {
             target-path = "/soc/spi@7e204000/spidev@0";
             __overlay__ {
@@ -37,7 +37,7 @@
             };
           };
 
-          /* Then, add your MCP2515 nodes on the SPI bus */
+          /* Add MCP2515 nodes on the SPI bus */
           fragment@1 {
             target-path = "/soc/spi@7e204000";
             __overlay__ {
@@ -63,14 +63,6 @@
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
-            };
-          };
-
-          /* Finally, explicitly ensure that the SPI controller itself is enabled. */
-          fragment@2 {
-            target-path = "/soc/spi@7e204000";
-            __overlay__ {
-              status = "okay";
             };
           };
         };
