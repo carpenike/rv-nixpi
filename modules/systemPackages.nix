@@ -8,5 +8,8 @@
     pkgs.fish
     pkgs.vim
     pkgs.git
+    pkgs.fbterm
+    pkgs.kmscon
+    pkgs.setfont
   ];
 }
