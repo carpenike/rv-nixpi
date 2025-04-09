@@ -10,9 +10,6 @@
     ];
   };
 
-  # Enable SPI interface on Pi
-  hardware.spi.enable = true;
-
   hardware.deviceTree = {
     enable = true;
 
