@@ -50,15 +50,15 @@
                 status = "okay";
               };
 
-    #           mcp2515@1 {
-    #             compatible = "microchip,mcp2515";
-    #             reg = <1>;  // Chipselect 1.
-    #             spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
-    #             interrupt-parent = <&gpio>;
-    #             interrupts = <24 8>;  // GPIO 24, active low.
-    #             oscillator-frequency = <16000000>;
-    #             status = "okay";
-    #           };
+              mcp2515@1 {
+                compatible = "microchip,mcp2515";
+                reg = <1>;  // Chipselect 1.
+                spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
+                interrupt-parent = <&gpio>;
+                interrupts = <24 8>;  // GPIO 24, active low.
+                oscillator-frequency = <16000000>;
+                status = "okay";
+              };
             };
           };
         };
