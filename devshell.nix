@@ -17,33 +17,40 @@ pkgs.mkShell {
   shellHook = ''
     export FLAKE=$(git rev-parse --show-toplevel)
 
-    # Set AGE_BOOTSTRAP_KEY automatically from local secrets file
-    if [[ -f "$FLAKE/secrets/age.key" ]]; then
-      export AGE_BOOTSTRAP_KEY="$(<"$FLAKE/secrets/age.key")"
+    # Add custom commands directory to PATH
+    export DEV_BIN_DIR="$PWD/.devshell/bin"
+    mkdir -p "$DEV_BIN_DIR"
+
+    # build-image command
+    cat > "$DEV_BIN_DIR/build-image" <<EOF
+#!/usr/bin/env bash
+nix build --extra-experimental-features nix-command --extra-experimental-features flakes "\$FLAKE#packages.aarch64-linux.sdcard" --impure
+EOF
+
+    # write-image command
+    cat > "$DEV_BIN_DIR/write-image" <<'EOF'
+#!/usr/bin/env bash
+if [ -z "$1" ]; then
+  echo "❌ Usage: write-image /dev/sdX"
+  exit 1
+fi
+IMG=$(ls -t result/sd-image/*.img.zst | head -n1)
+echo "📦 Writing image $IMG to $1..."
+sudo zstd -d --stdout "$IMG" | sudo dd of="$1" bs=4M status=progress oflag=sync
+EOF
+
+    chmod +x "$DEV_BIN_DIR"/*
+
+    export PATH="$DEV_BIN_DIR:$PATH"
+
+    if [[ -f "secrets/age.key" ]]; then
+      export AGE_BOOTSTRAP_KEY="$(< secrets/age.key)"
       echo "🔑 AGE_BOOTSTRAP_KEY loaded from secrets/age.key"
-    else
-      echo "⚠️  secrets/age.key not found. Some builds may fail."
     fi
 
-    echo ""
     echo "🔧 Devshell ready!"
     echo "  ➤ To build SD image:    build-image"
     echo "  ➤ To write image to SD: write-image /dev/sdX"
     echo ""
-
-    build-image() {
-      nix build --extra-experimental-features nix-command --extra-experimental-features flakes \
-        "$FLAKE#packages.aarch64-linux.sdcard" --impure
-    }
-
-    write-image() {
-      if [ -z "$1" ]; then
-        echo "❌ Usage: write-image /dev/sdX"
-        return 1
-      fi
-      IMG=$(ls -t result/sd-image/*.img.zst | head -n1)
-      echo "📦 Writing image $IMG to $1..."
-      sudo zstd -d --stdout "$IMG" | sudo dd of="$1" bs=4M status=progress oflag=sync
-    }
   '';
 }
