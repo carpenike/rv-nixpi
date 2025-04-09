@@ -2,6 +2,7 @@
 
 let
   noticePath = "/etc/issue.d/10-age-key-notice.issue";
+  markerPath = "/etc/.sops-age-key-synced";
 in {
   systemd.services.gen-age-motd = {
     wantedBy = [ "multi-user.target" ];
@@ -10,7 +11,7 @@ in {
     serviceConfig = {
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "gen-age-motd" ''
-        if [ -f "${noticePath}" ]; then
+        if [ -f "${markerPath}" ]; then
           exit 0
         fi
 
@@ -28,7 +29,7 @@ in {
 $AGE_PUB
 
 📌 Add this key to .sops.yaml and re-encrypt your secrets.
-💡 This message will disappear once secrets decrypt successfully.
+💡 This message will disappear once your key is detected in the remote repo.
 EOF
         else
           echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
@@ -39,10 +40,14 @@ EOF
 
   environment.etc."issue.d/10-age-key-notice.issue".source = noticePath;
 
+  # Remove MOTD and mark system as synced once secrets are decrypted successfully
   system.activationScripts.remove-motd-notice = lib.mkIf (config.sops.secrets ? IOT_WIFI_PASSWORD) ''
+    echo "🔐 SOPS secrets successfully decrypted. Marking as provisioned."
+    touch ${markerPath}
     rm -f ${noticePath}
   '';
 
+  # Show MOTD in Fish shell sessions too
   programs.fish.interactiveShellInit = ''
     if test -f ${noticePath}
       cat ${noticePath}
