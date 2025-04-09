@@ -6,20 +6,23 @@
   # Enable static merging of device tree overlays.
   hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
 
-  # Enable device tree processing for DTBs matching a pattern for the standard Pi 4.
+  # Enable device tree processing for DTBs matching the standard Pi 4.
   hardware.deviceTree = {
     enable = true;
     filter = "*-rpi-4-*.dtb";
   };
 
-  # Apply overlays for enabling SPI and adding the MCP2515 nodes.
+  # Apply overlays in this order:
+  # 1. The SPI overlay from the precompiled dtbo file,
+  # 2. Your custom overlay that adds the MCP2515 nodes, and
+  # 3. A final overlay that disables the default spidev node (which conflicts on chipselect 0).
   hardware.deviceTree.overlays = [
-    # Overlay to enable SPI using a precompiled dtbo file.
+    # Overlay to enable SPI (from a precompiled dtbo file).
     {
       name = "spi";
       dtboFile = ./firmware/spi0-0cs.dtbo;
     }
-    # Custom overlay for the MCP2515 CAN controllers.
+    # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
     {
       name = "enable-spi-mcp2515";
       dtsText = ''
@@ -29,16 +32,8 @@
         / {
           compatible = "raspberrypi";
 
-          /* Disable the default spidev node for chipselect 0 */
-          fragment@0 {
-            target-path = "/soc/spi@7e204000/spidev@0";
-            __overlay__ {
-              status = "disabled";
-            };
-          };
-
           /* Add MCP2515 nodes on the SPI bus */
-          fragment@1 {
+          fragment@0 {
             target-path = "/soc/spi@7e204000";
             __overlay__ {
               #address-cells = <2>;
@@ -46,7 +41,7 @@
 
               mcp2515@0 {
                 compatible = "microchip,mcp2515";
-                reg = <0 0 0>;  // Chipselect 0
+                reg = <0 0 0>;  // Intended for chipselect 0.
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
                 interrupts = <25 8>;
@@ -56,13 +51,32 @@
 
               mcp2515@1 {
                 compatible = "microchip,mcp2515";
-                reg = <0 1 0>;  // Chipselect 1
+                reg = <0 1 0>;  // Intended for chipselect 1.
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
                 interrupts = <24 8>;
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
+            };
+          };
+        };
+      '';
+    }
+    # Overlay to disable the default spidev node for chipselect 0.
+    {
+      name = "disable-spidev0";
+      dtsText = ''
+        /dts-v1/;
+        /plugin/;
+
+        / {
+          compatible = "raspberrypi";
+
+          fragment@0 {
+            target-path = "/soc/spi@7e204000/spidev@0";
+            __overlay__ {
+              status = "disabled";
             };
           };
         };
