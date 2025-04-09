@@ -19,7 +19,7 @@
       name = "spi";
       dtboFile = ./firmware/spi0-0cs.dtbo;
     }
-    # # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
+    # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
     {
       name = "enable-spi-mcp2515";
       dtsText = ''
@@ -27,7 +27,7 @@
         /plugin/;
 
         / {
-          // No top-level "compatible" property
+          compatible = "raspberrypi";
 
           fragment@0 {
             target-path = "/soc/spi@7e204000";
