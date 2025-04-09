@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }: {
-  # Enable firmware and hardware support
-  hardware.enableAllFirmware = true;
+  # Removed the enableAllFirmware line since it conflicts with enableRedistributableFirmware
+  # hardware.enableAllFirmware is not needed since you have allowUnfree=true
   
   # Raspberry Pi 4 specific configuration for 3D acceleration
   hardware.raspberry-pi."4".fkms-3d.enable = true;
@@ -8,7 +8,8 @@
   # Device tree configuration
   hardware.deviceTree = {
     enable = true;
-    filter = "bcm2711-rpi-4-*.dtb";
+    # Removed the filter line that was causing conflicts
+    # filter = "bcm2711-rpi-4-*.dtb";
     
     # Use this simple overlay to ensure SPI is enabled
     overlays = [
@@ -41,9 +42,6 @@
     "can_dev"
     "spi_bcm2835"
   ];
-  
-  # IMPORTANT: Remove these kernel parameters since they've been moved to boot.nix
-  # boot.kernelParams = [ ... ];  <- REMOVE THIS
 
   # SystemD services to bring up CAN interfaces
   systemd.services."can0" = {
