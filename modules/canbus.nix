@@ -37,10 +37,12 @@
             __overlay__ {
               #address-cells = <1>;
               #size-cells = <0>;
+              cs-gpios = <&gpio 8 1>, <&gpio 7 1>;  // GPIO 8 for CS0, GPIO 7 for CS1.
+              status = "okay";
 
               mcp2515@0 {
                 compatible = "microchip,mcp2515";
-                reg = <0>;  // Intended for chipselect 0.
+                reg = <0>;  // Chipselect 0.
                 spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
                 interrupt-parent = <&gpio>;
                 interrupts = <25 8>;  // GPIO 25, active low.
@@ -50,7 +52,7 @@
 
               mcp2515@1 {
                 compatible = "microchip,mcp2515";
-                reg = <1>;  // Intended for chipselect 1.
+                reg = <1>;  // Chipselect 1.
                 spi-max-frequency = <10000000>;  // 10 MHz SPI frequency.
                 interrupt-parent = <&gpio>;
                 interrupts = <24 8>;  // GPIO 24, active low.
