@@ -1,24 +1,12 @@
-{ config, pkgs, lib, ... }: {
-  # CAN-related kernel modules
-  boot.kernelModules = [
-    "spi-bcm2835"  # Load SPI driver first
-    "mcp251x"      # Then the CAN driver
-    "can"
-    "can_raw"
-    "can_dev"
-  ];
+{ config, pkgs, lib, ... }:
 
-  # Raspberry Pi 4 specific configuration for 3D acceleration
-  hardware.raspberry-pi."4".fkms-3d.enable = true;
-  
-  # Enable device tree and add SPI to kernel params
-  hardware.deviceTree.enable = true;
-  boot.kernelParams = [ 
-    "spi=on"
-    "dtparam=spi=on" 
-  ];
+{
+  hardware.enableRedistributableFirmware = true;
 
-  # Create a device tree overlay for SPI and CAN controllers using alias target
+  # Enable static merging of device tree overlays
+  hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
+
+  # Create a device tree overlay for SPI and CAN controllers
   hardware.deviceTree.overlays = [
     {
       name = "enable-spi-mcp2515";
@@ -27,7 +15,7 @@
         /plugin/;
 
         / {
-          compatible = "brcm,bcm2835";
+          // Removed the "compatible" property from here
 
           fragment@0 {
             target = <&spi0>;
@@ -47,7 +35,7 @@
                 reg = <0 0 0>;
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
-                interrupts = <25 8>;  /* active-low */
+                interrupts = <25 8>;
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
@@ -57,7 +45,7 @@
                 reg = <0 1 0>;
                 spi-max-frequency = <10000000>;
                 interrupt-parent = <&gpio>;
-                interrupts = <24 8>;  /* active-low */
+                interrupts = <24 8>;
                 oscillator-frequency = <16000000>;
                 status = "okay";
               };
@@ -68,7 +56,6 @@
     }
   ];
 
-  # SystemD services to bring up CAN interfaces
   systemd.services."can0" = {
     description = "CAN0 Interface";
     wantedBy = [ "multi-user.target" ];
@@ -76,8 +63,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      # Increase delay (for example, to 5 seconds) to give hardware extra time to initialize
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";  
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
       ExecStart = "${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
     };
@@ -96,9 +82,8 @@
     };
   };
 
-  # Add diagnostic tools
   environment.systemPackages = with pkgs; [
-    dtc     # Device Tree Compiler
+    dtc
     usbutils
     pciutils
     i2c-tools

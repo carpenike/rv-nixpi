@@ -20,16 +20,10 @@
       options g_serial use_acm=1
     '';
 
-    # Keep only the essential kernel parameters here
     kernelParams = [
       "modules-load=dwc2,g_serial"
       "console=tty1"
       "console=ttyGS0,115200"
     ];
   };
-
-  hardware.enableRedistributableFirmware = true;
-
-  # Enable static merging of device tree overlays for Raspberry Pi 4
-  hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
 }
