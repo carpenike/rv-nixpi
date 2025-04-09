@@ -64,5 +64,9 @@
       system = system;
       modules = commonModules;
     };
+
+    devShells.${system}.default = import ./devshell.nix {
+    inherit (nixpkgs.legacyPackages.${system}) pkgs;
+  };
   };
 }
