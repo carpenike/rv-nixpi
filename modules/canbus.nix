@@ -20,49 +20,7 @@
     # Overlay to enable SPI (from a precompiled dtbo file).
     {
       name = "spi";
-      dtboFile = ./firmware/spi0-0cs.dtbo;
-    }
-    # Custom overlay for the MCP2515 CAN controllers on the SPI bus.
-    {
-      name = "enable-spi-mcp2515";
-      dtsText = ''
-        /dts-v1/;
-        /plugin/;
-
-        / {
-          compatible = "raspberrypi";
-
-          fragment@0 {
-            target-path = "/soc/spi@7e204000";
-            __overlay__ {
-              #address-cells = <1>;
-              #size-cells = <0>;
-              cs-gpios = <&gpio 8 1>, <&gpio 7 1>;  // GPIO 8 for CS0, GPIO 7 for CS1.
-              status = "okay";
-
-              mcp2515@0 {
-                compatible = "microchip,mcp2515";
-                reg = <0>;  // Chipselect 0.
-                spi-max-frequency = <500000>;  // Reduced to 500 kHz.
-                interrupt-parent = <&gpio>;
-                interrupts = <25 2>;  // GPIO 25, Falling edge triggered.
-                oscillator-frequency = <16000000>;
-                status = "okay";
-              };
-
-              mcp2515@1 {
-                compatible = "microchip,mcp2515";
-                reg = <1>;  // Chipselect 1.
-                spi-max-frequency = <500000>;  // Reduced to 500 kHz.
-                interrupt-parent = <&gpio>;
-                interrupts = <24 2>;  // GPIO 24, Falling edge triggered.
-                oscillator-frequency = <16000000>;
-                status = "okay";
-              };
-            };
-          };
-        };
-      '';
+      dtboFile = ./firmware/spi0-0cs-v2.dtbo;
     }
 
     # Overlay to disable the default spidev node for chipselect 0.
