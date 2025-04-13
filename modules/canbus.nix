@@ -8,41 +8,48 @@
 
   # Enable device tree processing for DTBs matching the standard Pi 4.
   hardware.deviceTree = {
+    dtbSource = pkgs.device-tree_rpi;
     enable = true;
     filter = "*-rpi-4-*.dtb";
-  };
+    name = "broadcom/bcm2711-rpi-4-b.dtb";
+    overlays = [
+      {
+        dtboFile = pkgs.runCommand "spi0-1cs" { nativeBuildInputs = [ pkgs.dtc ]; } ''
+          dtc -I dtb -o spi0-1cs.dtso -O dts ${pkgs.device-tree_rpi.overlays}/spi0-1cs.dtbo
+          substituteInPlace spi0-1cs.dtso \
+            --replace-fail "compatible = \"brcm,bcm2835\";" "compatible = \"brcm,bcm2711\";"
+          dtc -I dts -o $out -O dtb spi0-1cs.dtso
+        '';
+        name = "spi0-1cs.dtbo";
+      }
 
-  # Apply overlays in this order:
-  # 1. The SPI overlay from the precompiled dtbo file,
-  # 2. Your custom overlay that adds the MCP2515 nodes, and
-  # 3. A final overlay that disables the default spidev node (which conflicts on chipselect 0).
-  hardware.deviceTree.overlays = [
-    # Overlay to enable SPI (from a precompiled dtbo file).
-    {
-      name = "spi";
-      dtboFile = ./firmware/spi0-0cs-v2.dtbo;
-    }
+      # Overlay to enable SPI (from a precompiled dtbo file).
+      {
+        name = "spi";
+        dtboFile = ./firmware/spi0-0cs-v2.dtbo;
+      }
 
-    # Overlay to disable the default spidev node for chipselect 0.
-    {
-      name = "disable-spidev0";
-      dtsText = ''
-        /dts-v1/;
-        /plugin/;
+      # Overlay to disable the default spidev node for chipselect 0.
+      {
+        name = "disable-spidev0";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
 
-        / {
-          compatible = "raspberrypi";
+          / {
+            compatible = "raspberrypi";
 
-          fragment@0 {
-            target-path = "/soc/spi@7e204000/spidev@0";
-            __overlay__ {
-              status = "disabled";
+            fragment@0 {
+              target-path = "/soc/spi@7e204000/spidev@0";
+              __overlay__ {
+                status = "disabled";
+              };
             };
           };
-        };
-      '';
-    }
-  ];
+        '';
+      }
+    ];
+  };
 
   # Create an SPI group for permissions.
   users.groups.spi = {};
