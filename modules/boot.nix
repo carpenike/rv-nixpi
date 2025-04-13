@@ -28,15 +28,6 @@
       "console=ttyGS0,115200"
     ];
 
-    # Apply kernel patch to fix spidev detection on Raspberry Pi 4.
-    kernelPatches = [
-      {
-        name = "spidev-fix.patch";
-        patch = pkgs.fetchpatch {
-          url = "https://github.com/raspberrypi/linux/commit/2f223e0e4931486fbc32df3c89bc16ff1ca434bf.patch";
-          hash = "sha256-//9aGbzXNO33arOTTCVz67jOV8ytyVARdYc/1iIEMc0=";
-        };
-      }
-    ];
+    # Removed the spidev-fix.patch as it is already applied in the kernel source.
   };
 }
