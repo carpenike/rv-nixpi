@@ -22,7 +22,7 @@
 		status = "okay";
 	};
 
-	fragment@0 {
+	fragment0 {
 		target = <&spi0>;
 
 		__overlay__ {
@@ -42,7 +42,7 @@
 		};
 	};
 
-	fragment@1 {
+	fragment1 {
 		target = <0xffffffff>;
 
 		__overlay__ {
@@ -51,7 +51,7 @@
 		};
 	};
 
-	fragment@2 {
+	fragment2 {
 		target = <0xffffffff>;
 
 		__overlay__ {
@@ -59,7 +59,7 @@
 		};
 	};
 
-	fragment@3 {
+	fragment3 {
 		target = <0xffffffff>;
 
 		__dormant__ {
