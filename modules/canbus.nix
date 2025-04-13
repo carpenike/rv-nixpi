@@ -26,7 +26,7 @@
       # Overlay to enable SPI (from a precompiled dtbo file).
       {
         name = "spi";
-        dtboFile = ./firmware/spi0-0cs-v2.dtbo;
+        dtboFile = ./firmware/spi0-0cs-final.dtbo;
       }
 
       # Overlay to disable the default spidev node for chipselect 0.
