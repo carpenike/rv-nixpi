@@ -12,7 +12,10 @@
       "g_serial"
       "vc4"
       "bcm2835_dma"
-      "spi-bcm2835"
+      "spi_bcm2835"  # Note the underscore instead of dash
+      "can"
+      "can_raw"
+      "can_dev"
       "mcp251x"
     ];
 

@@ -23,10 +23,10 @@
         name = "spi0-1cs.dtbo";
       }
 
-      # Overlay to enable SPI and MCP2515 CAN controllers for PiCAN2 Duo
+      # Simple overlay for PiCAN2 Duo based on manufacturer recommendations
       {
         name = "pican2-duo";
-        dtboFile = ./firmware/pican2-duo-gpio.dtbo;
+        dtboFile = ./firmware/pican2-simple.dtbo;
       }
 
       # Overlay to disable the default spidev node for chipselect 0.
