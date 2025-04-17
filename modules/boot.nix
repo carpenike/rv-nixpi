@@ -23,6 +23,7 @@
 
     extraModprobeConfig = ''
       options g_serial use_acm=1
+      options spi_bcm2835 enable_dma=1
     '';
 
     kernelParams = [
@@ -35,22 +36,5 @@
     kernelPackages = pkgs.linuxPackages_rpi4;
 
     # Removed the spidev-fix.patch as it is already applied in the kernel source.
-
-    extraModprobeConfig = ''
-      options spi_bcm2835 enable_dma=1
-    '';
-
-    # Ensure SPI and CAN kernel modules are loaded
-    kernelModules = [
-      "dwc2"
-      "g_serial"
-      "vc4"
-      "bcm2835_dma"
-      "spi_bcm2835"
-      "can"
-      "can_raw"
-      "can_dev"
-      "mcp251x"
-    ];
   };
 }
