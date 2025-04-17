@@ -23,11 +23,10 @@
         name = "spi0-1cs.dtbo";
       }
 
-      # Simple overlay for PiCAN2 Duo based on manufacturer recommendations
-      {
-        name = "pican2-duo";
-        dtboFile = ./firmware/pican2-simple.dtbo;
-      }
+      # Disable PiCAN2 overlay while doing loopback test
+      # { name = "pican2-duo"; dtboFile = ./firmware/pican2-simple.dtbo; }
+      # Enable spidev overlay for raw SPI access
+      { name = "spidev"; }
 
       # Overlay to disable the default spidev node for chipselect 0.
       {
@@ -48,8 +47,22 @@
           };
         '';
       }
+      {
+        name = "spi0-0cs-final";
+        dtboFile = ./firmware/spi0-0cs-final.dtbo;
+      }
+      {
+        name = "mcp2515-can-final";
+        dtboFile = ./firmware/mcp2515-can-final.dtbo;
+      }
     ];
   };
+
+  # Removed redundant kernelModules configuration as it is already handled in boot.nix
+
+  boot.extraModprobeConfig = ''
+    options spi_bcm2835 enable_dma=1
+  '';
 
   # Create an SPI group for permissions.
   users.groups.spi = {};
