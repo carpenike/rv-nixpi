@@ -13,30 +13,26 @@
     filter = "*-rpi-4-*.dtb";
     name = "broadcom/bcm2711-rpi-4-b.dtb";
     overlays = [
+      # Enable SPI0 with 2 chip selects
       {
-        dtboFile = pkgs.runCommand "spi0-1cs" { nativeBuildInputs = [ pkgs.dtc ]; } ''
-          dtc -I dtb -o spi0-1cs.dtso -O dts ${pkgs.device-tree_rpi.overlays}/spi0-1cs.dtbo
-          substituteInPlace spi0-1cs.dtso \
+        dtboFile = pkgs.runCommand "spi0-2cs" { nativeBuildInputs = [ pkgs.dtc ]; } ''
+          dtc -I dtb -o spi0-2cs.dtso -O dts ${pkgs.device-tree_rpi.overlays}/spi0-2cs.dtbo
+          substituteInPlace spi0-2cs.dtso \
             --replace-fail "compatible = \"brcm,bcm2835\";" "compatible = \"brcm,bcm2711\";"
-          dtc -I dts -o $out -O dtb spi0-1cs.dtso
+          dtc -I dts -o $out -O dtb spi0-2cs.dtso
         '';
-        name = "spi0-1cs.dtbo";
+        name = "spi0-2cs.dtbo";
       }
 
-      # Disable PiCAN2 overlay while doing loopback test
-      # { name = "pican2-duo"; dtboFile = ./firmware/pican2-simple.dtbo; }
-      # Enable spidev overlay for raw SPI access
-      { name = "spidev"; }
-
-      # Overlay to disable the default spidev node for chipselect 0.
+      # Overlay to disable the default spidev nodes
       {
-        name = "disable-spidev0";
+        name = "disable-spidev";
         dtsText = ''
           /dts-v1/;
           /plugin/;
 
           / {
-            compatible = "raspberrypi";
+            compatible = "brcm,bcm2711";
 
             fragment@0 {
               target-path = "/soc/spi@7e204000/spidev@0";
@@ -44,25 +40,106 @@
                 status = "disabled";
               };
             };
+
+            fragment@1 {
+              target-path = "/soc/spi@7e204000/spidev@1";
+              __overlay__ {
+                status = "disabled";
+              };
+            };
           };
         '';
       }
+
+      # MCP2515 CAN0 controller on SPI0.0
       {
-        name = "spi0-0cs-final";
-        dtboFile = ./firmware/spi0-0cs-final.dtbo;
+        name = "mcp2515-can0";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+
+          / {
+            compatible = "brcm,bcm2711";
+
+            fragment@0 {
+              target = <&spi0>;
+              __overlay__ {
+                status = "okay";
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                /* First MCP2515 CAN controller */
+                mcp2515_can0: mcp2515@0 {
+                  compatible = "microchip,mcp2515";
+                  reg = <0>;
+                  spi-max-frequency = <10000000>; /* 10 MHz */
+                  interrupt-parent = <&gpio>;
+                  interrupts = <25 0x8>; /* GPIO 25, IRQ_TYPE_LEVEL_LOW (0x8) */
+                  oscillator-frequency = <16000000>; /* 16 MHz crystal */
+                  status = "okay";
+                };
+              };
+            };
+
+            fragment@1 {
+              target = <&gpio>;
+              __overlay__ {
+                can0_pins: can0_pins {
+                  brcm,pins = <25>;
+                  brcm,function = <0>; /* Input */
+                };
+              };
+            };
+          };
+        '';
       }
+
+      # MCP2515 CAN1 controller on SPI0.1
       {
-        name = "mcp2515-can-final";
-        dtboFile = ./firmware/mcp2515-can-final.dtbo;
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+
+          / {
+            compatible = "brcm,bcm2711";
+
+            fragment@0 {
+              target = <&spi0>;
+              __overlay__ {
+                status = "okay";
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                /* Second MCP2515 CAN controller */
+                mcp2515_can1: mcp2515@1 {
+                  compatible = "microchip,mcp2515";
+                  reg = <1>;
+                  spi-max-frequency = <10000000>; /* 10 MHz */
+                  interrupt-parent = <&gpio>;
+                  interrupts = <24 0x8>; /* GPIO 24, IRQ_TYPE_LEVEL_LOW (0x8) */
+                  oscillator-frequency = <16000000>; /* 16 MHz crystal */
+                  status = "okay";
+                };
+              };
+            };
+
+            fragment@1 {
+              target = <&gpio>;
+              __overlay__ {
+                can1_pins: can1_pins {
+                  brcm,pins = <24>;
+                  brcm,function = <0>; /* Input */
+                };
+              };
+            };
+          };
+        '';
+        name = "mcp2515-can1";
       }
     ];
   };
 
-  # Removed redundant kernelModules configuration as it is already handled in boot.nix
-
-  boot.extraModprobeConfig = ''
-    options spi_bcm2835 enable_dma=1
-  '';
+  # Removed redundant kernelModules and extraModprobeConfig as they are already handled in boot.nix
 
   # Create an SPI group for permissions.
   users.groups.spi = {};
