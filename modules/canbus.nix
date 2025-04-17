@@ -26,7 +26,7 @@
       # Overlay to enable SPI and MCP2515 CAN controllers
       {
         name = "mcp2515-can";
-        dtboFile = ./firmware/mcp2515-can0.dtbo;
+        dtboFile = ./firmware/mcp2515-rpi4.dtbo;
       }
 
       # Overlay to disable the default spidev node for chipselect 0.

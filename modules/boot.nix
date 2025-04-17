@@ -28,6 +28,9 @@
       "console=ttyGS0,115200"
     ];
 
+    # Use the Raspberry Pi-specific kernel
+    kernelPackages = pkgs.linuxPackages_rpi4;
+
     # Removed the spidev-fix.patch as it is already applied in the kernel source.
   };
 }
