@@ -26,7 +26,7 @@
       # Overlay to enable SPI and MCP2515 CAN controllers for PiCAN2 Duo
       {
         name = "pican2-duo";
-        dtboFile = ./firmware/pican2-duo.dtbo;
+        dtboFile = ./firmware/pican2-duo-gpio.dtbo;
       }
 
       # Overlay to disable the default spidev node for chipselect 0.
@@ -64,11 +64,11 @@
     description = "CAN0 Interface";
     wantedBy = [ "multi-user.target" ];
     after = [ "systemd-modules-load.service" ];
+    requires = [ "dev-spi0.device" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 15";
-      ExecStart = "${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000";
+      ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 2 && ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100'";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
     };
   };
@@ -77,11 +77,11 @@
     description = "CAN1 Interface";
     wantedBy = [ "multi-user.target" ];
     after = [ "systemd-modules-load.service" "can0.service" ];
+    requires = [ "dev-spi0.device" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 15";
-      ExecStart = "${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000";
+      ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 2 && ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100'";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
     };
   };
