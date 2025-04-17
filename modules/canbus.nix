@@ -23,10 +23,10 @@
         name = "spi0-1cs.dtbo";
       }
 
-      # Overlay to enable SPI and MCP2515 CAN controllers
+      # Overlay to enable SPI and MCP2515 CAN controllers for PiCAN2 Duo
       {
-        name = "mcp2515-can";
-        dtboFile = ./firmware/mcp2515-rpi4.dtbo;
+        name = "pican2-duo";
+        dtboFile = ./firmware/pican2-duo.dtbo;
       }
 
       # Overlay to disable the default spidev node for chipselect 0.
@@ -67,7 +67,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 15";
       ExecStart = "${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
     };
@@ -80,7 +80,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 15";
       ExecStart = "${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000";
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
     };
