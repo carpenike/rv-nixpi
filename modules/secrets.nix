@@ -45,15 +45,15 @@ in {
         RVPROBLEMS_WIFI_PASSWORD = {};
       };
     };
-  };
-
-  # Service to verify age key presence on boot
-  systemd.services.verify-age-key = {
-    description = "Verify presence of age.key file";
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.writeShellScript "check-age-key" (builtins.readFile ./check-age-key.sh)}";
+    
+    # Service to verify age key presence on boot
+    systemd.services.verify-age-key = {
+      description = "Verify presence of age.key file";
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.writeShellScript "check-age-key" (builtins.readFile ./check-age-key.sh)}";
+      };
     };
   };
 }
