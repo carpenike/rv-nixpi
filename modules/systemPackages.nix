@@ -11,6 +11,7 @@
     pkgs.fbterm
     pkgs.kmscon
     pkgs.kbd
+    pkgs.wget
 
     (pkgs.writeShellScriptBin "update-nix" ''
       #!/usr/bin/env bash
