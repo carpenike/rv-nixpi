@@ -8,17 +8,16 @@
     enable = true;
     filter = "*-rpi-4-*.dtb";
 
-    # Simple overlays that exactly match what works in Debian
     overlays = [
       {
         name = "spi-on";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-          
+
           / {
             compatible = "brcm,bcm2711";
-            
+
             fragment@0 {
               target = <&spi0>;
               __overlay__ {
@@ -28,101 +27,95 @@
           };
         '';
       }
-      
+
       {
         name = "mcp2515-can0";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-          
-          / {
-            compatible = "brcm,bcm2711";
-            
-            fragment@0 {
-              target = <&gpio>;
-              __overlay__ {
-                can0_pins: can0_pins {
-                  brcm,pins = <25>;
-                  brcm,function = <0>; /* Input */
-                  brcm,pull = <2>; /* Pull-up */
-                };
+
+          &{/} {
+            can0_osc: can0_osc {
+              compatible = "fixed-clock";
+              #clock-cells = <0>;
+              clock-frequency = <16000000>;
+            };
+          };
+
+          fragment@0 {
+            target = <&gpio>;
+            __overlay__ {
+              can0_pins: can0_pins {
+                brcm,pins = <25>;
+                brcm,function = <0>; /* Input */
+                brcm,pull = <2>;     /* Pull-up */
               };
             };
-            
-            fragment@1 {
-              target = <&spi0>;
-              __overlay__ {
-                /* needed to avoid dtc warning */
-                #address-cells = <1>;
-                #size-cells = <0>;
-                
-                can0: mcp2515@0 {
-                  reg = <0>;
-                  compatible = "microchip,mcp2515";
-                  pinctrl-names = "default";
-                  pinctrl-0 = <&can0_pins>;
-                  spi-max-frequency = <10000000>;
-                  interrupt-parent = <&gpio>;
-                  interrupts = <25 8>; /* active low */
-                  clocks = <&can0_osc>;
-                  status = "okay";
-                  
-                  can0_osc: can0_osc {
-                    compatible = "fixed-clock";
-                    #clock-cells = <0>;
-                    clock-frequency = <16000000>;
-                  };
-                };
+          };
+
+          fragment@1 {
+            target = <&spi0>;
+            __overlay__ {
+              #address-cells = <1>;
+              #size-cells = <0>;
+
+              can0: mcp2515@0 {
+                reg = <0>;
+                compatible = "microchip,mcp2515";
+                pinctrl-names = "default";
+                pinctrl-0 = <&can0_pins>;
+                spi-max-frequency = <10000000>;
+                interrupt-parent = <&gpio>;
+                interrupts = <25 8>; /* active low */
+                clocks = <&can0_osc>;
+                status = "okay";
               };
             };
           };
         '';
       }
-      
+
       {
         name = "mcp2515-can1";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-          
-          / {
-            compatible = "brcm,bcm2711";
-            
-            fragment@0 {
-              target = <&gpio>;
-              __overlay__ {
-                can1_pins: can1_pins {
-                  brcm,pins = <24>;
-                  brcm,function = <0>; /* Input */
-                  brcm,pull = <2>; /* Pull-up */
-                };
+
+          &{/} {
+            can1_osc: can1_osc {
+              compatible = "fixed-clock";
+              #clock-cells = <0>;
+              clock-frequency = <16000000>;
+            };
+          };
+
+          fragment@0 {
+            target = <&gpio>;
+            __overlay__ {
+              can1_pins: can1_pins {
+                brcm,pins = <24>;
+                brcm,function = <0>; /* Input */
+                brcm,pull = <2>;     /* Pull-up */
               };
             };
-            
-            fragment@1 {
-              target = <&spi0>;
-              __overlay__ {
-                /* needed to avoid dtc warning */
-                #address-cells = <1>;
-                #size-cells = <0>;
-                
-                can1: mcp2515@1 {
-                  reg = <1>;
-                  compatible = "microchip,mcp2515";
-                  pinctrl-names = "default";
-                  pinctrl-0 = <&can1_pins>;
-                  spi-max-frequency = <10000000>;
-                  interrupt-parent = <&gpio>;
-                  interrupts = <24 8>; /* active low */
-                  clocks = <&can1_osc>;
-                  status = "okay";
-                  
-                  can1_osc: can1_osc {
-                    compatible = "fixed-clock";
-                    #clock-cells = <0>;
-                    clock-frequency = <16000000>;
-                  };
-                };
+          };
+
+          fragment@1 {
+            target = <&spi0>;
+            __overlay__ {
+              #address-cells = <1>;
+              #size-cells = <0>;
+
+              can1: mcp2515@1 {
+                reg = <1>;
+                compatible = "microchip,mcp2515";
+                pinctrl-names = "default";
+                pinctrl-0 = <&can1_pins>;
+                spi-max-frequency = <10000000>;
+                interrupt-parent = <&gpio>;
+                interrupts = <24 8>; /* active low */
+                clocks = <&can1_osc>;
+                status = "okay";
               };
             };
           };
