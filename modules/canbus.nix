@@ -34,7 +34,9 @@
           /dts-v1/;
           /plugin/;
 
-          &{/} {
+          / {
+            compatible = "brcm,bcm2711";
+
             can0_osc: can0_osc {
               compatible = "fixed-clock";
               #clock-cells = <0>;
@@ -81,7 +83,9 @@
           /dts-v1/;
           /plugin/;
 
-          &{/} {
+          / {
+            compatible = "brcm,bcm2711";
+
             can1_osc: can1_osc {
               compatible = "fixed-clock";
               #clock-cells = <0>;
@@ -124,8 +128,6 @@
     ];
   };
 
-  # Removed redundant kernelModules and extraModprobeConfig as they are already handled in boot.nix
-
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
@@ -146,26 +148,17 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-      # Fixed the quoting issue by using a single multiline string
       ExecStart = pkgs.writeShellScript "setup-can0" ''
         #!/bin/sh
-        # Reset the CAN interface completely to clear error states
         ${pkgs.iproute2}/bin/ip link set can0 down
         sleep 1
-        
-        # Robust CAN interface setup with retry
         for i in {1..5}; do
-          echo "Attempt $i to bring up can0..."
           if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
-            echo "can0 interface brought up successfully"
-            # Clear any error counters
             echo 0 > /sys/class/net/can0/statistics/bus_error || true
             exit 0
           fi
-          echo "Failed to bring up can0, retrying in 1 second..."
           sleep 1
         done
-        echo "Failed to bring up can0 after 5 attempts"
         exit 1
       '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
@@ -185,26 +178,17 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-      # Fixed the quoting issue by using a single multiline string
       ExecStart = pkgs.writeShellScript "setup-can1" ''
         #!/bin/sh
-        # Reset the CAN interface completely to clear error states
         ${pkgs.iproute2}/bin/ip link set can1 down
         sleep 1
-        
-        # Robust CAN interface setup with retry
         for i in {1..5}; do
-          echo "Attempt $i to bring up can1..."
           if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
-            echo "can1 interface brought up successfully"
-            # Clear any error counters
             echo 0 > /sys/class/net/can1/statistics/bus_error || true
             exit 0
           fi
-          echo "Failed to bring up can1, retrying in 1 second..."
           sleep 1
         done
-        echo "Failed to bring up can1 after 5 attempts"
         exit 1
       '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
@@ -220,6 +204,6 @@
     usbutils
     pciutils
     i2c-tools
-    python3Packages.spidev  # For SPI tools
+    python3Packages.spidev
   ];
 }
