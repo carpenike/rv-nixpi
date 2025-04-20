@@ -50,21 +50,6 @@ EOF
   # Use temporary file to avoid symlink loops
   environment.etc."issue.d/10-age-key-notice.issue".source = tempNoticePath;
 
-🔑 SSH-to-Age public key:
-$AGE_PUB
-
-📌 Add this key to .sops.yaml and re-encrypt your secrets.
-💡 This message will disappear once your key is detected in the remote repo.
-EOF
-        else
-          echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
-        fi
-      '';
-    };
-  };
-
-  environment.etc."issue.d/10-age-key-notice.issue".source = noticePath;
-
   # Remove MOTD and mark system as synced once secrets are decrypted successfully
   system.activationScripts.remove-motd-notice = lib.mkIf (config.sops.secrets ? IOT_WIFI_PASSWORD) ''
     if [ -f "/etc/ssh/ssh_host_ed25519_key.pub" ]; then
