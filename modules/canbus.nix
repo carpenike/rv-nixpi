@@ -131,7 +131,6 @@
         '';
       }
     ];
-    ];
   };
 
   # Removed redundant kernelModules and extraModprobeConfig as they are already handled in boot.nix
