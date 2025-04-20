@@ -156,11 +156,17 @@
       # Fixed the quoting issue by using a single multiline string
       ExecStart = pkgs.writeShellScript "setup-can0" ''
         #!/bin/sh
+        # Reset the CAN interface completely to clear error states
+        ${pkgs.iproute2}/bin/ip link set can0 down
+        sleep 1
+        
         # Robust CAN interface setup with retry
         for i in {1..5}; do
           echo "Attempt $i to bring up can0..."
           if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
             echo "can0 interface brought up successfully"
+            # Clear any error counters
+            echo 0 > /sys/class/net/can0/statistics/bus_error || true
             exit 0
           fi
           echo "Failed to bring up can0, retrying in 1 second..."
@@ -189,11 +195,17 @@
       # Fixed the quoting issue by using a single multiline string
       ExecStart = pkgs.writeShellScript "setup-can1" ''
         #!/bin/sh
+        # Reset the CAN interface completely to clear error states
+        ${pkgs.iproute2}/bin/ip link set can1 down
+        sleep 1
+        
         # Robust CAN interface setup with retry
         for i in {1..5}; do
           echo "Attempt $i to bring up can1..."
           if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
             echo "can1 interface brought up successfully"
+            # Clear any error counters
+            echo 0 > /sys/class/net/can1/statistics/bus_error || true
             exit 0
           fi
           echo "Failed to bring up can1, retrying in 1 second..."
