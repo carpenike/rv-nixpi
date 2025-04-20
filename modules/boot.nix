@@ -24,10 +24,11 @@
     extraModprobeConfig = ''
       options g_serial use_acm=1
       options spi_bcm2835 enable_dma=1
+      options mcp251x override_rts=1
     '';
 
     kernelParams = [
-      "modules-load=dwc2,g_serial"
+      "modules-load=dwc2,g_serial,spi_bcm2835,can,can_dev,can_raw,mcp251x"
       "console=tty1"
       "console=ttyGS0,115200"
     ];

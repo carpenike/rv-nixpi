@@ -3,139 +3,134 @@
 {
   hardware.enableRedistributableFirmware = true;
 
-  # Enable static merging of device tree overlays.
-  hardware.raspberry-pi."4".apply-overlays-dtmerge.enable = true;
-
   # Enable device tree processing for DTBs matching the standard Pi 4.
   hardware.deviceTree = {
-    dtbSource = pkgs.device-tree_rpi;
     enable = true;
     filter = "*-rpi-4-*.dtb";
-    name = "broadcom/bcm2711-rpi-4-b.dtb";
-    overlays = [
-      # Enable SPI0 with 2 chip selects
-      {
-        dtboFile = pkgs.runCommand "spi0-2cs" { nativeBuildInputs = [ pkgs.dtc ]; } ''
-          dtc -I dtb -o spi0-2cs.dtso -O dts ${pkgs.device-tree_rpi.overlays}/spi0-2cs.dtbo
-          substituteInPlace spi0-2cs.dtso \
-            --replace-fail "compatible = \"brcm,bcm2835\";" "compatible = \"brcm,bcm2711\";"
-          dtc -I dts -o $out -O dtb spi0-2cs.dtso
-        '';
-        name = "spi0-2cs.dtbo";
-      }
 
-      # Overlay to disable the default spidev nodes
+    # Simple overlays that exactly match what works in Debian
+    overlays = [
       {
-        name = "disable-spidev";
+        name = "spi-on";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-
+          
           / {
             compatible = "brcm,bcm2711";
-
+            
             fragment@0 {
-              target-path = "/soc/spi@7e204000/spidev@0";
+              target = <&spi0>;
               __overlay__ {
-                status = "disabled";
-              };
-            };
-
-            fragment@1 {
-              target-path = "/soc/spi@7e204000/spidev@1";
-              __overlay__ {
-                status = "disabled";
+                status = "okay";
               };
             };
           };
         '';
       }
-
-      # MCP2515 CAN0 controller on SPI0.0
+      
       {
         name = "mcp2515-can0";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-
+          
           / {
             compatible = "brcm,bcm2711";
-
+            
             fragment@0 {
-              target = <&spi0>;
-              __overlay__ {
-                status = "okay";
-                #address-cells = <1>;
-                #size-cells = <0>;
-
-                /* First MCP2515 CAN controller */
-                mcp2515_can0: mcp2515@0 {
-                  compatible = "microchip,mcp2515";
-                  reg = <0>;
-                  spi-max-frequency = <10000000>; /* 10 MHz */
-                  interrupt-parent = <&gpio>;
-                  interrupts = <25 0x8>; /* GPIO 25, IRQ_TYPE_LEVEL_LOW (0x8) */
-                  oscillator-frequency = <16000000>; /* 16 MHz crystal */
-                  status = "okay";
-                };
-              };
-            };
-
-            fragment@1 {
               target = <&gpio>;
               __overlay__ {
                 can0_pins: can0_pins {
                   brcm,pins = <25>;
                   brcm,function = <0>; /* Input */
+                  brcm,pull = <2>; /* Pull-up */
+                };
+              };
+            };
+            
+            fragment@1 {
+              target = <&spi0>;
+              __overlay__ {
+                /* needed to avoid dtc warning */
+                #address-cells = <1>;
+                #size-cells = <0>;
+                
+                can0: mcp2515@0 {
+                  reg = <0>;
+                  compatible = "microchip,mcp2515";
+                  pinctrl-names = "default";
+                  pinctrl-0 = <&can0_pins>;
+                  spi-max-frequency = <10000000>;
+                  interrupt-parent = <&gpio>;
+                  interrupts = <25 8>; /* active low */
+                  status = "okay";
+                  
+                  can0_osc: can0_osc {
+                    compatible = "fixed-clock";
+                    #clock-cells = <0>;
+                    clock-frequency = <16000000>;
+                  };
+                  
+                  clocks = <&can0_osc>;
                 };
               };
             };
           };
         '';
       }
-
-      # MCP2515 CAN1 controller on SPI0.1
+      
       {
+        name = "mcp2515-can1";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-
+          
           / {
             compatible = "brcm,bcm2711";
-
+            
             fragment@0 {
-              target = <&spi0>;
-              __overlay__ {
-                status = "okay";
-                #address-cells = <1>;
-                #size-cells = <0>;
-
-                /* Second MCP2515 CAN controller */
-                mcp2515_can1: mcp2515@1 {
-                  compatible = "microchip,mcp2515";
-                  reg = <1>;
-                  spi-max-frequency = <10000000>; /* 10 MHz */
-                  interrupt-parent = <&gpio>;
-                  interrupts = <24 0x8>; /* GPIO 24, IRQ_TYPE_LEVEL_LOW (0x8) */
-                  oscillator-frequency = <16000000>; /* 16 MHz crystal */
-                  status = "okay";
-                };
-              };
-            };
-
-            fragment@1 {
               target = <&gpio>;
               __overlay__ {
                 can1_pins: can1_pins {
                   brcm,pins = <24>;
                   brcm,function = <0>; /* Input */
+                  brcm,pull = <2>; /* Pull-up */
+                };
+              };
+            };
+            
+            fragment@1 {
+              target = <&spi0>;
+              __overlay__ {
+                /* needed to avoid dtc warning */
+                #address-cells = <1>;
+                #size-cells = <0>;
+                
+                can1: mcp2515@1 {
+                  reg = <1>;
+                  compatible = "microchip,mcp2515";
+                  pinctrl-names = "default";
+                  pinctrl-0 = <&can1_pins>;
+                  spi-max-frequency = <10000000>;
+                  interrupt-parent = <&gpio>;
+                  interrupts = <24 8>; /* active low */
+                  status = "okay";
+                  
+                  can1_osc: can1_osc {
+                    compatible = "fixed-clock";
+                    #clock-cells = <0>;
+                    clock-frequency = <16000000>;
+                  };
+                  
+                  clocks = <&can1_osc>;
                 };
               };
             };
           };
         '';
-        name = "mcp2515-can1";
       }
+    ];
     ];
   };
 
@@ -160,22 +155,22 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3"; # Increased delay for module initialization
-      ExecStart = ''
-        ${pkgs.bash}/bin/bash -c '
-          # More robust CAN interface setup with retry
-          for i in {1..5}; do
-            echo "Attempt $i to bring up can0..."
-            if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
-              echo "can0 interface brought up successfully"
-              exit 0
-            fi
-            echo "Failed to bring up can0, retrying in 1 second..."
-            sleep 1
-          done
-          echo "Failed to bring up can0 after 5 attempts"
-          exit 1
-        '
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
+      # Fixed the quoting issue by using a single multiline string
+      ExecStart = pkgs.writeShellScript "setup-can0" ''
+        #!/bin/sh
+        # Robust CAN interface setup with retry
+        for i in {1..5}; do
+          echo "Attempt $i to bring up can0..."
+          if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
+            echo "can0 interface brought up successfully"
+            exit 0
+          fi
+          echo "Failed to bring up can0, retrying in 1 second..."
+          sleep 1
+        done
+        echo "Failed to bring up can0 after 5 attempts"
+        exit 1
       '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
       Restart = "on-failure";
@@ -193,22 +188,22 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3"; # Increased delay for module initialization
-      ExecStart = ''
-        ${pkgs.bash}/bin/bash -c '
-          # More robust CAN interface setup with retry
-          for i in {1..5}; do
-            echo "Attempt $i to bring up can1..."
-            if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
-              echo "can1 interface brought up successfully"
-              exit 0
-            fi
-            echo "Failed to bring up can1, retrying in 1 second..."
-            sleep 1
-          done
-          echo "Failed to bring up can1 after 5 attempts"
-          exit 1
-        '
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
+      # Fixed the quoting issue by using a single multiline string
+      ExecStart = pkgs.writeShellScript "setup-can1" ''
+        #!/bin/sh
+        # Robust CAN interface setup with retry
+        for i in {1..5}; do
+          echo "Attempt $i to bring up can1..."
+          if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
+            echo "can1 interface brought up successfully"
+            exit 0
+          fi
+          echo "Failed to bring up can1, retrying in 1 second..."
+          sleep 1
+        done
+        echo "Failed to bring up can1 after 5 attempts"
+        exit 1
       '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
       Restart = "on-failure";
