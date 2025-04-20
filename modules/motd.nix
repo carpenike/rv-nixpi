@@ -11,8 +11,16 @@ in {
     serviceConfig = {
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "gen-age-motd" ''
+        # Check if we're already provisioned
         if [ -f "${markerPath}" ]; then
-          exit 0
+          # Verify the marker file isn't stale (check if the notice exists and SSH key is present)
+          if [ ! -f "${noticePath}" ] && [ -f "/etc/ssh/ssh_host_ed25519_key.pub" ]; then
+            echo "Found marker file but notice is missing - regenerating MOTD"
+            # Continue execution to regenerate the notice
+          else
+            echo "System already provisioned, exiting"
+            exit 0
+          fi
         fi
 
         PUBKEY_FILE="/etc/ssh/ssh_host_ed25519_key.pub"
@@ -31,6 +39,9 @@ $AGE_PUB
 📌 Add this key to .sops.yaml and re-encrypt your secrets.
 💡 This message will disappear once your key is detected in the remote repo.
 EOF
+        else
+          echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
+        fi
         else
           echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
         fi
