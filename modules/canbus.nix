@@ -70,7 +70,7 @@
                   can0_osc: can0_osc {
                     compatible = "fixed-clock";
                     #clock-cells = <0>;
-                    clock-frequency = <4000000>;
+                    clock-frequency = <16000000>;
                   };
                 };
               };
@@ -120,7 +120,7 @@
                   can1_osc: can1_osc {
                     compatible = "fixed-clock";
                     #clock-cells = <0>;
-                    clock-frequency = <4000000>;
+                    clock-frequency = <16000000>;
                   };
                 };
               };
