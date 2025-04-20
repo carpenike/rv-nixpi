@@ -42,9 +42,6 @@ EOF
         else
           echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
         fi
-        else
-          echo "⚠️ SSH host key not found. Cannot generate age key." > "${noticePath}"
-        fi
       '';
     };
   };

@@ -10,7 +10,11 @@ let
       builtins.trace "Found AGE_BOOTSTRAP_KEY environment variable (${toString (builtins.stringLength bootstrapAgeKeyEnv)} bytes)"
       (pkgs.writeText "age.key" bootstrapAgeKeyEnv)
     else
-      builtins.trace "WARNING: AGE_BOOTSTRAP_KEY environment variable is not set" null;
+      # Only show warning during initial image build, not during system rebuilds
+      if config.system.build ? sdImage then 
+        builtins.trace "WARNING: AGE_BOOTSTRAP_KEY environment variable is not set" null
+      else
+        null;
 in {
   config = {
     environment.systemPackages = [
