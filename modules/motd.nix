@@ -26,7 +26,8 @@ in {
         PUBKEY_FILE="/etc/ssh/ssh_host_ed25519_key.pub"
         if [ -f "$PUBKEY_FILE" ]; then
           AGE_PUB="$(${pkgs.ssh-to-age}/bin/ssh-to-age < "$PUBKEY_FILE")"
-          HOSTNAME="$(hostname)"
+          # Get hostname - use hostname command with fallback to /etc/hostname
+          HOSTNAME="$(hostname 2>/dev/null || cat /etc/hostname 2>/dev/null || echo "nixpi")"
 
           cat > "${noticePath}" <<EOF
 
@@ -50,9 +51,17 @@ EOF
 
   # Remove MOTD and mark system as synced once secrets are decrypted successfully
   system.activationScripts.remove-motd-notice = lib.mkIf (config.sops.secrets ? IOT_WIFI_PASSWORD) ''
-    echo "🔐 SOPS secrets successfully decrypted. Marking as provisioned."
-    touch ${markerPath}
-    rm -f ${noticePath}
+    if [ -f "/etc/ssh/ssh_host_ed25519_key.pub" ]; then
+      echo "🔐 SSH host key found and SOPS secrets successfully decrypted. Marking as provisioned."
+      touch ${markerPath}
+      # Make sure the notice file is removed
+      if [ -f "${noticePath}" ]; then
+        echo "Removing notice file ${noticePath}"
+        rm -f ${noticePath}
+      fi
+    else
+      echo "⚠️ SSH host key not found - not removing provisioning notice"
+    fi
   '';
 
   # Show MOTD in Fish shell sessions too
