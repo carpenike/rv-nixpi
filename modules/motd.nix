@@ -2,6 +2,7 @@
 
 let
   noticePath = "/etc/issue.d/10-age-key-notice.issue";
+  tempNoticePath = "/run/10-age-key-notice.issue";
   markerPath = "/etc/.sops-age-key-synced";
 in {
   systemd.services.gen-age-motd = {
@@ -13,14 +14,10 @@ in {
       ExecStart = pkgs.writeShellScript "gen-age-motd" ''
         # Check if we're already provisioned
         if [ -f "${markerPath}" ]; then
-          # Verify the marker file isn't stale (check if the notice exists and SSH key is present)
-          if [ ! -f "${noticePath}" ] && [ -f "/etc/ssh/ssh_host_ed25519_key.pub" ]; then
-            echo "Found marker file but notice is missing - regenerating MOTD"
-            # Continue execution to regenerate the notice
-          else
-            echo "System already provisioned, exiting"
-            exit 0
-          fi
+          echo "System already provisioned, exiting"
+          # Remove the notice file if it exists
+          rm -f "${tempNoticePath}"
+          exit 0
         fi
 
         PUBKEY_FILE="/etc/ssh/ssh_host_ed25519_key.pub"
@@ -29,10 +26,29 @@ in {
           # Get hostname - use hostname command with fallback to /etc/hostname
           HOSTNAME="$(hostname 2>/dev/null || cat /etc/hostname 2>/dev/null || echo "nixpi")"
 
-          cat > "${noticePath}" <<EOF
+          # Write to temporary file to avoid symlink loops
+          cat > "${tempNoticePath}" <<EOF
 
 🔧 Provisioning Notice for $HOSTNAME
 ======================================
+
+🔑 SSH-to-Age public key:
+$AGE_PUB
+
+📌 Add this key to .sops.yaml and re-encrypt your secrets.
+💡 This message will disappear once your key is detected in the remote repo.
+EOF
+          chmod 644 "${tempNoticePath}"
+        else
+          echo "⚠️ SSH host key not found. Cannot generate age key." > "${tempNoticePath}"
+          chmod 644 "${tempNoticePath}"
+        fi
+      '';
+    };
+  };
+
+  # Use temporary file to avoid symlink loops
+  environment.etc."issue.d/10-age-key-notice.issue".source = tempNoticePath;
 
 🔑 SSH-to-Age public key:
 $AGE_PUB
@@ -55,9 +71,9 @@ EOF
       echo "🔐 SSH host key found and SOPS secrets successfully decrypted. Marking as provisioned."
       touch ${markerPath}
       # Make sure the notice file is removed
-      if [ -f "${noticePath}" ]; then
-        echo "Removing notice file ${noticePath}"
-        rm -f ${noticePath}
+      if [ -f "${tempNoticePath}" ]; then
+        echo "Removing notice file ${tempNoticePath}"
+        rm -f "${tempNoticePath}"
       fi
     else
       echo "⚠️ SSH host key not found - not removing provisioning notice"
@@ -66,8 +82,8 @@ EOF
 
   # Show MOTD in Fish shell sessions too
   programs.fish.interactiveShellInit = ''
-    if test -f ${noticePath}
-      cat ${noticePath}
+    if test -f ${tempNoticePath}
+      cat ${tempNoticePath}
     end
   '';
 }
