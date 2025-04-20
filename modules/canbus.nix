@@ -155,11 +155,31 @@
     wantedBy = [ "multi-user.target" ];
     after = [ "systemd-modules-load.service" ];
     requires = [ "dev-spi0.device" ];
+    startLimitIntervalSec = 30;
+    startLimitBurst = 5;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 2 && ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100'";
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3"; # Increased delay for module initialization
+      ExecStart = ''
+        ${pkgs.bash}/bin/bash -c '
+          # More robust CAN interface setup with retry
+          for i in {1..5}; do
+            echo "Attempt $i to bring up can0..."
+            if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
+              echo "can0 interface brought up successfully"
+              exit 0
+            fi
+            echo "Failed to bring up can0, retrying in 1 second..."
+            sleep 1
+          done
+          echo "Failed to bring up can0 after 5 attempts"
+          exit 1
+        '
+      '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
+      Restart = "on-failure";
+      RestartSec = "5s";
     };
   };
 
@@ -168,11 +188,31 @@
     wantedBy = [ "multi-user.target" ];
     after = [ "systemd-modules-load.service" "can0.service" ];
     requires = [ "dev-spi0.device" ];
+    startLimitIntervalSec = 30;
+    startLimitBurst = 5;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 2 && ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100'";
+      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3"; # Increased delay for module initialization
+      ExecStart = ''
+        ${pkgs.bash}/bin/bash -c '
+          # More robust CAN interface setup with retry
+          for i in {1..5}; do
+            echo "Attempt $i to bring up can1..."
+            if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
+              echo "can1 interface brought up successfully"
+              exit 0
+            fi
+            echo "Failed to bring up can1, retrying in 1 second..."
+            sleep 1
+          done
+          echo "Failed to bring up can1 after 5 attempts"
+          exit 1
+        '
+      '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
+      Restart = "on-failure";
+      RestartSec = "5s";
     };
   };
 

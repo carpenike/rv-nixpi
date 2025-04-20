@@ -24,11 +24,28 @@ log "System uptime: $(uptime)"
 
 # Check if we've already transitioned (marker file exists)
 if [ -f "$MARKER_PATH" ]; then
-    log "✅ System has completed key transition"
-    log "   SSH-derived age key is in use"
-    log "   Bootstrap key is no longer needed"
-    log "   Marker file: $MARKER_PATH"
-    exit 0
+    log "📋 System transition marker found at $MARKER_PATH"
+    log "   This marker is created by the MOTD system when secrets are successfully decrypted"
+    log "   during system activation."
+    
+    # Even with marker, verify the actual state of the secrets
+    if [ -e "/run/secrets/IOT_WIFI_SSID" ] && [ -e "/run/secrets/IOT_WIFI_PASSWORD" ]; then
+        log "   ✅ Secrets are accessible - transition appears successful"
+    else
+        log "   ❌ WARNING: Marker exists but secrets are NOT accessible"
+        log "   This suggests the system state is inconsistent"
+        
+        # Check if SSH host key exists despite secrets not being accessible
+        if [ -f "$SSH_HOST_KEY_PATH" ]; then
+            log "   ℹ️ SSH host key exists at $SSH_HOST_KEY_PATH"
+            log "   The system may need to re-run the activation scripts"
+        else
+            log "   ❌ SSH host key is also missing"
+            log "   A fresh system boot may be required"
+        fi
+    fi
+    
+    # Continue execution to collect more diagnostic information
 fi
 
 # Check for bootstrap key
@@ -100,6 +117,20 @@ log "System information:"
 log "   Distribution: $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2 | tr -d \")"
 log "   Kernel: $(uname -r)"
 log "   Filesystem status: $(df -h /boot /)"
+
+# Check SOPS configuration in NixOS
+log ""
+log "SOPS Configuration:"
+if [ -f "/etc/nixos/configuration.nix" ]; then
+    log "   NixOS configuration: $(grep -A5 sops /etc/nixos/configuration.nix 2>/dev/null || echo "No SOPS config found in main config")"
+fi
+
+log "   SOPS files check:"
+log "   - sops-nix installed: $(command -v sops >/dev/null && echo "Yes" || echo "No")"
+log "   - yaml file: $(ls -la /etc/secrets.sops.yaml 2>/dev/null || ls -la /run/secrets.sops.yaml 2>/dev/null || echo "Not found")"
+log "   - secrets dir: $(ls -la /run/secrets/ 2>/dev/null || echo "/run/secrets/ not found")"
+log "   - marker file: $(ls -la $MARKER_PATH 2>/dev/null || echo "No marker file")"
+log "   - bootstrap key: $(ls -la $BOOTSTRAP_KEY_PATH 2>/dev/null || echo "No bootstrap key file")"
 
 log "=========================================="
 
