@@ -64,6 +64,7 @@
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
                   interrupts = <25 8>; /* active low */
+                  clocks = <&can0_osc>;
                   status = "okay";
                   
                   can0_osc: can0_osc {
@@ -71,8 +72,6 @@
                     #clock-cells = <0>;
                     clock-frequency = <16000000>;
                   };
-                  
-                  clocks = <&can0_osc>;
                 };
               };
             };
@@ -115,6 +114,7 @@
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
                   interrupts = <24 8>; /* active low */
+                  clocks = <&can1_osc>;
                   status = "okay";
                   
                   can1_osc: can1_osc {
@@ -122,8 +122,6 @@
                     #clock-cells = <0>;
                     clock-frequency = <16000000>;
                   };
-                  
-                  clocks = <&can1_osc>;
                 };
               };
             };
