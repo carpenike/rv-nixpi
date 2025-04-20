@@ -1,0 +1,50 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2711";
+
+    fragment@0 {
+        target = <&spi0>;
+        __overlay__ {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            cs-gpios = <&gpio 8 1>, <&gpio 7 1>;  // GPIO 8 for CS0, GPIO 7 for CS1.
+            status = "okay";
+
+            mcp2515@0 {
+                compatible = "microchip,mcp2515";
+                reg = <0>;  // Chipselect 0.
+                spi-max-frequency = <10000000>;  // 10 MHz.
+                interrupt-parent = <&gpio>;
+                interrupts = <25 8>; // GPIO 25, Active low level-sensitive
+                oscillator-frequency = <16000000>;
+                status = "okay";
+            };
+
+            mcp2515@1 {
+                compatible = "microchip,mcp2515";
+                reg = <1>;  // Chipselect 1.
+                spi-max-frequency = <10000000>;  // 10 MHz.
+                interrupt-parent = <&gpio>;
+                interrupts = <24 8>; // GPIO 24, Active low level-sensitive
+                oscillator-frequency = <16000000>;
+                status = "okay";
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&spidev0>;
+        __overlay__ {
+            status = "disabled";
+        };
+    };
+
+    fragment@2 {
+        target = <&spidev1>;
+        __overlay__ {
+            status = "disabled";
+        };
+    };
+};

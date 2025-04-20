@@ -1,0 +1,51 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2711";
+
+    fragment@0 {
+        target = <&spi0>;
+        __overlay__ {
+            #address-cells = <1>;
+            #size-cells = <0>;
+            /* Use hardware chip selects instead of GPIO-controlled CS */
+            status = "okay";
+
+            mcp2515@0 {
+                compatible = "microchip,mcp2515";
+                reg = <0>;  /* Chipselect 0 */
+                spi-max-frequency = <2000000>;  /* 2 MHz - lower for reliability */
+                interrupt-parent = <&gpio>;
+                interrupts = <25 0x2>;  /* GPIO 25, falling edge trigger */
+                oscillator-frequency = <16000000>;  /* 16 MHz crystal */
+                status = "okay";
+            };
+
+            mcp2515@1 {
+                compatible = "microchip,mcp2515";
+                reg = <1>;  /* Chipselect 1 */
+                spi-max-frequency = <2000000>;  /* 2 MHz - lower for reliability */
+                interrupt-parent = <&gpio>;
+                interrupts = <24 0x2>;  /* GPIO 24, falling edge trigger */
+                oscillator-frequency = <16000000>;  /* 16 MHz crystal */
+                status = "okay";
+            };
+        };
+    };
+
+    /* Disable the default SPI devices */
+    fragment@1 {
+        target = <&spidev0>;
+        __overlay__ {
+            status = "disabled";
+        };
+    };
+
+    fragment@2 {
+        target = <&spidev1>;
+        __overlay__ {
+            status = "disabled";
+        };
+    };
+};
