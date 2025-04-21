@@ -128,9 +128,9 @@
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
-  # Set up udev rules for spidev.
+  # Set up udev rules for spidev devices
   services.udev.extraRules = ''
-    SUBSYSTEM=="spidev", KERNEL=="spidev0.0", GROUP="spi", MODE="0660"
+    SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
 
   # Systemd services for the CAN interfaces.
