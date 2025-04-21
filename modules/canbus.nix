@@ -155,14 +155,20 @@ in
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
-  # Remove previous renaming rules from extraRules
+  # Define udev rules directly in extraRules with multi-step logic
   services.udev.extraRules = ''
-    # Existing rule for spidev permissions (though spidev is disabled in DT)
+    # Rule for spidev permissions (keep if needed, though spidev is disabled in DT)
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
-  '';
 
-  # Add ordered rule files via packages
-  services.udev.packages = [ udevRule70 udevRule71 udevRule72 ];
+    # Step 1: Rename physical CAN0 (spi0.0, likely kernel can1) to temporary name
+    SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.0/net/can*", NAME="can_temp0"
+
+    # Step 2: Rename physical CAN1 (spi0.1, likely kernel can0) to final name can1
+    SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
+
+    # Step 3: Rename temporary interface (can_temp0) to final name can0
+    SUBSYSTEM=="net", KERNEL=="can_temp0", ACTION=="add", NAME="can0"
+  '';
 
   # Disable IPv6 for CAN interfaces to prevent irrelevant udev errors
   boot.kernel.sysctl = {
