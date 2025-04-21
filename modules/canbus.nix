@@ -1,5 +1,32 @@
 { config, pkgs, lib, ... }:
 
+let
+  # Rule to rename physical CAN0 (spi0.0, likely kernel can1) to temporary name
+  udevRule70 = pkgs.writeTextFile {
+    name = "70-can-rename-temp.rules";
+    text = ''
+      SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.0/net/can*", NAME="can_temp0"
+    '';
+  };
+
+  # Rule to rename physical CAN1 (spi0.1, likely kernel can0) to final name can1
+  udevRule71 = pkgs.writeTextFile {
+    name = "71-can-rename-can1.rules";
+    text = ''
+      SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
+    '';
+  };
+
+  # Rule to rename temporary interface (can_temp0) to final name can0
+  udevRule72 = pkgs.writeTextFile {
+    name = "72-can-rename-can0.rules";
+    text = ''
+      # Match the interface now named can_temp0 and rename it to can0
+      SUBSYSTEM=="net", KERNEL=="can_temp0", ACTION=="add", NAME="can0"
+    '';
+  };
+
+in
 {
   hardware.enableRedistributableFirmware = true;
 
@@ -128,17 +155,14 @@
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
-  # Set up udev rules
+  # Remove previous renaming rules from extraRules
   services.udev.extraRules = ''
     # Existing rule for spidev permissions (though spidev is disabled in DT)
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
-
-    # Rename CAN interfaces based on SPI CS using udev DEVPATH (refined)
-    # Match physical CAN0 (CS0, path */spi0.0/net/can*) and name it can0
-    SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", DEVPATH=="*/spi0.0/net/can*", NAME="can0"
-    # Match physical CAN1 (CS1, path */spi0.1/net/can*) and name it can1
-    SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
   '';
+
+  # Add ordered rule files via packages
+  services.udev.packages = [ udevRule70 udevRule71 udevRule72 ];
 
   # Disable systemd-networkd as it's not needed for udev renaming
   # and causes warnings with networking.useDHCP=true + networking.useNetworkd=false
