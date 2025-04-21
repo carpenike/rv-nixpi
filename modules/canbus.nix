@@ -67,6 +67,7 @@
                   interrupts = <25 8>;
                   clocks = <&can0_osc>;
                   oscillator-frequency = <16000000>;
+                  oscillator = <16000000>;
                   status = "okay";
                 };
               };
@@ -117,6 +118,7 @@
                   interrupts = <24 8>;
                   clocks = <&can1_osc>;
                   oscillator-frequency = <16000000>;
+                  oscillator = <16000000>;
                   status = "okay";
                 };
               };
