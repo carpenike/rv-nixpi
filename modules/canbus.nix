@@ -86,46 +86,46 @@
 
           / {
             compatible = "brcm,bcm2711";
-          };
 
-          fragment@0 {
-            target-path = "/";
-            __overlay__ {
-              can1_osc: can1_osc {
-                compatible = "fixed-clock";
-                #clock-cells = <0>;
-                clock-frequency = <16000000>;
+            fragment@0 {
+              target-path = "/";
+              __overlay__ {
+                can1_osc: can1_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
               };
             };
-          };
 
-          fragment@1 {
-            target = <&gpio>;
-            __overlay__ {
-              can1_pins: can1_pins {
-                brcm,pins = <24>;
-                brcm,function = <0>;
-                brcm,pull = <2>;
+            fragment@1 {
+              target = <&gpio>;
+              __overlay__ {
+                can1_pins: can1_pins {
+                  brcm,pins = <24>;
+                  brcm,function = <0>;
+                  brcm,pull = <2>;
+                };
               };
             };
-          };
 
-          fragment@2 {
-            target = <&spi0>;
-            __overlay__ {
-              #address-cells = <1>;
-              #size-cells = <0>;
+            fragment@2 {
+              target = <&spi0>;
+              __overlay__ {
+                #address-cells = <1>;
+                #size-cells = <0>;
 
-              can1: mcp2515@1 {
-                reg = <1>;
-                compatible = "microchip,mcp2515";
-                pinctrl-names = "default";
-                pinctrl-0 = <&can1_pins>;
-                spi-max-frequency = <10000000>;
-                interrupt-parent = <&gpio>;
-                interrupts = <24 8>;
-                clocks = <&can1_osc>;
-                status = "okay";
+                can1: mcp2515@1 {
+                  reg = <1>;
+                  compatible = "microchip,mcp2515";
+                  pinctrl-names = "default";
+                  pinctrl-0 = <&can1_pins>;
+                  spi-max-frequency = <10000000>;
+                  interrupt-parent = <&gpio>;
+                  interrupts = <24 8>;
+                  clocks = <&can1_osc>;
+                  status = "okay";
+                };
               };
             };
           };
