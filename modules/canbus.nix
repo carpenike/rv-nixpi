@@ -133,11 +133,22 @@
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
 
+  # Use systemd link files to rename CAN interfaces based on SPI bus address
+  systemd.network.enable = true; # Ensure systemd-networkd is active for .link files
+  systemd.network.links."10-can0" = {
+    matchConfig.Path = "platform-soc-spi@7e204000-mcp2515@0"; # Match CS0 (physical CAN0)
+    linkConfig.Name = "can0"; # Rename to can0
+  };
+  systemd.network.links."10-can1" = {
+    matchConfig.Path = "platform-soc-spi@7e204000-mcp2515@1"; # Match CS1 (physical CAN1)
+    linkConfig.Name = "can1"; # Rename to can1
+  };
+
   # Systemd services for the CAN interfaces.
   systemd.services."can0" = {
-    description = "CAN0 Interface";
+    description = "CAN0 Interface (Physical CAN0 Port)";
     wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-modules-load.service" ];
+    after = [ "systemd-modules-load.service" "systemd-networkd.service" ];
     requires = [ "dev-spi0.device" ];
     startLimitIntervalSec = 30;
     startLimitBurst = 5;
@@ -166,9 +177,9 @@
   };
 
   systemd.services."can1" = {
-    description = "CAN1 Interface";
+    description = "CAN1 Interface (Physical CAN1 Port)";
     wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-modules-load.service" "can0.service" ];
+    after = [ "systemd-modules-load.service" "systemd-networkd.service" "can0.service" ];
     requires = [ "dev-spi0.device" ];
     startLimitIntervalSec = 30;
     startLimitBurst = 5;
