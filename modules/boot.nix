@@ -10,6 +10,8 @@
     kernelModules = [
       "dwc2"
       "g_serial"
+      "brcmfmac"
+      "brcmutil"
       "vc4"
       "bcm2835_dma"
       "spi_bcm2835"  # Note the underscore instead of dash
@@ -22,6 +24,8 @@
     initrd.kernelModules = [
       "dwc2"
       "g_serial"
+      "brcmfmac"
+      "brcmutil"
       "spi_bcm2835"
       "spidev"
       "can"
