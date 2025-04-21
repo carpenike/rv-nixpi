@@ -8,54 +8,55 @@
     enable = true;
     filter = "*-rpi-4-*.dtb";
 
-    # Simple overlays that exactly match what works in Debian
     overlays = [
-      {
-        name = "spi-on";
-        dtsText = ''
-          /dts-v1/;
-          /plugin/;
-          
-          / {
-            compatible = "brcm,bcm2711";
-            
-            fragment@0 {
-              target = <&spi0>;
-              __overlay__ {
-                status = "okay";
+        {
+          name = "spi-on";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
+
+            / {
+              compatible = "brcm,bcm2711";
+              fragment@0 {
+                target = <&spi0>;
+                __overlay__ { status = "okay"; };
               };
             };
-          };
-        '';
-      }
-      
+          '';
+        }
+
       {
         name = "mcp2515-can0";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-          
+
           / {
             compatible = "brcm,bcm2711";
-            
+
             fragment@0 {
               target = <&gpio>;
               __overlay__ {
                 can0_pins: can0_pins {
                   brcm,pins = <25>;
-                  brcm,function = <0>; /* Input */
-                  brcm,pull = <2>; /* Pull-up */
+                  brcm,function = <0>;
+                  brcm,pull = <2>;
                 };
               };
             };
-            
+
             fragment@1 {
               target = <&spi0>;
               __overlay__ {
-                /* needed to avoid dtc warning */
                 #address-cells = <1>;
                 #size-cells = <0>;
-                
+
+                can0_osc: can0_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
+
                 can0: mcp2515@0 {
                   reg = <0>;
                   compatible = "microchip,mcp2515";
@@ -63,50 +64,48 @@
                   pinctrl-0 = <&can0_pins>;
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <25 8>; /* active low */
-                  status = "okay";
-                  
-                  can0_osc: can0_osc {
-                    compatible = "fixed-clock";
-                    #clock-cells = <0>;
-                    clock-frequency = <16000000>;
-                  };
-                  
+                  interrupts = <25 8>;
                   clocks = <&can0_osc>;
+                  status = "okay";
                 };
               };
             };
           };
         '';
       }
-      
+
       {
         name = "mcp2515-can1";
         dtsText = ''
           /dts-v1/;
           /plugin/;
-          
+
           / {
             compatible = "brcm,bcm2711";
-            
+
             fragment@0 {
               target = <&gpio>;
               __overlay__ {
                 can1_pins: can1_pins {
                   brcm,pins = <24>;
-                  brcm,function = <0>; /* Input */
-                  brcm,pull = <2>; /* Pull-up */
+                  brcm,function = <0>;
+                  brcm,pull = <2>;
                 };
               };
             };
-            
+
             fragment@1 {
               target = <&spi0>;
               __overlay__ {
-                /* needed to avoid dtc warning */
                 #address-cells = <1>;
                 #size-cells = <0>;
-                
+
+                can1_osc: can1_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
+
                 can1: mcp2515@1 {
                   reg = <1>;
                   compatible = "microchip,mcp2515";
@@ -114,16 +113,9 @@
                   pinctrl-0 = <&can1_pins>;
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <24 8>; /* active low */
-                  status = "okay";
-                  
-                  can1_osc: can1_osc {
-                    compatible = "fixed-clock";
-                    #clock-cells = <0>;
-                    clock-frequency = <16000000>;
-                  };
-                  
+                  interrupts = <24 8>;
                   clocks = <&can1_osc>;
+                  status = "okay";
                 };
               };
             };
@@ -131,17 +123,14 @@
         '';
       }
     ];
-    ];
   };
-
-  # Removed redundant kernelModules and extraModprobeConfig as they are already handled in boot.nix
 
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
-  # Set up udev rules for spidev.
+  # Set up udev rules for spidev devices
   services.udev.extraRules = ''
-    SUBSYSTEM=="spidev", KERNEL=="spidev0.0", GROUP="spi", MODE="0660"
+    SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
 
   # Systemd services for the CAN interfaces.
@@ -156,20 +145,17 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-      # Fixed the quoting issue by using a single multiline string
       ExecStart = pkgs.writeShellScript "setup-can0" ''
         #!/bin/sh
-        # Robust CAN interface setup with retry
+        ${pkgs.iproute2}/bin/ip link set can0 down
+        sleep 1
         for i in {1..5}; do
-          echo "Attempt $i to bring up can0..."
           if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
-            echo "can0 interface brought up successfully"
+            echo 0 > /sys/class/net/can0/statistics/bus_error || true
             exit 0
           fi
-          echo "Failed to bring up can0, retrying in 1 second..."
           sleep 1
         done
-        echo "Failed to bring up can0 after 5 attempts"
         exit 1
       '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can0 down";
@@ -189,20 +175,17 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-      # Fixed the quoting issue by using a single multiline string
       ExecStart = pkgs.writeShellScript "setup-can1" ''
         #!/bin/sh
-        # Robust CAN interface setup with retry
+        ${pkgs.iproute2}/bin/ip link set can1 down
+        sleep 1
         for i in {1..5}; do
-          echo "Attempt $i to bring up can1..."
           if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
-            echo "can1 interface brought up successfully"
+            echo 0 > /sys/class/net/can1/statistics/bus_error || true
             exit 0
           fi
-          echo "Failed to bring up can1, retrying in 1 second..."
           sleep 1
         done
-        echo "Failed to bring up can1 after 5 attempts"
         exit 1
       '';
       ExecStop = "${pkgs.iproute2}/bin/ip link set can1 down";
