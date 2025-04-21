@@ -152,7 +152,8 @@
         ${pkgs.iproute2}/bin/ip link set can0 down
         sleep 1
         for i in {1..5}; do
-          if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 500000 restart-ms 100; then
+          # Change bitrate to 250000
+          if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 250000 restart-ms 100; then
             echo 0 > /sys/class/net/can0/statistics/bus_error || true
             exit 0
           fi
@@ -182,7 +183,8 @@
         ${pkgs.iproute2}/bin/ip link set can1 down
         sleep 1
         for i in {1..5}; do
-          if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 500000 restart-ms 100; then
+          # Change bitrate to 250000
+          if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 250000 restart-ms 100; then
             echo 0 > /sys/class/net/can1/statistics/bus_error || true
             exit 0
           fi
