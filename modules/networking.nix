@@ -3,6 +3,7 @@
 {
   networking = {
     networkmanager.enable = false;
+    useDHCP = lib.mkDefault true;
     wireless.iwd.enable = true;
     useNetworkd = false;
     hostName = "nixpi";
