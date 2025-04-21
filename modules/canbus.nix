@@ -125,6 +125,9 @@
     ];
   };
 
+  # Add a test environment variable to check if the module is loaded
+  environment.variables.CANBUS_MODULE_LOADED = "true";
+
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
