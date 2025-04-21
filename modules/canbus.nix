@@ -16,6 +16,7 @@
             /plugin/;
 
             / {
+              compatible = "brcm,bcm2711";
               fragment@0 {
                 target = <&spi0>;
                 __overlay__ { status = "okay"; };
