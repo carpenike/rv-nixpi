@@ -1,34 +1,5 @@
 { config, pkgs, lib, ... }:
 
-let
-  # Rule to rename physical CAN0 (spi0.0, likely kernel can1) to temporary name
-  udevRule70 = pkgs.writeTextFile {
-    name = "70-can-rename-temp.rules";
-    text = ''
-      # Step 1: Rename physical CAN0 (spi0.0) to can_temp0
-      SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.0/net/can*", NAME="can_temp0"
-    '';
-  };
-
-  # Rule to rename physical CAN1 (spi0.1, likely kernel can0) to final name can1
-  udevRule71 = pkgs.writeTextFile {
-    name = "71-can-rename-can1.rules";
-    text = ''
-      # Step 2: Rename physical CAN1 (spi0.1) to can1
-      SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
-    '';
-  };
-
-  # Rule to rename temporary interface (can_temp0) to final name can0
-  udevRule72 = pkgs.writeTextFile {
-    name = "72-can-rename-can0.rules";
-    text = ''
-      # Step 3: Rename can_temp0 (original physical CAN0) to can0
-      SUBSYSTEM=="net", KERNEL=="can_temp0", ACTION=="add", NAME="can0"
-    '';
-  };
-
-in
 {
   hardware.enableRedistributableFirmware = true;
 
@@ -157,15 +128,36 @@ in
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
-  # Remove multi-step rules from extraRules
+  # Keep spidev rule in extraRules
   services.udev.extraRules = ''
     # Rule for spidev permissions (keep if needed, though spidev is disabled in DT)
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
-    # Renaming rules moved to services.udev.packages
   '';
 
-  # Add ordered rule files via packages (Retry this method)
-  services.udev.packages = [ udevRule70 udevRule71 udevRule72 ];
+  # Define ordered rule files directly in services.udev.packages
+  services.udev.packages = [
+    (pkgs.writeTextFile {
+      name = "70-can-rename-temp.rules";
+      text = ''
+        # Step 1: Rename physical CAN0 (spi0.0) to can_temp0
+        SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.0/net/can*", NAME="can_temp0"
+      '';
+    })
+    (pkgs.writeTextFile {
+      name = "71-can-rename-can1.rules";
+      text = ''
+        # Step 2: Rename physical CAN1 (spi0.1) to can1
+        SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
+      '';
+    })
+    (pkgs.writeTextFile {
+      name = "72-can-rename-can0.rules";
+      text = ''
+        # Step 3: Rename can_temp0 (original physical CAN0) to can0
+        SUBSYSTEM=="net", KERNEL=="can_temp0", ACTION=="add", NAME="can0"
+      '';
+    })
+  ];
 
   # Disable IPv6 for CAN interfaces to prevent irrelevant udev errors
   boot.kernel.sysctl = {
