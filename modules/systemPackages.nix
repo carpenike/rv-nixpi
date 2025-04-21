@@ -23,7 +23,8 @@
       sudo nixos-rebuild switch \
         --flake github:carpenike/rv-nixpi#nixpi \
         --option accept-flake-config true \
-        --refresh
+        --refresh \
+        --show-trace
     '')
   ];
 }
