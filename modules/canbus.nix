@@ -134,6 +134,10 @@
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
 
+  # Enable systemd-networkd
+  systemd.network.enable = true;
+
+  # Define network links to rename interfaces based on hardware path
   systemd.network.links = {
     "10-can0" = {
       matchConfig.Path     = "*spi0.0*";
@@ -155,26 +159,26 @@
   systemd.services."can0" = {
     description = "CAN0 Interface (Physical CAN0 Port)";
     wantedBy = [ "multi-user.target" ];
-    # Wait for udev to settle, hoping the rename has happened
-    after = [ "systemd-udev-settle.service" "systemd-modules-load.service" ];
+    # Wait for networkd to rename the interface
+    after = [ "systemd-networkd.service" "systemd-modules-load.service" ];
     requires = [ "dev-spi0.device" ];
+    # Bind to the renamed device
+    bindsTo = [ "sys-subsystem-net-devices-can0.device" ];
     startLimitIntervalSec = 30;
     startLimitBurst = 5;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
       ExecStart = pkgs.writeShellScript "setup-can0" ''
         #!/bin/sh
         ${pkgs.iproute2}/bin/ip link set can0 down
-        sleep 1
         for i in {1..5}; do
           # Change bitrate to 250000
           if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 250000 restart-ms 0; then
             echo 0 > /sys/class/net/can0/statistics/bus_error || true
             exit 0
           fi
-          sleep 1
+          sleep 1 # Keep short sleep between retries
         done
         exit 1
       '';
@@ -187,26 +191,26 @@
   systemd.services."can1" = {
     description = "CAN1 Interface (Physical CAN1 Port)";
     wantedBy = [ "multi-user.target" ];
-    # Wait for udev to settle, hoping the rename has happened
-    after = [ "systemd-udev-settle.service" "systemd-modules-load.service" "can0.service" ];
+    # Wait for networkd and can0 service
+    after = [ "systemd-networkd.service" "systemd-modules-load.service" "can0.service" ];
     requires = [ "dev-spi0.device" ];
+    # Bind to the renamed device
+    bindsTo = [ "sys-subsystem-net-devices-can1.device" ];
     startLimitIntervalSec = 30;
     startLimitBurst = 5;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
       ExecStart = pkgs.writeShellScript "setup-can1" ''
         #!/bin/sh
         ${pkgs.iproute2}/bin/ip link set can1 down
-        sleep 1
         for i in {1..5}; do
           # Change bitrate to 250000
           if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 250000 restart-ms 0; then
             echo 0 > /sys/class/net/can1/statistics/bus_error || true
             exit 0
           fi
-          sleep 1
+          sleep 1 # Keep short sleep between retries
         done
         exit 1
       '';
