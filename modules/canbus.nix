@@ -10,9 +10,6 @@
 
   };
 
-  # Disable manual deviceTree overlays (now handled by boot.firmware.raspberryPi)
-  hardware.deviceTree = lib.mkForce { enable = false; overlays = []; };
-
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
