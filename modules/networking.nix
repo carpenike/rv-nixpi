@@ -21,6 +21,9 @@
     };
   };
 
+  # Disable systemd-networkd-wait-online as networkd is not managing interfaces
+  systemd.network.wait-online.enable = false;
+
   systemd.tmpfiles.rules = [
     # Initial placement for first boot (used only if file doesn't already exist)
     "C /var/lib/iwd/iot.psk 0600 root root - ${config.sops.secrets.IOT_WIFI_PASSWORD.path}"
