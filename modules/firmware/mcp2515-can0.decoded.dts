@@ -1,0 +1,107 @@
+/dts-v1/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <0xffffffff>;
+
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@1 {
+		target = <0xffffffff>;
+
+		__overlay__ {
+			status = "disabled";
+		};
+	};
+
+	fragment@2 {
+		target = <0xffffffff>;
+
+		__overlay__ {
+
+			can0_pins {
+				brcm,pins = <0x19>;
+				brcm,function = <0x00>;
+				phandle = <0x01>;
+			};
+		};
+	};
+
+	fragment@3 {
+		target-path = "/";
+
+		__overlay__ {
+
+			can0_osc {
+				compatible = "fixed-clock";
+				#clock-cells = <0x00>;
+				clock-frequency = <0xf42400>;
+				phandle = <0x02>;
+			};
+		};
+	};
+
+	fragment@4 {
+		target = <0xffffffff>;
+
+		__overlay__ {
+			#address-cells = <0x01>;
+			#size-cells = <0x00>;
+
+			mcp2515@0 {
+				reg = <0x00>;
+				compatible = "microchip,mcp2515";
+				pinctrl-names = "default";
+				pinctrl-0 = <0x01>;
+				spi-max-frequency = <0x989680>;
+				interrupt-parent = <0xffffffff>;
+				interrupts = <0x19 0x08>;
+				clocks = <0x02>;
+				phandle = <0x03>;
+			};
+		};
+	};
+
+	__overrides__ {
+		oscillator = [00 00 00 02 63 6c 6f 63 6b 2d 66 72 65 71 75 65 6e 63 79 3a 30 00];
+		spimaxfrequency = <0x03 0x7370692d 0x6d61782d 0x66726571 0x75656e63 0x793a3000>;
+		interrupt = [00 00 00 01 62 72 63 6d 2c 70 69 6e 73 3a 30 00 00 00 00 03 69 6e 74 65 72 72 75 70 74 73 3a 30 00];
+	};
+
+	__symbols__ {
+		can0_pins = "/fragment@2/__overlay__/can0_pins";
+		can0_osc = "/fragment@3/__overlay__/can0_osc";
+		can0 = "/fragment@4/__overlay__/mcp2515@0";
+	};
+
+	__fixups__ {
+		spi0 = "/fragment@0:target:0\0/fragment@4:target:0";
+		spidev0 = "/fragment@1:target:0";
+		gpio = "/fragment@2:target:0\0/fragment@4/__overlay__/mcp2515@0:interrupt-parent:0";
+	};
+
+	__local_fixups__ {
+
+		fragment@4 {
+
+			__overlay__ {
+
+				mcp2515@0 {
+					pinctrl-0 = <0x00>;
+					clocks = <0x00>;
+				};
+			};
+		};
+
+		__overrides__ {
+			oscillator = <0x00>;
+			spimaxfrequency = <0x00>;
+			interrupt = <0x00 0x10>;
+		};
+	};
+};
