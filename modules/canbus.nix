@@ -164,6 +164,12 @@ in
   # Add ordered rule files via packages
   services.udev.packages = [ udevRule70 udevRule71 udevRule72 ];
 
+  # Disable IPv6 for CAN interfaces to prevent irrelevant udev errors
+  boot.kernel.sysctl = {
+    "net.ipv6.conf.can0.disable_ipv6" = 1;
+    "net.ipv6.conf.can1.disable_ipv6" = 1;
+  };
+
   # Disable systemd-networkd as it's not needed for udev renaming
   # and causes warnings with networking.useDHCP=true + networking.useNetworkd=false
   systemd.network.enable = false;
