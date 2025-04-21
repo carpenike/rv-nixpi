@@ -140,11 +140,9 @@
     SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
   '';
 
-  # Keep systemd-networkd enabled for now, although link files are removed.
-  # It might be needed implicitly elsewhere, or we might need it later.
-  # If udev renaming works reliably, this could potentially be set to false
-  # after confirming nothing else breaks.
-  systemd.network.enable = true;
+  # Disable systemd-networkd as it's not needed for udev renaming
+  # and causes warnings with networking.useDHCP=true + networking.useNetworkd=false
+  systemd.network.enable = false;
 
   # Systemd services for the CAN interfaces.
   systemd.services."can0" = {
