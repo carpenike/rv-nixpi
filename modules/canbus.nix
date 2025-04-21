@@ -9,18 +9,20 @@
     filter = "*-rpi-4-*.dtb";
 
     overlays = [
-      {
-        name = "spi-on";
-        dtsText = ''
-          /dts-v1/;
-          /plugin/;
+        {
+          name = "spi-on";
+          dtsText = ''
+            /dts-v1/;
+            /plugin/;
 
-          fragment@0 {
-            target = <&spi0>;
-            __overlay__ { status = "okay"; };
-          };
-        '';
-      }
+            / {
+              fragment@0 {
+                target = <&spi0>;
+                __overlay__ { status = "okay"; };
+              };
+            };
+          '';
+        }
 
       {
         name = "mcp2515-can0";
