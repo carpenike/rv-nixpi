@@ -12,6 +12,7 @@
     pkgs.kmscon
     pkgs.kbd
     pkgs.wget
+    pkgs.tmux
 
     (pkgs.writeShellScriptBin "update-nix" ''
       #!/usr/bin/env bash
