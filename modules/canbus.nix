@@ -16,6 +16,8 @@
           /plugin/;
 
           / {
+            compatible = "brcm,bcm2711";
+
             fragment@0 {
               target = <&spi0>;
               __overlay__ {
@@ -33,6 +35,8 @@
           /plugin/;
 
           / {
+            compatible = "brcm,bcm2711";
+
             fragment@0 {
               target-path = "/";
               __overlay__ {
@@ -85,6 +89,8 @@
           /plugin/;
 
           / {
+            compatible = "brcm,bcm2711";
+
             fragment@0 {
               target-path = "/";
               __overlay__ {
