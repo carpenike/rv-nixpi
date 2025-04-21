@@ -35,17 +35,6 @@
             compatible = "brcm,bcm2711";
 
             fragment@0 {
-              target-path = "/";
-              __overlay__ {
-                can0_osc: can0_osc {
-                  compatible = "fixed-clock";
-                  #clock-cells = <0>;
-                  clock-frequency = <16000000>;
-                };
-              };
-            };
-
-            fragment@1 {
               target = <&gpio>;
               __overlay__ {
                 can0_pins: can0_pins {
@@ -56,11 +45,17 @@
               };
             };
 
-            fragment@2 {
+            fragment@1 {
               target = <&spi0>;
               __overlay__ {
                 #address-cells = <1>;
                 #size-cells = <0>;
+
+                can0_osc: can0_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
 
                 can0: mcp2515@0 {
                   reg = <0>;
@@ -89,17 +84,6 @@
             compatible = "brcm,bcm2711";
 
             fragment@0 {
-              target-path = "/";
-              __overlay__ {
-                can1_osc: can1_osc {
-                  compatible = "fixed-clock";
-                  #clock-cells = <0>;
-                  clock-frequency = <16000000>;
-                };
-              };
-            };
-
-            fragment@1 {
               target = <&gpio>;
               __overlay__ {
                 can1_pins: can1_pins {
@@ -110,11 +94,17 @@
               };
             };
 
-            fragment@2 {
+            fragment@1 {
               target = <&spi0>;
               __overlay__ {
                 #address-cells = <1>;
                 #size-cells = <0>;
+
+                can1_osc: can1_osc {
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>;
+                };
 
                 can1: mcp2515@1 {
                   reg = <1>;
