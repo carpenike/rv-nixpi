@@ -37,8 +37,8 @@
     kernelPackages = pkgs.linuxPackages_rpi4;
 
     # Enable Raspberry Pi firmware to set dtparam and dtoverlay entries
-    boot.firmware.raspberryPi.enable = true;
-    boot.firmware.raspberryPi.config = {
+    firmware.raspberryPi.enable = true;
+    firmware.raspberryPi.config = {
       dtparam = {
         spi  = "on";
         sdio = "on";
