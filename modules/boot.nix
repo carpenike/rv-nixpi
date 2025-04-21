@@ -24,7 +24,6 @@
     extraModprobeConfig = ''
       options g_serial use_acm=1
       options spi_bcm2835 enable_dma=1
-      options mcp251x override_rts=1
     '';
 
     kernelParams = [

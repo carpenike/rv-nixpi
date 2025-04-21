@@ -9,24 +9,9 @@
     filter = "*-rpi-4-*.dtb";
 
     overlays = [
-        {
-          name = "spi-on";
-          dtsText = ''
-            /dts-v1/;
-            /plugin/;
-
-            / {
-              compatible = "brcm,bcm2711";
-              fragment@0 {
-                target = <&spi0>;
-                __overlay__ { status = "okay"; };
-              };
-            };
-          '';
-        }
-
+      # Combined overlay for SPI0 and both MCP2515 CAN controllers
       {
-        name = "mcp2515-can0";
+        name = "pican2-duo-spi0";
         dtsText = ''
           /dts-v1/;
           /plugin/;
@@ -34,88 +19,105 @@
           / {
             compatible = "brcm,bcm2711";
 
+            // Enable SPI0
             fragment@0 {
+              target = <&spi0>;
+              __overlay__ { status = "okay"; };
+            };
+
+            // Define GPIO pins for CAN0 interrupt
+            fragment@1 {
               target = <&gpio>;
               __overlay__ {
                 can0_pins: can0_pins {
-                  brcm,pins = <25>;
-                  brcm,function = <0>;
-                  brcm,pull = <2>;
+                  brcm,pins = <25>;     // GPIO25 for CAN0 INT
+                  brcm,function = <0>;  // Input
+                  brcm,pull = <2>;      // Pull-up
                 };
               };
             };
 
-            fragment@1 {
-              target = <&spi0>;
-              __overlay__ {
-                #address-cells = <1>;
-                #size-cells = <0>;
-
-                can0_osc: can0_osc {
-                  compatible = "fixed-clock";
-                  #clock-cells = <0>;
-                  clock-frequency = <16000000>;
-                };
-
-                can0: mcp2515@0 {
-                  reg = <0>;
-                  compatible = "microchip,mcp2515";
-                  pinctrl-names = "default";
-                  pinctrl-0 = <&can0_pins>;
-                  spi-max-frequency = <10000000>;
-                  interrupt-parent = <&gpio>;
-                  interrupts = <25 8>;
-                  clocks = <&can0_osc>;
-                  status = "okay";
-                };
-              };
-            };
-          };
-        '';
-      }
-
-      {
-        name = "mcp2515-can1";
-        dtsText = ''
-          /dts-v1/;
-          /plugin/;
-
-          / {
-            compatible = "brcm,bcm2711";
-
-            fragment@0 {
+            // Define GPIO pins for CAN1 interrupt
+            fragment@2 {
               target = <&gpio>;
               __overlay__ {
                 can1_pins: can1_pins {
-                  brcm,pins = <24>;
-                  brcm,function = <0>;
-                  brcm,pull = <2>;
+                  brcm,pins = <24>;     // GPIO24 for CAN1 INT
+                  brcm,function = <0>;  // Input
+                  brcm,pull = <2>;      // Pull-up
                 };
               };
             };
 
-            fragment@1 {
+            // Define CAN0 device on SPI0 CS0
+            fragment@3 {
               target = <&spi0>;
               __overlay__ {
                 #address-cells = <1>;
                 #size-cells = <0>;
 
-                can1_osc: can1_osc {
+                can0_osc: can0_osc@0 { // Unique node name
                   compatible = "fixed-clock";
                   #clock-cells = <0>;
-                  clock-frequency = <16000000>;
+                  clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
+                };
+
+                can0: mcp2515@0 {
+                  reg = <0>; // Chip Select 0
+                  compatible = "microchip,mcp2515";
+                  pinctrl-names = "default";
+                  pinctrl-0 = <&can0_pins>;
+                  spi-max-frequency = <10000000>; // 10 MHz SPI clock
+                  interrupt-parent = <&gpio>;
+                  interrupts = <25 8>; // GPIO25, Active Low (IRQ_TYPE_EDGE_FALLING)
+                  clocks = <&can0_osc>;
+                  // status = "okay"; // Status okay is implicit when overlay applied
+                };
+              };
+            };
+
+            // Define CAN1 device on SPI0 CS1
+            fragment@4 {
+              target = <&spi0>;
+              __overlay__ {
+                // spi0 node already has #address-cells and #size-cells defined by fragment@3
+
+                can1_osc: can1_osc@1 { // Unique node name
+                  compatible = "fixed-clock";
+                  #clock-cells = <0>;
+                  clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
                 };
 
                 can1: mcp2515@1 {
-                  reg = <1>;
+                  reg = <1>; // Chip Select 1
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
                   pinctrl-0 = <&can1_pins>;
-                  spi-max-frequency = <10000000>;
+                  spi-max-frequency = <10000000>; // 10 MHz SPI clock
                   interrupt-parent = <&gpio>;
-                  interrupts = <24 8>;
+                  interrupts = <24 8>; // GPIO24, Active Low (IRQ_TYPE_EDGE_FALLING)
                   clocks = <&can1_osc>;
-                  status = "okay";
+                  // status = "okay"; // Status okay is implicit when overlay applied
+                };
+              };
+            };
+
+            // Disable default spidev on CS0
+            fragment@5 {
+              target = <&spi0>;
+              __overlay__ {
+                spidev0: spidev@0 {
+                  status = "disabled";
+                };
+              };
+            };
+
+            // Disable default spidev on CS1
+            fragment@6 {
+              target = <&spi0>;
+              __overlay__ {
+                spidev1: spidev@1 {
+                  status = "disabled";
                 };
               };
             };
