@@ -9,23 +9,8 @@
     filter = "*-rpi-4-*.dtb";
 
     overlays = [
-        {
-          name = "spi-on";
-          dtsText = ''
-            /dts-v1/;
-            /plugin/;
-
-            / {
-              compatible = "brcm,bcm2711";
-              fragment@0 {
-                target = <&spi0>;
-                __overlay__ { status = "okay"; };
-              };
-            };
-          '';
-        }
-        { name = "mcp2515-can0"; path = ./modules/firmware/mcp2515-can0.dtbo; }
-        { name = "mcp2515-can1"; path = ./modules/firmware/mcp2515-can1.dtbo; }
+        { name = "mcp2515-can0"; dtboFile = ./firmware/mcp2515-can0.dtbo; }
+        { name = "mcp2515-can1"; dtboFile = ./firmware/mcp2515-can1.dtbo; }
       ];
   };
 
