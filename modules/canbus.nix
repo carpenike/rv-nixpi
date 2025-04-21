@@ -125,9 +125,6 @@
     ];
   };
 
-  # Add a test environment variable to check if the module is loaded
-  environment.variables.CANBUS_MODULE_LOADED = "true";
-
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
@@ -137,30 +134,16 @@
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
 
-  # Define ordered rule files directly in services.udev.packages
-  services.udev.packages = [
-    (pkgs.writeTextFile {
-      name = "70-can-rename-temp.rules";
-      text = ''
-        # Step 1: Rename physical CAN0 (spi0.0) to can_temp0
-        SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.0/net/can*", NAME="can_temp0"
-      '';
-    })
-    (pkgs.writeTextFile {
-      name = "71-can-rename-can1.rules";
-      text = ''
-        # Step 2: Rename physical CAN1 (spi0.1) to can1
-        SUBSYSTEM=="net", ACTION=="add", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
-      '';
-    })
-    (pkgs.writeTextFile {
-      name = "72-can-rename-can0.rules";
-      text = ''
-        # Step 3: Rename can_temp0 (original physical CAN0) to can0
-        SUBSYSTEM=="net", KERNEL=="can_temp0", ACTION=="add", NAME="can0"
-      '';
-    })
-  ];
+  systemd.network.links = {
+    "10-can0" = {
+      matchConfig.Path     = "*spi0.0*";
+      linkConfig.Name      = "can0";
+    };
+    "10-can1" = {
+      matchConfig.Path     = "*spi0.1*";
+      linkConfig.Name      = "can1";
+    };
+  };
 
   # Disable IPv6 for CAN interfaces to prevent irrelevant udev errors
   boot.kernel.sysctl = {
