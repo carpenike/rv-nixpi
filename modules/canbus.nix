@@ -66,6 +66,7 @@
                   interrupt-parent = <&gpio>;
                   interrupts = <25 8>;
                   clocks = <&can0_osc>;
+                  oscillator-frequency = <16000000>;
                   status = "okay";
                 };
               };
@@ -115,6 +116,7 @@
                   interrupt-parent = <&gpio>;
                   interrupts = <24 8>;
                   clocks = <&can1_osc>;
+                  oscillator-frequency = <16000000>;
                   status = "okay";
                 };
               };
