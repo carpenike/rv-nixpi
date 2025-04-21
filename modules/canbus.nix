@@ -55,7 +55,6 @@
                   compatible = "fixed-clock";
                   #clock-cells = <0>;
                   clock-frequency = <16000000>;
-                  clock-output-names = "osc";
                 };
 
                 can0: mcp2515@0 {
@@ -67,8 +66,6 @@
                   interrupt-parent = <&gpio>;
                   interrupts = <25 8>;
                   clocks = <&can0_osc>;
-                  clock-names = "osc";
-                  clock-frequency = <16000000>;
                   status = "okay";
                 };
               };
@@ -107,7 +104,6 @@
                   compatible = "fixed-clock";
                   #clock-cells = <0>;
                   clock-frequency = <16000000>;
-                  clock-output-names = "osc";
                 };
 
                 can1: mcp2515@1 {
@@ -119,8 +115,6 @@
                   interrupt-parent = <&gpio>;
                   interrupts = <24 8>;
                   clocks = <&can1_osc>;
-                  clock-names = "osc";
-                  clock-frequency = <16000000>;
                   status = "okay";
                 };
               };
@@ -207,6 +201,6 @@
     usbutils
     pciutils
     i2c-tools
-    python3Packages.spidev
+    python3Packages.spidev  # For SPI tools
   ];
 }
