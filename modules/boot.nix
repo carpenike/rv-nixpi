@@ -21,6 +21,7 @@
 
     initrd.kernelModules = [
       "dwc2"
+      "g_serial"
       "spi_bcm2835"
       "spidev"
       "can"
@@ -33,11 +34,6 @@
       options g_serial use_acm=1
       options spi_bcm2835 enable_dma=1
     '';
-
-    kernelParams = [
-      "console=tty1"
-      "console=ttyGS0,115200"
-    ];
 
     # Use the Raspberry Pi-specific kernel
     kernelPackages = pkgs.linuxPackages_rpi4;
