@@ -128,29 +128,30 @@
   # Create an SPI group for permissions.
   users.groups.spi = {};
 
-  # Set up udev rules for spidev devices
+  # Set up udev rules
   services.udev.extraRules = ''
+    # Existing rule for spidev permissions (though spidev is disabled in DT)
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
+
+    # Rename CAN interfaces based on SPI CS using udev
+    # Match physical CAN0 (CS0, path */spi0.0/net/can*) and name it can0
+    SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", DEVPATH=="*/spi0.0/net/can*", NAME="can0"
+    # Match physical CAN1 (CS1, path */spi0.1/net/can*) and name it can1
+    SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
   '';
 
-  # Use systemd link files to rename CAN interfaces based on SPI bus address
-  systemd.network.enable = true; # Ensure systemd-networkd is active for .link files
-  systemd.network.links."10-can0" = {
-    # Match the kernel interface under spi0.0 (CS0)
-    matchConfig.Path = "*/spi0.0/net/can*";
-    linkConfig.Name = "can0"; # Rename to can0 (physical CAN0)
-  };
-  systemd.network.links."10-can1" = {
-    # Match the kernel interface under spi0.1 (CS1)
-    matchConfig.Path = "*/spi0.1/net/can*";
-    linkConfig.Name = "can1"; # Rename to can1 (physical CAN1)
-  };
+  # Keep systemd-networkd enabled for now, although link files are removed.
+  # It might be needed implicitly elsewhere, or we might need it later.
+  # If udev renaming works reliably, this could potentially be set to false
+  # after confirming nothing else breaks.
+  systemd.network.enable = true;
 
   # Systemd services for the CAN interfaces.
   systemd.services."can0" = {
     description = "CAN0 Interface (Physical CAN0 Port)";
     wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-modules-load.service" ];
+    # Wait for udev to settle, hoping the rename has happened
+    after = [ "systemd-udev-settle.service" "systemd-modules-load.service" ];
     requires = [ "dev-spi0.device" ];
     startLimitIntervalSec = 30;
     startLimitBurst = 5;
@@ -181,7 +182,8 @@
   systemd.services."can1" = {
     description = "CAN1 Interface (Physical CAN1 Port)";
     wantedBy = [ "multi-user.target" ];
-    after = [ "systemd-modules-load.service" "can0.service" ];
+    # Wait for udev to settle, hoping the rename has happened
+    after = [ "systemd-udev-settle.service" "systemd-modules-load.service" "can0.service" ];
     requires = [ "dev-spi0.device" ];
     startLimitIntervalSec = 30;
     startLimitBurst = 5;
