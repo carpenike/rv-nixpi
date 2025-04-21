@@ -49,7 +49,7 @@
               };
             };
 
-            // Define CAN0 device on SPI0 CS0
+            // Define CAN0 device on SPI0 CS0 (Kernel calls this can1)
             fragment@3 {
               target = <&spi0>;
               __overlay__ {
@@ -62,21 +62,21 @@
                   clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
                 };
 
-                can0: mcp2515@0 {
+                can0_mcp: mcp2515@0 { // Renamed node slightly for clarity
                   reg = <0>; // Chip Select 0
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
-                  pinctrl-0 = <&can0_pins>;
+                  pinctrl-0 = <&can1_pins>; // Use GPIO24 pins (originally for can1)
                   spi-max-frequency = <10000000>; // 10 MHz SPI clock
                   interrupt-parent = <&gpio>;
-                  interrupts = <25 8>; // GPIO25, Active Low (IRQ_TYPE_EDGE_FALLING)
+                  interrupts = <24 8>; // Use GPIO24 interrupt (originally for can1)
                   clocks = <&can0_osc>;
                   // status = "okay"; // Status okay is implicit when overlay applied
                 };
               };
             };
 
-            // Define CAN1 device on SPI0 CS1
+            // Define CAN1 device on SPI0 CS1 (Kernel calls this can0)
             fragment@4 {
               target = <&spi0>;
               __overlay__ {
@@ -88,14 +88,14 @@
                   clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
                 };
 
-                can1: mcp2515@1 {
+                can1_mcp: mcp2515@1 { // Renamed node slightly for clarity
                   reg = <1>; // Chip Select 1
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
-                  pinctrl-0 = <&can1_pins>;
+                  pinctrl-0 = <&can0_pins>; // Use GPIO25 pins (originally for can0)
                   spi-max-frequency = <10000000>; // 10 MHz SPI clock
                   interrupt-parent = <&gpio>;
-                  interrupts = <24 8>; // GPIO24, Active Low (IRQ_TYPE_EDGE_FALLING)
+                  interrupts = <25 8>; // Use GPIO25 interrupt (originally for can0)
                   clocks = <&can1_osc>;
                   // status = "okay"; // Status okay is implicit when overlay applied
                 };
