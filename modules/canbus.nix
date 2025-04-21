@@ -49,7 +49,7 @@
               };
             };
 
-            // Define CAN0 device on SPI0 CS0 (Kernel calls this can1)
+            // Define CAN0 device on SPI0 CS0 (Matches schematic CAN0)
             fragment@3 {
               target = <&spi0>;
               __overlay__ {
@@ -62,21 +62,20 @@
                   clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
                 };
 
-                can0_mcp: mcp2515@0 { // Renamed node slightly for clarity
+                can0_mcp: mcp2515@0 { // Node for CS0
                   reg = <0>; // Chip Select 0
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
-                  pinctrl-0 = <&can1_pins>; // Use GPIO24 pins (originally for can1)
-                  spi-max-frequency = <10000000>; // 10 MHz SPI clock
+                  pinctrl-0 = <&can0_pins>; // Use GPIO25 pins (schematic CAN0 INT)
+                  spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <24 8>; // Use GPIO24 interrupt (originally for can1)
+                  interrupts = <25 8>; // Use GPIO25 interrupt (schematic CAN0 INT)
                   clocks = <&can0_osc>;
-                  // status = "okay"; // Status okay is implicit when overlay applied
                 };
               };
             };
 
-            // Define CAN1 device on SPI0 CS1 (Kernel calls this can0)
+            // Define CAN1 device on SPI0 CS1 (Matches schematic CAN1)
             fragment@4 {
               target = <&spi0>;
               __overlay__ {
@@ -88,16 +87,15 @@
                   clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
                 };
 
-                can1_mcp: mcp2515@1 { // Renamed node slightly for clarity
+                can1_mcp: mcp2515@1 { // Node for CS1
                   reg = <1>; // Chip Select 1
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
-                  pinctrl-0 = <&can0_pins>; // Use GPIO25 pins (originally for can0)
-                  spi-max-frequency = <10000000>; // 10 MHz SPI clock
+                  pinctrl-0 = <&can1_pins>; // Use GPIO24 pins (schematic CAN1 INT)
+                  spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <25 8>; // Use GPIO25 interrupt (originally for can0)
+                  interrupts = <24 8>; // Use GPIO24 interrupt (schematic CAN1 INT)
                   clocks = <&can1_osc>;
-                  // status = "okay"; // Status okay is implicit when overlay applied
                 };
               };
             };
@@ -153,7 +151,7 @@
         sleep 1
         for i in {1..5}; do
           # Change bitrate to 250000
-          if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 250000 restart-ms 100; then
+          if ${pkgs.iproute2}/bin/ip link set can0 up type can bitrate 250000 restart-ms 0; then
             echo 0 > /sys/class/net/can0/statistics/bus_error || true
             exit 0
           fi
@@ -184,7 +182,7 @@
         sleep 1
         for i in {1..5}; do
           # Change bitrate to 250000
-          if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 250000 restart-ms 100; then
+          if ${pkgs.iproute2}/bin/ip link set can1 up type can bitrate 250000 restart-ms 0; then
             echo 0 > /sys/class/net/can1/statistics/bus_error || true
             exit 0
           fi
