@@ -133,11 +133,11 @@
     # Existing rule for spidev permissions (though spidev is disabled in DT)
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
 
-    # Rename CAN interfaces based on SPI CS using udev
+    # Rename CAN interfaces based on SPI CS using udev DEVPATH (refined)
     # Match physical CAN0 (CS0, path */spi0.0/net/can*) and name it can0
-    SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", DEVPATH=="*/spi0.0/net/can*", NAME="can0"
+    SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", DEVPATH=="*/spi0.0/net/can*", NAME="can0"
     # Match physical CAN1 (CS1, path */spi0.1/net/can*) and name it can1
-    SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
+    SUBSYSTEM=="net", ACTION=="add", KERNEL=="can*", DEVPATH=="*/spi0.1/net/can*", NAME="can1"
   '';
 
   # Disable systemd-networkd as it's not needed for udev renaming
