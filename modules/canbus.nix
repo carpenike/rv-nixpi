@@ -176,10 +176,6 @@ in
     "net.ipv6.conf.can1.disable_ipv6" = 1;
   };
 
-  # Disable systemd-networkd as it's not needed for udev renaming
-  # and causes warnings with networking.useDHCP=true + networking.useNetworkd=false
-  systemd.network.enable = false;
-
   # Systemd services for the CAN interfaces.
   systemd.services."can0" = {
     description = "CAN0 Interface (Physical CAN0 Port)";
