@@ -128,6 +128,22 @@
           };
         '';
       }
+
+      {
+        name = "sdio-on";
+        dtsText = ''
+          /dts-v1/;
+          /plugin/;
+
+          / {
+            compatible = "brcm,bcm2711";
+            fragment@0 {
+              target-path = "/soc/mmc@7e202000";
+              __overlay__ { status = "okay"; };
+            };
+          };
+        '';
+      }
     ];
   };
 
