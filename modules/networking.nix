@@ -4,6 +4,7 @@
   networking = {
     networkmanager.enable = false;
     wireless.iwd.enable = true;
+    useNetworkd = false;
     hostName = "nixpi";
 
     wireless.iwd.settings = {
