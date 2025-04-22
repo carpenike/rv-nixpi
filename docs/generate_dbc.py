@@ -267,11 +267,33 @@ def main():
                 current_max_bit = start_bit + length - 1
                 max_bit_pos = max(max_bit_pos, current_max_bit)
 
-                factor, offset, signed = get_scaling_offset_signed(param_name, param_type, unit)
+                factor_str, offset_str, signed = get_scaling_offset_signed(param_name, param_type, unit) # Get formatted strings
                 signed_char = "-" if signed else "+"
                 unit_str_quoted = f'"{unit}"' if unit else '""'
 
-                sg_line = f' SG_ {param_name} : {start_bit}|{length}@0{signed_char} ({factor},{offset}) [0|0] {unit_str_quoted} {DEFAULT_RECEIVER}'
+                # Calculate min/max based on bits and signedness if possible
+                if length <= 64: # Avoid calculating for excessively large bit lengths
+                    try: # Add try-except for potential float conversion errors
+                        factor_float = float(factor_str)
+                        offset_float = float(offset_str)
+                        if signed:
+                            raw_max = (1 << (length - 1)) - 1
+                            raw_min = -(1 << (length - 1))
+                        else:
+                            raw_max = (1 << length) - 1
+                            raw_min = 0
+                        # Apply scaling
+                        phys_min = raw_min * factor_float + offset_float
+                        phys_max = raw_max * factor_float + offset_float
+                        # Format min/max nicely
+                        min_max_str = f"[{phys_min:.10g}|{phys_max:.10g}]"
+                    except ValueError:
+                         min_max_str = "[0|0]" # Default if conversion fails
+                else:
+                    min_max_str = "[0|0]" # Default if too large
+
+                # CORRECTED SG_ line formatting: Use factor_str and offset_str explicitly
+                sg_line = f' SG_ {param_name} : {start_bit}|{length}@0{signed_char} ({factor_str},{offset_str}) {min_max_str} {unit_str_quoted} {DEFAULT_RECEIVER}'
                 signals.append(sg_line)
 
                 # Generate VAL_ table if values exist
@@ -349,7 +371,7 @@ def main():
                  dlc = min(dlc, 8)
                  definition_to_use = {
                      'sg': template_def['sg'],
-                     'val_defs': template_def.get('val_defs', []), # Template VAL defs need ID adjustment
+                     'val_defs': template_def.get('val_defs', []), # Template VAL defs need ID adjustment later
                      'dlc': dlc,
                      'transmitter': DEFAULT_TRANSMITTER # Assume default for aliases of templates
                  }

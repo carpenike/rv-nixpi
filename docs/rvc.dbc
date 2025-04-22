@@ -82,7 +82,7 @@ VAL_ 69629 device_priority 120 "battery soc device" 100 "inverter charger" 80 "c
 BO_ 131068 DC_SOURCE_STATUS_2: 7 RVCController
  SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
  SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
- SG_ source_temperature : 16|16@0+ (0.1,-4) [0|0] "Deg C" RVCController
+ SG_ source_temperature : 16|16@0+ (0.1,-4) [-4|6549.5] "Deg C" RVCController
  SG_ state_of_charge : 32|8@0+ (0.5,) [0|0] "pct" RVCController
  SG_ time_remaining : 40|16@0+ (1,) [0|0] "min" RVCController
 
@@ -473,7 +473,7 @@ BO_ 130804 THERMOSTAT_SCHEDULE_COMMAND_2: 1 RVCController
 
 BO_ 130972 THERMOSTAT_AMBIENT_STATUS: 3 RVCController
  SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
- SG_ ambient_temp : 8|16@0+ (0.1,-4) [0|0] "Deg C" RVCController
+ SG_ ambient_temp : 8|16@0+ (0.1,-4) [-4|6549.5] "Deg C" RVCController
 
 BO_ 131041 AIR_CONDITIONER_STATUS: 8 RVCController
  SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
