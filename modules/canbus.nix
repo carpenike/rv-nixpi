@@ -134,9 +134,6 @@
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
 
-  # Enable systemd-networkd
-  systemd.network.enable = true;
-
   # Define network links to rename interfaces based on hardware path
   systemd.network.links = {
     "10-can0" = {
@@ -218,6 +215,11 @@
       Restart = "on-failure";
       RestartSec = "5s";
     };
+  };
+
+  # Configure networkd-wait-online to only wait for specific interfaces
+  systemd.services.systemd-networkd-wait-online.serviceConfig = {
+    ExecStart = pkgs.lib.mkForce "${pkgs.systemd}/lib/systemd/systemd-networkd-wait-online --timeout=120 --interface=wlan0 --interface=end0";
   };
 
   # Add can-utils and debugging tools.

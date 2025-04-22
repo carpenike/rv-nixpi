@@ -6,6 +6,11 @@
     wireless.iwd.enable = true;
     hostName = "nixpi";
 
+    # Use systemd-networkd for network management
+    useNetworkd = true;
+    # Disable conflicting dhcpcd
+    useDHCP = false;
+
     wireless.iwd.settings = {
       General = {
         EnableNetworkConfiguration = true;
@@ -16,6 +21,22 @@
         DisableVht = false;
         DisableHe = true;
       };
+    };
+  };
+
+  # Enable the systemd-networkd service itself
+  systemd.network.enable = true;
+
+  systemd.network.networks = {
+    # Configure wlan0 for DHCP using systemd-networkd
+    "10-wlan0" = {
+      matchConfig.Name = "wlan0";
+      networkConfig.DHCP = "ipv4";
+    };
+    # Configure end0 for DHCP using systemd-networkd
+    "10-end0" = {
+      matchConfig.Name = "end0"; # Changed from eth0
+      networkConfig.DHCP = "ipv4";
     };
   };
 
