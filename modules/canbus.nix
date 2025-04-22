@@ -135,19 +135,19 @@
   '';
 
   # Define network links to rename interfaces based on hardware path
-systemd.network.links = {
-    # phys spi0.0 (which shows up under can1) → rename to can0
-    "10-can0" = {
-      matchConfig.Path = [ "*spi0.0*" ];
-      linkConfig.Name  = "can0";
-    };
+  systemd.network.links = {
+      # the device whose ID_PATH contains "spi-cs-0" (currently can1) → rename to can0
+      "10-can0" = {
+        matchConfig.Path = [ "*spi-cs-0*" ];
+        linkConfig.Name  = "can0";
+      };
 
-    # phys spi0.1 (which shows up under can0) → rename to can1
-    "20-can1" = {
-      matchConfig.Path = [ "*spi0.1*" ];
-      linkConfig.Name  = "can1";
+      # the device whose ID_PATH contains "spi-cs-1" (currently can0) → rename to can1
+      "20-can1" = {
+        matchConfig.Path = [ "*spi-cs-1*" ];
+        linkConfig.Name  = "can1";
+      };
     };
-  };
 
   # Disable IPv6 for CAN interfaces to prevent irrelevant udev errors
   boot.kernel.sysctl = {
