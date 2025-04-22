@@ -17,8 +17,8 @@
       set -l current_hostname (hostname)
 
       # Performance Metrics
-      # Use awk to parse uptime output for the 1-minute load average (Reverted to awk)
-      set -l load_avg (uptime | command awk -F 'load average: ' '{print $2}' | command awk -F, '{print $1}' | command string trim)
+      # Use awk to parse uptime output, removed string trim
+      set -l load_avg (uptime | command awk -F 'load average: ' '{print $2}' | command awk -F, '{print $1}')
       set -l mem_info (free -h | command awk '/^Mem:/ {print $3" / "$2}') # Used / Total RAM
       set -l disk_usage (df -h / | command awk 'NR==2 {print $5}') # Root partition usage %
 
@@ -40,7 +40,7 @@
       set -l box_v "│"
 
       # Define dimensions (adjust width as needed)
-      set -l width 85 # Increased width
+      set -l width 95 # Increased width again
       set -l inner_width (math $width - 4) # Width inside the box borders │  ...  │
 
       # Create horizontal line
