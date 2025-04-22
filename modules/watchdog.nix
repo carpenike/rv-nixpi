@@ -1,3 +1,5 @@
+{ config, pkgs, lib, ... }:
+
 {
   # Enable the hardware watchdog timer
   boot.kernelModules = [ "bcm2835_wdt" ];
