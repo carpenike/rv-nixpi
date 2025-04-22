@@ -70,7 +70,7 @@
     };
 
     devShells.${system}.default = import ./devshell.nix {
-    inherit (nixpkgs.legacyPackages.${system}) pkgs;
-  };
+      inherit (nixpkgs.legacyPackages.${system}) pkgs;
+    };
   };
 }
