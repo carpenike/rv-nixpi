@@ -753,7 +753,7 @@ BO_ 131006 AC_LOAD_COMMAND: 6 RVCController
  SG_ interlock : 26|2@1+ (1,0) [0|0] "" RVCController
  SG_ priority : 28|4@1+ (1,0) [0|0] "" RVCController
  SG_ command : 32|1@1+ (1,0) [0|0] "" RVCController
- SG_ delay/duration : 40|1@1+ (1,0) [0|0] "" RVCController
+ SG_ delay_duration : 40|1@1+ (1,0) [0|0] "" RVCController
 VAL_ 131006 desired_operating_mode 0 "automatic" 1 "manual" ;
 VAL_ 131006 interlock 0 "no interlock active" 1 "interlock a" 2 "interlock b" ;
 VAL_ 131006 priority 0 "highest priority" 13 "lowest priority" 14 "error" 15 "no data" ;
@@ -781,7 +781,7 @@ BO_ 131004 DC_LOAD_COMMAND: 6 RVCController
  SG_ desired_operating_mode : 24|2@1+ (1,0) [0|0] "" RVCController
  SG_ interlock : 26|2@1+ (1,0) [0|0] "" RVCController
  SG_ command : 32|1@1+ (1,0) [0|0] "" RVCController
- SG_ delay/duration : 40|1@1+ (1,0) [0|0] "sec" RVCController
+ SG_ delay_duration : 40|1@1+ (1,0) [0|0] "sec" RVCController
 VAL_ 131004 desired_operating_mode 0 "automatic" 1 "manual" ;
 VAL_ 131004 interlock 0 "no interlock active" 1 "interlock a" 2 "interlock b" ;
 VAL_ 131004 command 0 "set level" 1 "on duration" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 33 "lock" 34 "unlock" 49 "flash" ;
@@ -818,7 +818,7 @@ BO_ 130778 DC_DIMMER_STATUS_3: 8 RVCController
  SG_ overcurrent_status : 26|2@1+ (1,0) [0|0] "" RVCController
  SG_ override_status : 28|2@1+ (1,0) [0|0] "" RVCController
  SG_ enable_status : 30|2@1+ (1,0) [0|0] "" RVCController
- SG_ delay/duration : 32|1@1+ (1,0) [0|0] "Sec" RVCController
+ SG_ delay_duration : 32|1@1+ (1,0) [0|0] "Sec" RVCController
  SG_ last_command : 40|1@1+ (1,0) [0|0] "" RVCController
  SG_ interlock_status : 48|2@1+ (1,0) [0|0] "" RVCController
  SG_ load_status : 50|2@1+ (1,0) [0|0] "" RVCController
@@ -829,7 +829,7 @@ VAL_ 130778 lock_status 0 "load is unlocked" 1 "load is locked" 3 "lock command 
 VAL_ 130778 overcurrent_status 0 "load is not in overcurrent" 1 "load is in overcurrent" 3 "overcurrent status is unavailable or not supported" ;
 VAL_ 130778 override_status 0 "external override is inactive" 1 "external override is active" 3 "override status is unavailable or not supported" ;
 VAL_ 130778 enable_status 0 "load is enabled" 1 "load is disabled" 3 "enable status is unavailable or not supported" ;
-VAL_ 130778 delay/duration 0 "delay/duration has expired" 240 "240 or more seconds remaining" 252 "output is flashing" 253 "out of range (more than 240 seconds remaining)" 255 "no delay/duration active" ;
+VAL_ 130778 delay_duration 0 "delay_duration has expired" 240 "240 or more seconds remaining" 252 "output is flashing" 253 "out of range (more than 240 seconds remaining)" 255 "no delay/duration active" ;
 VAL_ 130778 last_command 0 "set brightness" 1 "True" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 17 "ramp brightness" 18 "ramp toggle" 19 "ramp up" 20 "ramp down" 21 "ramp up/down" 33 "lock" 34 "unlock" 49 "flash" 50 "flash momentarily" ;
 VAL_ 130778 interlock_status 0 "interlock command is not active" 1 "interlock command is active" 3 "interlock command is not supported" ;
 VAL_ 130778 load_status 0 "operating status is zero" 1 "operating status is non-zero or flashing" ;
@@ -840,7 +840,7 @@ BO_ 130779 DC_DIMMER_COMMAND_2: 6 RVCController
  SG_ group : 8|1@1+ (1,0) [0|0] "bitmap" RVCController
  SG_ desired_level : 16|1@1+ (1,0) [0|0] "pct" RVCController
  SG_ command : 24|1@1+ (1,0) [0|0] "" RVCController
- SG_ delay/duration : 32|1@1+ (1,0) [0|0] "" RVCController
+ SG_ delay_duration : 32|1@1+ (1,0) [0|0] "" RVCController
  SG_ interlock : 40|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 130779 command 0 "set brightness" 1 "on duration" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 17 "ramp brightness" 18 "ramp toggle" 19 "ramp up" 20 "ramp down" 21 "ramp up/down" 33 "lock" 34 "unlock" 49 "flash" 50 "flash momentarily" ;
 VAL_ 130779 interlock 0 "no interlock active" 1 "interlock a" 2 "interlock b" ;
@@ -852,7 +852,7 @@ BO_ 130775 GENERIC_INDICATOR_STATUS: 7 RVCController
  SG_ group : 8|1@1+ (1,0) [0|0] "bitmap" RVCController
  SG_ brightness : 16|1@1+ (1,0) [0|0] "pct" RVCController
  SG_ bank_select : 24|4@1+ (1,0) [0|0] "" RVCController
- SG_ delay/duration : 32|1@1+ (1,0) [0|0] "" RVCController
+ SG_ delay_duration : 32|1@1+ (1,0) [0|0] "" RVCController
  SG_ led1_status : 40|2@1+ (1,0) [0|0] "" RVCController
  SG_ led2_status : 42|2@1+ (1,0) [0|0] "" RVCController
  SG_ last_command : 48|1@1+ (1,0) [0|0] "" RVCController
