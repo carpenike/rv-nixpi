@@ -94,5 +94,27 @@
         exit 1 # Exit with non-zero status to indicate mismatch
       fi
     '')
+
+    (pkgs.writeShellScriptBin "rvc-dbc-test" ''
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      INTERFACE=''${1:-can0}
+      DBC_PATH="/etc/nixos/files/generated_rvc.dbc"
+      SCRIPT="/etc/nixos/files/live_can_decoder.py"
+
+      if [ ! -f "$DBC_PATH" ]; then
+        echo "❌ DBC file not found at $DBC_PATH"
+        exit 1
+      fi
+
+      if [ ! -f "$SCRIPT" ]; then
+        echo "❌ Python script not found at $SCRIPT"
+        exit 1
+      fi
+
+      echo "▶️ Running decoder on interface $INTERFACE"
+      python3 "$SCRIPT" --interface "$INTERFACE" --dbc "$DBC_PATH"
+    '')
   ];
 }

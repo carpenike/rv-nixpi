@@ -57,6 +57,7 @@
       ./modules/ssh.nix
       ./modules/sudo.nix
       ./modules/systemPackages.nix
+      ./modules/rvc2api-debug-tools.nix
       # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; })
     ];
 
