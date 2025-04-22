@@ -18,18 +18,18 @@ BU_: RVCController RVCNode // Define default node names
 // NOTE: Factor/offset are (1,0) unless units imply scaling (requires manual interpretation). Min/Max are defaults for type.
 
 // DGN 0x17F00
-BO_ 98048 GENERAL_RESET: 8 RVCNode
+BO_ 2147581696 GENERAL_RESET: 8 RVCNode
 	SG_ reboot : 0|2@1+ (1,0) [0|1] "" RVCController
 	SG_ clear_faults : 2|2@1+ (1,0) [0|1] "" RVCController
 	SG_ reset_to_default_settings : 4|2@1+ (1,0) [0|1] "" RVCController
 	SG_ reset_statistics : 6|2@1+ (1,0) [0|1] "" RVCController
 
 // DGN 0x17E00
-BO_ 97792 TERMINAL: 8 RVCNode
+BO_ 2147581440 TERMINAL: 8 RVCNode
 	SG_ data : 0|64@1+ (1,0) [0|0] "" RVCController // Representing ASCII as raw data
 
 // DGN 0x1FED8
-BO_ 130776 GENERIC_CONFIGURATION_STATUS: 8 RVCNode
+BO_ 2147614424 GENERIC_CONFIGURATION_STATUS: 8 RVCNode
 	SG_ manufacturer_code_LSB : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ manufacturer_code_MS_bits : 8|3@1+ (1,0) [0|7] "" RVCController
 	SG_ function_instance : 11|5@1+ (1,0) [0|31] "" RVCController
@@ -41,7 +41,7 @@ BO_ 130776 GENERIC_CONFIGURATION_STATUS: 8 RVCNode
 	SG_ configuration_revision : 56|8@1+ (1,0) [0|255] "" RVCController
 
 // DGN 0x1FFFF
-BO_ 131071 DATE_TIME_STATUS: 8 RVCNode
+BO_ 2147614719 DATE_TIME_STATUS: 8 RVCNode
 	SG_ year : 0|8@1+ (1,0) [0|255] "year" RVCController
 	SG_ month : 8|8@1+ (1,0) [1|12] "" RVCController
 	SG_ date : 16|8@1+ (1,0) [1|31] "" RVCController
@@ -52,7 +52,7 @@ BO_ 131071 DATE_TIME_STATUS: 8 RVCNode
 	SG_ time_zone : 56|8@1+ (1,0) [0|255] "" RVCController
 
 // DGN 0x1FFFE (Alias for 1FFFF)
-BO_ 131070 SET_DATE_TIME_COMMAND: 8 RVCNode // Alias of DATE_TIME_STATUS
+BO_ 2147614718 SET_DATE_TIME_COMMAND: 8 RVCNode // Alias of DATE_TIME_STATUS
 	SG_ year : 0|8@1+ (1,0) [0|255] "year" RVCController
 	SG_ month : 8|8@1+ (1,0) [1|12] "" RVCController
 	SG_ date : 16|8@1+ (1,0) [1|31] "" RVCController
@@ -63,14 +63,14 @@ BO_ 131070 SET_DATE_TIME_COMMAND: 8 RVCNode // Alias of DATE_TIME_STATUS
 	SG_ time_zone : 56|8@1+ (1,0) [0|255] "" RVCController
 
 // DGN 0x1FFFD
-BO_ 131069 DC_SOURCE_STATUS_1: 8 RVCNode
+BO_ 2147614717 DC_SOURCE_STATUS_1: 8 RVCNode
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ dc_voltage : 16|16@1+ (0.01,0) [0|655.35] "V" RVCController // Assuming 0.01 scaling for V based on typical J1939/N2k
 	SG_ dc_current : 32|32@1+ (0.1,0) [0|429496729.5] "A" RVCController // Assuming 0.1 scaling for A
 
 // DGN 0x1FFFC
-BO_ 131068 DC_SOURCE_STATUS_2: 8 RVCNode
+BO_ 2147614716 DC_SOURCE_STATUS_2: 8 RVCNode
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ source_temperature : 16|16@1+ (0.03125,-273) [-273|1735] "Deg C" RVCController // Common J1939 scaling for temp
@@ -78,7 +78,7 @@ BO_ 131068 DC_SOURCE_STATUS_2: 8 RVCNode
 	SG_ time_remaining : 40|16@1+ (1,0) [0|65535] "min" RVCController
 
 // DGN 0x1FFFB
-BO_ 131067 DC_SOURCE_STATUS_3: 8 RVCNode
+BO_ 2147614715 DC_SOURCE_STATUS_3: 8 RVCNode
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ state_of_health : 16|8@1+ (0.4,0) [0|100] "pct" RVCController
@@ -87,7 +87,7 @@ BO_ 131067 DC_SOURCE_STATUS_3: 8 RVCNode
 	SG_ ac_rms_ripple : 48|16@1+ (1,0) [0|65535] "mV" RVCController
 
 // DGN 0x1FEC9
-BO_ 130761 DC_SOURCE_STATUS_4: 8 RVCNode
+BO_ 2147614409 DC_SOURCE_STATUS_4: 8 RVCNode
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ desired_charge_state : 16|8@1+ (1,0) [0|255] "" RVCController
@@ -96,14 +96,14 @@ BO_ 130761 DC_SOURCE_STATUS_4: 8 RVCNode
 	SG_ battery_type : 56|4@1+ (1,0) [0|15] "" RVCController
 
 // DGN 0x1FEC8
-BO_ 130760 DC_SOURCE_STATUS_5: 8 RVCNode
+BO_ 2147614408 DC_SOURCE_STATUS_5: 8 RVCNode
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ hp_dc_voltage : 16|32@1+ (0.000001,0) [0|4294.967295] "V" RVCController // High precision voltage, guess scaling
 	SG_ dc_voltage_rate_of_change : 48|16@1+ (1,-32768) [-32768|32767] "mV/s" RVCController // Rate of change often signed
 
 // DGN 0x1FEC7
-BO_ 130759 DC_SOURCE_STATUS_6: 8 RVCNode
+BO_ 2147614407 DC_SOURCE_STATUS_6: 8 RVCNode
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ high_voltage_limit_status : 16|2@1+ (1,0) [0|1] "" RVCController
@@ -112,25 +112,25 @@ BO_ 130759 DC_SOURCE_STATUS_6: 8 RVCNode
 	SG_ low_voltage_disconnect_status : 22|2@1+ (1,0) [0|1] "" RVCController
 
 // DGN 0x10FFD (Alias for 1FFFD)
-BO_ 69629 DC_SOURCE_STATUS_SPYDER: 8 RVCNode // Alias of DC_SOURCE_STATUS_1
+BO_ 2147553277 DC_SOURCE_STATUS_SPYDER: 8 RVCNode // Alias of DC_SOURCE_STATUS_1
 	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
 	SG_ device_priority : 8|8@1+ (1,0) [0|255] "" RVCController
 	SG_ dc_voltage : 16|16@1+ (0.01,0) [0|655.35] "V" RVCController
 	SG_ dc_current : 32|32@1+ (0.1,0) [0|429496729.5] "A" RVCController
 
 // DGN 0x1FFFA
-BO_ 131066 COMMUNICATION_STATUS_1: 8 RVCNode
+BO_ 2147614714 COMMUNICATION_STATUS_1: 8 RVCNode
 	SG_ timer_count : 0|32@1+ (1,0) [0|4294967295] "ms" RVCController
 	SG_ receive_error_count : 32|16@1+ (1,0) [0|65535] "" RVCController
 	SG_ transmit_error_count : 48|16@1+ (1,0) [0|65535] "" RVCController
 
 // DGN 0x1FFF9
-BO_ 131065 COMMUNICATION_STATUS_2: 8 RVCNode
+BO_ 2147614713 COMMUNICATION_STATUS_2: 8 RVCNode
 	SG_ transmitted_frames_count : 0|32@1+ (1,0) [0|4294967295] "" RVCController
 	SG_ received_frames_count : 32|32@1+ (1,0) [0|4294967295] "" RVCController
 
 // DGN 0x1FFF8
-BO_ 131064 COMMUNICATION_STATUS_3: 8 RVCNode
+BO_ 2147614712 COMMUNICATION_STATUS_3: 8 RVCNode
 	SG_ bus_off_error_count : 0|16@1+ (1,0) [0|65535] "" RVCController
 	SG_ receive_frames_dropped_count : 16|16@1+ (1,0) [0|65535] "" RVCController
 	SG_ transmit_frames_dropped_count : 32|16@1+ (1,0) [0|65535] "" RVCController
@@ -148,42 +148,42 @@ CM_ "Messages aliasing Z0005 (e.g., 1FF8D, 1FF8B, 1FF88, 1FF86, 1FEB6, 1FEB4) we
 
 // Value Table Definitions (corresponding to converted messages)
 
-VAL_ 98048 reboot 1 "Reboot" 0 "no_action" ;
-VAL_ 98048 clear_faults 1 "clear_faults" 0 "no_action" ;
-VAL_ 98048 reset_to_default_settings 1 "reset_to_default_settings" 0 "no_action" ;
-VAL_ 98048 reset_statistics 1 "reset_statistics" 0 "no_action" ;
+VAL_ 2147581696 reboot 1 "Reboot" 0 "no_action" ;
+VAL_ 2147581696 clear_faults 1 "clear_faults" 0 "no_action" ;
+VAL_ 2147581696 reset_to_default_settings 1 "reset_to_default_settings" 0 "no_action" ;
+VAL_ 2147581696 reset_statistics 1 "reset_statistics" 0 "no_action" ;
 
-VAL_ 131071 day_of_week 7 "Saturday" 6 "Friday" 5 "Thursday" 4 "Wednesday" 3 "Tuesday" 2 "Monday" 1 "Sunday" ;
-VAL_ 131071 time_zone 22 "Central_European_Summer_Time" 8 "Pacific_Standard_Time" 7 "Pacific_Daylight_Time" 5 "Eastern_Standard_Time" 4 "Eastern_Daylight_Time" 0 "Greenwich_Mean_Time" ;
+VAL_ 2147614719 day_of_week 7 "Saturday" 6 "Friday" 5 "Thursday" 4 "Wednesday" 3 "Tuesday" 2 "Monday" 1 "Sunday" ;
+VAL_ 2147614719 time_zone 22 "Central_European_Summer_Time" 8 "Pacific_Standard_Time" 7 "Pacific_Daylight_Time" 5 "Eastern_Standard_Time" 4 "Eastern_Daylight_Time" 0 "Greenwich_Mean_Time" ;
 // VAL for alias 1FFFE (131070)
-VAL_ 131070 day_of_week 7 "Saturday" 6 "Friday" 5 "Thursday" 4 "Wednesday" 3 "Tuesday" 2 "Monday" 1 "Sunday" ;
-VAL_ 131070 time_zone 22 "Central_European_Summer_Time" 8 "Pacific_Standard_Time" 7 "Pacific_Daylight_Time" 5 "Eastern_Standard_Time" 4 "Eastern_Daylight_Time" 0 "Greenwich_Mean_Time" ;
+VAL_ 2147614718 day_of_week 7 "Saturday" 6 "Friday" 5 "Thursday" 4 "Wednesday" 3 "Tuesday" 2 "Monday" 1 "Sunday" ;
+VAL_ 2147614718 time_zone 22 "Central_European_Summer_Time" 8 "Pacific_Standard_Time" 7 "Pacific_Daylight_Time" 5 "Eastern_Standard_Time" 4 "Eastern_Daylight_Time" 0 "Greenwich_Mean_Time" ;
 
-VAL_ 131069 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 131069 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
+VAL_ 2147614717 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147614717 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
 // VAL for alias 10FFD (69629)
-VAL_ 69629 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 69629 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
+VAL_ 2147553277 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147553277 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
 
-VAL_ 131068 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 131068 device_priority 120 "battery_soc_device" 100 "inverter_Charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ; // Note: "inverter Charger" vs "inverter charger" in 1FFFD
+VAL_ 2147614716 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147614716 device_priority 120 "battery_soc_device" 100 "inverter_Charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ; // Note: "inverter Charger" vs "inverter charger" in 1FFFD
 
-VAL_ 131067 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 131067 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
+VAL_ 2147614715 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147614715 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
 
-VAL_ 130761 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 130761 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
-VAL_ 130761 desired_charge_state 7 "constant_voltage_current" 6 "float" 5 "equalize" 4 "overcharge" 3 "absorbtion" 2 "bulk" 1 "do_not_charge" 0 "undefined" ; // Note typo "absorbtion" in source
-VAL_ 130761 battery_type 3 "lithium_iron_phosphate" 2 "agm" 1 "gel" 0 "flooded" ;
+VAL_ 2147614409 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147614409 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
+VAL_ 2147614409 desired_charge_state 7 "constant_voltage_current" 6 "float" 5 "equalize" 4 "overcharge" 3 "absorbtion" 2 "bulk" 1 "do_not_charge" 0 "undefined" ; // Note typo "absorbtion" in source
+VAL_ 2147614409 battery_type 3 "lithium_iron_phosphate" 2 "agm" 1 "gel" 0 "flooded" ;
 
-VAL_ 130760 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 130760 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
+VAL_ 2147614408 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147614408 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
 
-VAL_ 130759 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
-VAL_ 130759 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
-VAL_ 130759 high_voltage_limit_status 1 "limit_reached" 0 "not_reached" ;
-VAL_ 130759 high_voltage_disconnect_status 1 "charge_bus_disconnected" 0 "connected" ;
-VAL_ 130759 low_voltage_limit_status 1 "limit_reached" 0 "not_reached" ;
-VAL_ 130759 low_voltage_disconnect_status 1 "charge_bus_disconnected" 0 "connected" ;
+VAL_ 2147614407 instance 3 "secondary_house_battery_bank" 2 "chassis_start_battery" 1 "main_house_battery_bank" 0 "invalid" ;
+VAL_ 2147614407 device_priority 120 "battery_soc_device" 100 "inverter_charger" 80 "charger" 60 "inverter" 40 "voltmeter_ammeter" 20 "voltmeter" ;
+VAL_ 2147614407 high_voltage_limit_status 1 "limit_reached" 0 "not_reached" ;
+VAL_ 2147614407 high_voltage_disconnect_status 1 "charge_bus_disconnected" 0 "connected" ;
+VAL_ 2147614407 low_voltage_limit_status 1 "limit_reached" 0 "not_reached" ;
+VAL_ 2147614407 low_voltage_disconnect_status 1 "charge_bus_disconnected" 0 "connected" ;
 
 // ... Rest of the value tables need to be converted ...
