@@ -476,30 +476,30 @@ BO_ 131032 GENERATOR_START_CONFIG_COMMAND: 1 RVCController
 BO_ 131031 INVERTER_AC_STATUS_1: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 131031 line 0 "1" 1 "2" ;
-VAL_ 131031 input/output 0 "input" 1 "output" ;
+VAL_ 131031 input_output 0 "input" 1 "output" ;
 
 BO_ 131030 INVERTER_AC_STATUS_2: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 131030 line 0 "1" 1 "2" ;
-VAL_ 131030 input/output 0 "input" 1 "output" ;
+VAL_ 131030 input_output 0 "input" 1 "output" ;
 
 BO_ 131029 INVERTER_AC_STATUS_3: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 131029 line 0 "1" 1 "2" ;
-VAL_ 131029 input/output 0 "input" 1 "output" ;
+VAL_ 131029 input_output 0 "input" 1 "output" ;
 
 BO_ 130959 INVERTER_AC_STATUS_4: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 130959 line 0 "1" 1 "2" ;
-VAL_ 130959 input/output 0 "input" 1 "output" ;
+VAL_ 130959 input_output 0 "input" 1 "output" ;
 
 BO_ 131028 INVERTER_STATUS: 3 RVCController
  SG_ instance : 0|1@1+ (1,0) [0|0] "" RVCController
@@ -588,30 +588,30 @@ BO_ 130749 INVERTER_TEMPERATURE_STATUS: 5 RVCController
 BO_ 131018 CHARGER_AC_STATUS_1: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 131018 line 0 "1" 1 "2" ;
-VAL_ 131018 input/output 0 "input" 1 "output" ;
+VAL_ 131018 input_output 0 "input" 1 "output" ;
 
 BO_ 131017 CHARGER_AC_STATUS_2: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 131017 line 0 "1" 1 "2" ;
-VAL_ 131017 input/output 0 "input" 1 "output" ;
+VAL_ 131017 input_output 0 "input" 1 "output" ;
 
 BO_ 131016 CHARGER_AC_STATUS_3: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 131016 line 0 "1" 1 "2" ;
-VAL_ 131016 input/output 0 "input" 1 "output" ;
+VAL_ 131016 input_output 0 "input" 1 "output" ;
 
 BO_ 130954 CHARGER_AC_STATUS_4: 1 RVCController
  SG_ instance : 0|4@1+ (1,0) [0|0] "" RVCController
  SG_ line : 4|2@1+ (1,0) [0|0] "" RVCController
- SG_ input/output : 6|2@1+ (1,0) [0|0] "" RVCController
+ SG_ input_output : 6|2@1+ (1,0) [0|0] "" RVCController
 VAL_ 130954 line 0 "1" 1 "2" ;
-VAL_ 130954 input/output 0 "input" 1 "output" ;
+VAL_ 130954 input_output 0 "input" 1 "output" ;
 
 BO_ 131015 CHARGER_STATUS: 8 RVCController
  SG_ instance : 0|1@1+ (1,0) [0|0] "" RVCController
