@@ -17,15 +17,15 @@
       set -l current_hostname (hostname)
 
       # Performance Metrics
-      # Calculate uptime directly from /proc/uptime
-      set -l uptime_sec (string split '.' (cat /proc/uptime))[1]
+      # Calculate uptime directly from /proc/uptime using awk to get integer seconds
+      set -l uptime_sec (cat /proc/uptime | awk '{print int($1)}')
 
-      # Calculate total minutes, total hours, days, remaining hours, remaining minutes
-      set -l total_mins (math --scale=0 "$uptime_sec / 60")
-      set -l total_hours (math --scale=0 "$total_mins / 60")
-      set -l days (math --scale=0 "$total_hours / 24")
-      set -l hours (math --scale=0 "$total_hours % 24")
-      set -l mins (math --scale=0 "$total_mins % 60")
+      # Calculate total minutes, total hours, days, remaining hours, remaining minutes with defaults
+      set -l total_mins (math --scale=0 "$uptime_sec / 60" || echo 0)
+      set -l total_hours (math --scale=0 "$total_mins / 60" || echo 0)
+      set -l days (math --scale=0 "$total_hours / 24" || echo 0)
+      set -l hours (math --scale=0 "$total_hours % 24" || echo 0)
+      set -l mins (math --scale=0 "$total_mins % 60" || echo 0)
 
       # Use correct fish variable expansion ($var) and escape $ for Nix ($$var)
       set -l uptime_direct_str "$$days d $$hours h $$mins m"
