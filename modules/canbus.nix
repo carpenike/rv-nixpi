@@ -56,20 +56,20 @@
                 #address-cells = <1>;
                 #size-cells = <0>;
 
-                can0_osc: can0_osc@0 { // Unique node name
+                can0_osc: can0_osc@0 {
                   compatible = "fixed-clock";
                   #clock-cells = <0>;
                   clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
                 };
 
-                can0_mcp: mcp2515@0 { // Node for CS0
+                can0_mcp: mcp2515@0 {
                   reg = <0>; // Chip Select 0
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
-                  pinctrl-0 = <&can0_pins>; // Use GPIO25 pins (schematic CAN0 INT)
+                  pinctrl-0 = <&can0_pins>;
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <25 8>; // Use GPIO25 interrupt (schematic CAN0 INT)
+                  interrupts = <25 8>;
                   clocks = <&can0_osc>;
                 };
               };
@@ -79,22 +79,20 @@
             fragment@4 {
               target = <&spi0>;
               __overlay__ {
-                // spi0 node already has #address-cells and #size-cells defined by fragment@3
-
-                can1_osc: can1_osc@1 { // Unique node name
+                can1_osc: can1_osc@1 {
                   compatible = "fixed-clock";
                   #clock-cells = <0>;
-                  clock-frequency = <16000000>; // 16MHz oscillator on PiCAN2 Duo
+                  clock-frequency = <16000000>;
                 };
 
-                can1_mcp: mcp2515@1 { // Node for CS1
-                  reg = <1>; // Chip Select 1
+                can1_mcp: mcp2515@1 {
+                  reg = <1>;
                   compatible = "microchip,mcp2515";
                   pinctrl-names = "default";
-                  pinctrl-0 = <&can1_pins>; // Use GPIO24 pins (schematic CAN1 INT)
+                  pinctrl-0 = <&can1_pins>;
                   spi-max-frequency = <10000000>;
                   interrupt-parent = <&gpio>;
-                  interrupts = <24 8>; // Use GPIO24 interrupt (schematic CAN1 INT)
+                  interrupts = <24 8>;
                   clocks = <&can1_osc>;
                 };
               };
@@ -119,6 +117,17 @@
                 };
               };
             };
+
+            // Alias nodes so the kernel names them correctly
+            fragment@7 {
+              target-path = "/";
+              __overlay__ {
+                aliases {
+                  can0 = &can0_mcp;
+                  can1 = &can1_mcp;
+                };
+              };
+            };
           };
         '';
       }
@@ -133,21 +142,6 @@
     # Rule for spidev permissions (keep if needed, though spidev is disabled in DT)
     SUBSYSTEM=="spidev", KERNEL=="spidev0.*", GROUP="spi", MODE="0660"
   '';
-
-  # Define network links to rename interfaces based on hardware path
-  systemd.network.links = {
-      # the device whose ID_PATH contains "spi-cs-0" (currently can1) → rename to can0
-      "10-can0" = {
-        matchConfig.Path = [ "*spi-cs-0*" ];
-        linkConfig.Name  = "can0";
-      };
-
-      # the device whose ID_PATH contains "spi-cs-1" (currently can0) → rename to can1
-      "20-can1" = {
-        matchConfig.Path = [ "*spi-cs-1*" ];
-        linkConfig.Name  = "can1";
-      };
-    };
 
   # Disable IPv6 for CAN interfaces to prevent irrelevant udev errors
   boot.kernel.sysctl = {
