@@ -153,8 +153,8 @@
   systemd.services."can0" = {
     description = "CAN0 Interface (Physical CAN0 Port)";
     wantedBy = [ "multi-user.target" ];
-    # Wait for networkd to rename the interface
-    after = [ "systemd-networkd.service" "systemd-modules-load.service" ];
+    # Wait only for modules to load, remove networkd dependency
+    after = [ "systemd-modules-load.service" ];
     requires = [ "dev-spi0.device" ];
     # Bind to the renamed device
     bindsTo = [ "sys-subsystem-net-devices-can0.device" ];
@@ -185,8 +185,8 @@
   systemd.services."can1" = {
     description = "CAN1 Interface (Physical CAN1 Port)";
     wantedBy = [ "multi-user.target" ];
-    # Wait for networkd and can0 service
-    after = [ "systemd-networkd.service" "systemd-modules-load.service" "can0.service" ];
+    # Wait only for modules, remove can0 dependency
+    after = [ "systemd-modules-load.service" ];
     requires = [ "dev-spi0.device" ];
     # Bind to the renamed device
     bindsTo = [ "sys-subsystem-net-devices-can1.device" ];
@@ -212,11 +212,6 @@
       Restart = "on-failure";
       RestartSec = "5s";
     };
-  };
-
-  # Configure networkd-wait-online to only wait for specific interfaces
-  systemd.services.systemd-networkd-wait-online.serviceConfig = {
-    ExecStart = pkgs.lib.mkForce "${pkgs.systemd}/lib/systemd/systemd-networkd-wait-online --timeout=120 --interface=wlan0 --interface=end0";
   };
 
   # Add can-utils and debugging tools.

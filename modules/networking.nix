@@ -24,23 +24,6 @@
     };
   };
 
-  # Enable the systemd-networkd service itself
-  systemd.network.enable = true;
-
-  systemd.network.links = {
-    # phys spi0.0 (shows up under /devices/.../spi0.0) → rename to can0
-    "10-can0" = {
-      matchConfig.KernelPath = [ "*spi0.0*" ];
-      linkConfig.Name       = "can0";
-    };
-
-    # phys spi0.1 (shows up under /devices/.../spi0.1) → rename to can1
-    "20-can1" = {
-      matchConfig.KernelPath = [ "*spi0.1*" ];
-      linkConfig.Name       = "can1";
-    };
-  };
-
   systemd.tmpfiles.rules = [
     # Initial placement for first boot (used only if file doesn't already exist)
     "C /var/lib/iwd/iot.psk 0600 root root - ${config.sops.secrets.IOT_WIFI_PASSWORD.path}"

@@ -4,7 +4,7 @@
 {
   environment.systemPackages = with pkgs; [
     # rvcApp.package
-    pkgs.can-utils
+    # pkgs.can-utils # Moved to canbus.nix
     pkgs.fish
     pkgs.vim
     pkgs.git

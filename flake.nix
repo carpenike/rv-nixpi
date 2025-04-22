@@ -27,13 +27,7 @@
       sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
     };
 
-    allowMissingModulesOverlay = final: super: {
-      makeModulesClosure = args:
-        super.makeModulesClosure (args // { allowMissing = true; });
-    };
-
     commonModules = [
-      { nixpkgs.overlays = [ allowMissingModulesOverlay ]; }
       ./hardware-configuration.nix
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
