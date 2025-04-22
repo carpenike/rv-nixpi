@@ -16,6 +16,9 @@
         "1.pool.ntp.org"
       ];
     };
+
+    # Explicitly disable ZFS ZED service if not needed
+    zfs.zed.enable = false;
   };
 
   # Enable a serial console on ttyGS0 (USB gadget serial)
