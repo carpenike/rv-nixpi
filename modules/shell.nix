@@ -15,10 +15,10 @@
       set -l hostname (hostname)
       set -l kernel_version (uname -r)
 
-      # Define colors
-      set -l color_host blue
-      set -l color_kernel green
-      set -l color_system yellow
+      # Define colors (vibrant for dark backgrounds)
+      set -l color_host brcyan  # Bright Cyan for hostname
+      set -l color_kernel brgreen # Bright Green for kernel
+      set -l color_system bryellow # Bright Yellow for system label
       set -l color_reset normal
 
       # Print formatted greeting
