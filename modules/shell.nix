@@ -73,7 +73,7 @@
       set -l kernel_plain "  Kernel: $kernel_version"
       set -l system_plain "  System: $system_label"
       set -l uptime_direct_plain "  Uptime (boot): $uptime_direct_str"
-      set -l load_plain "  Load (1m):$load_avg"
+      set -l load_plain "  Load (1m): $load_avg"
       set -l memory_plain "  Memory: $mem_info"
       set -l disk_plain "  Disk /: $disk_usage"
 
