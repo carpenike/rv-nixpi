@@ -184,7 +184,7 @@
         for i in {1..10}; do
           if ip link show can0 > /dev/null 2>&1; then
             # Change bitrate to 250000
-            if ip link set can0 up type can bitrate 250000 restart-ms 100; then
+            if ip link set can0 up type can bitrate 250000 restart-ms 0; then
               echo "can0 configured successfully."
               # Optional: Reset bus error counter if needed
               # echo 0 > /sys/class/net/can0/statistics/bus_error || true
@@ -227,7 +227,7 @@
         for i in {1..10}; do
           if ip link show can1 > /dev/null 2>&1; then
             # Change bitrate to 250000
-            if ip link set can1 up type can bitrate 250000 restart-ms 100; then
+            if ip link set can1 up type can bitrate 250000 restart-ms 0; then
               echo "can1 configured successfully."
               # Optional: Reset bus error counter if needed
               # echo 0 > /sys/class/net/can1/statistics/bus_error || true
