@@ -137,11 +137,11 @@
   # Define network links to rename interfaces based on hardware path
   systemd.network.links = {
     "10-can0" = {
-      matchConfig.Path     = "*spi0.0*";
+      matchConfig.Path     = [ "*spi0.0*" ];
       linkConfig.Name      = "can0";
     };
     "10-can1" = {
-      matchConfig.Path     = "*spi0.1*";
+      matchConfig.Path     = [ "*spi0.1*" ];
       linkConfig.Name      = "can1";
     };
   };
