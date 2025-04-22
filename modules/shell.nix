@@ -17,7 +17,7 @@
       set -l current_hostname (hostname)
 
       # Performance Metrics
-      # Use awk to parse uptime output, removed string trim
+      set -l uptime_str (uptime -p) # Pretty uptime string (e.g., "up 2 hours, 5 minutes")
       set -l load_avg (uptime | command awk -F 'load average: ' '{print $2}' | command awk -F, '{print $1}')
       set -l mem_info (free -h | command awk '/^Mem:/ {print $3" / "$2}') # Used / Total RAM
       set -l disk_usage (df -h / | command awk 'NR==2 {print $5}') # Root partition usage %
@@ -29,6 +29,7 @@
       set -l color_load brmagenta
       set -l color_mem brblue
       set -l color_disk brred
+      set -l color_uptime brwhite # Bright White for uptime
       set -l color_reset normal
 
       # Define box characters
@@ -50,7 +51,8 @@
       set -l welcome_content "Welcome to "(set_color $color_host)$current_hostname(set_color $color_reset)
       set -l kernel_content "  Kernel: "(set_color $color_kernel)$kernel_version(set_color $color_reset)
       set -l system_content "  System: "(set_color $color_system)$system_label(set_color $color_reset)
-      set -l load_content "  Load:   "(set_color $color_load)$load_avg(set_color $color_reset)
+      set -l uptime_content "  Uptime: "(set_color $color_uptime)$uptime_str(set_color $color_reset)
+      set -l load_content "  Load (1m):"(set_color $color_load)$load_avg(set_color $color_reset) # Clarified load timeframe
       set -l memory_content "  Memory: "(set_color $color_mem)$mem_info(set_color $color_reset)
       set -l disk_content "  Disk /: "(set_color $color_disk)$disk_usage(set_color $color_reset)
 
@@ -58,7 +60,8 @@
       set -l welcome_plain "Welcome to $current_hostname"
       set -l kernel_plain "  Kernel: $kernel_version"
       set -l system_plain "  System: $system_label"
-      set -l load_plain "  Load:   $load_avg"
+      set -l uptime_plain "  Uptime: $uptime_str"
+      set -l load_plain "  Load (1m):$load_avg" # Updated plain text
       set -l memory_plain "  Memory: $mem_info"
       set -l disk_plain "  Disk /: $disk_usage"
 
@@ -77,6 +80,10 @@
       # System line
       set -l system_padding (string repeat -n (math $inner_width - (string length $system_plain)) " ")
       printf "%s %s%s %s\n" $box_v $system_content $system_padding $box_v
+
+      # Uptime line
+      set -l uptime_padding (string repeat -n (math $inner_width - (string length $uptime_plain)) " ")
+      printf "%s %s%s %s\n" $box_v $uptime_content $uptime_padding $box_v
 
       # Load line
       set -l load_padding (string repeat -n (math $inner_width - (string length $load_plain)) " ")
