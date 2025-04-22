@@ -136,13 +136,26 @@
 
   # Define network links to rename interfaces based on hardware path
   systemd.network.links = {
-    "10-can0" = {
-      matchConfig.Path     = [ "*spi0.0*" ];
-      linkConfig.Name      = "can0";
+    # spi0.0 should become can0
+    "10-can0-primary" = {
+      matchConfig = {
+        Path   = [ "*spi0.0*" ];
+        Driver = [ "mcp251x" ];
+      };
+      linkConfig = {
+        Name = "can0";
+      };
     };
-    "10-can1" = {
-      matchConfig.Path     = [ "*spi0.1*" ];
-      linkConfig.Name      = "can1";
+
+    # spi0.1 should become can1
+    "20-can1-secondary" = {
+      matchConfig = {
+        Path   = [ "*spi0.1*" ];
+        Driver = [ "mcp251x" ];
+      };
+      linkConfig = {
+        Name = "can1";
+      };
     };
   };
 
