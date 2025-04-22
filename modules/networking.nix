@@ -72,15 +72,24 @@
     RestartSec = 2;
   };
 
+  # Disable waiting for network online during boot
+  systemd.network.wait-online.enable = false;
+
   # Explicitly configure systemd-networkd for wired interfaces
   systemd.network.networks."10-wired" = {
     matchConfig.Name = "end0"; # Match the specific Ethernet interface name
-    networkConfig.DHCP = "ipv4"; # Enable DHCPv4 for this interface
+    networkConfig = {
+      DHCP = "ipv4"; # Enable DHCPv4 for this interface
+      RequiredForOnline = "no"; # Don't block boot if Ethernet isn't connected
+    };
   };
 
   # Explicitly configure systemd-networkd for wireless interfaces
   systemd.network.networks."20-wireless" = {
     matchConfig.Name = "wlan0"; # Match the wireless interface name
-    networkConfig.DHCP = "ipv4"; # Enable DHCPv4 for this interface
+    networkConfig = {
+      DHCP = "ipv4"; # Enable DHCPv4 for this interface
+      RequiredForOnline = "no"; # Don't block boot if Wi-Fi isn't immediately available
+    };
   };
 }
