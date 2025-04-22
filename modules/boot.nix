@@ -12,7 +12,7 @@
       "g_serial"
       "vc4"
       "bcm2835_dma"
-      "spi_bcm2835"  # Note the underscore instead of dash
+      "spi_bcm2835"
       "can"
       "can_raw"
       "can_dev"
@@ -27,7 +27,6 @@
     '';
 
     kernelParams = [
-      # "modules-load=dwc2,g_serial,spi_bcm2835,can,can_dev,can_raw,mcp251x" # Removed invalid parameter
       "console=tty1"
       "console=ttyGS0,115200"
     ];
@@ -35,6 +34,5 @@
     # Use the Raspberry Pi-specific kernel
     kernelPackages = pkgs.linuxPackages_rpi4;
 
-    # Removed the spidev-fix.patch as it is already applied in the kernel source.
   };
 }
