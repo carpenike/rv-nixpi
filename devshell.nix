@@ -24,7 +24,7 @@ pkgs.mkShell {
     # build-image command
     cat > "$DEV_BIN_DIR/build-image" <<EOF
 #!/usr/bin/env bash
-nix build --extra-experimental-features nix-command --extra-experimental-features flakes "\$FLAKE#packages.aarch64-linux.sdcard" --impure
+nix build --extra-experimental-features nix-command --extra-experimental-features flakes "github:carpenike/rv-nixpi#packages.aarch64-linux.sdcard" --impure --refresh --show-trace
 EOF
 
     # write-image command

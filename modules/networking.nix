@@ -71,4 +71,16 @@
     Restart = "on-failure";
     RestartSec = 2;
   };
+
+  # Explicitly configure systemd-networkd for wired interfaces
+  systemd.network.networks."10-wired" = {
+    matchConfig.Name = "end0"; # Match the specific Ethernet interface name
+    networkConfig.DHCP = "ipv4"; # Enable DHCPv4 for this interface
+  };
+
+  # Explicitly configure systemd-networkd for wireless interfaces
+  systemd.network.networks."20-wireless" = {
+    matchConfig.Name = "wlan0"; # Match the wireless interface name
+    networkConfig.DHCP = "ipv4"; # Enable DHCPv4 for this interface
+  };
 }
