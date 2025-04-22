@@ -1,8 +1,6 @@
 { config, pkgs, ... }:
-#{ config, pkgs, rvcApp, ... }:
-
 {
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = [
     # rvcApp.package
     pkgs.fish
     pkgs.vim
@@ -12,13 +10,8 @@
     pkgs.kbd
     pkgs.wget
     pkgs.tmux
-    pkgs.raspberrypi-tools # <-- Add this line
-
-    # Monitoring tools
+    pkgs.libraspberrypi
     pkgs.htop
-    # pkgs.glances # <-- Removed, now defined in glances-web.nix
-    # pkgs.iotop # Uncomment if needed
-    # pkgs.nmon # Uncomment if needed
 
     (pkgs.writeShellScriptBin "update-nix" ''
       #!/usr/bin/env bash
