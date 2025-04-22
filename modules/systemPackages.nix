@@ -60,7 +60,8 @@
 
       # Use nix build --print-out-paths to get the store path without creating a result link
       # Need to accept the flake config potentially
-      remote_system=$(${pkgs.nix}/bin/nix build --print-out-paths "$flake_uri" --option accept-flake-config true 2>/dev/null)
+      # REMOVED 2>/dev/null to show build output/errors
+      remote_system=$(${pkgs.nix}/bin/nix build --print-out-paths "$flake_uri" --option accept-flake-config true)
 
       if [ $? -ne 0 ] || [ -z "$remote_system" ]; then
         echo "❌ Error: Failed to build the derivation for the remote configuration."
