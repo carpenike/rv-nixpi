@@ -22,8 +22,8 @@
       set -l days (math $uptime_sec / 86400)
       set -l hours (math ($uptime_sec % 86400) / 3600)
       set -l mins (math ($uptime_sec % 3600) / 60)
-      # Escape fish variables for Nix
-      set -l uptime_direct_str "''${days}d ''${hours}h ''${mins}m"
+      # Use correct fish variable expansion ($var) and escape $ for Nix ($$var)
+      set -l uptime_direct_str "$$days d $$hours h $$mins m"
 
       set -l load_avg (uptime | command awk -F 'load average: ' '{print $2}' | command awk -F, '{print $1}')
       set -l mem_info (free -h | command awk '/^Mem:/ {print $3" / "$2}') # Used / Total RAM
