@@ -40,7 +40,7 @@ in {
         #!/usr/bin/env bash
         set -euo pipefail
 
-        DBC_PATH="${1:-/etc/nixos/files/rvc.dbc}"
+        DBC_PATH="$${1:-/etc/nixos/files/rvc.dbc}"
 
         if [ ! -f "$DBC_PATH" ]; then
           echo "❌ DBC file not found at $DBC_PATH"
