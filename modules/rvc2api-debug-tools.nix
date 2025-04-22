@@ -40,7 +40,8 @@ in {
         #!/usr/bin/env bash
         set -euo pipefail
 
-        DBC_PATH="$${1:-/etc/nixos/files/rvc.dbc}"
+        # Use standard Bash default parameter expansion
+        DBC_PATH="${1}:-/etc/nixos/files/rvc.dbc"
 
         if [ ! -f "$DBC_PATH" ]; then
           echo "❌ DBC file not found at $DBC_PATH"
@@ -48,6 +49,7 @@ in {
         fi
 
         echo "🔍 Validating DBC file: $DBC_PATH"
+        # Use Nix interpolation for the Python environment path
         "${pythonEnv}/bin/cantools" dump "$DBC_PATH"
         echo "✅ DBC file is valid."
       '')
