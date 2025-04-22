@@ -22,13 +22,23 @@
   let
     system = "aarch64-linux";
 
-    # Construct the path relative to the nixpkgs source tree
-    nixosHardwarePath = "${nixpkgs}/nixos/modules/hardware/raspberry-pi/4";
+    # Revert to fetching nixos-hardware separately
+    nixosHardware = fetchTarball {
+      url = "https://github.com/NixOS/nixos-hardware/archive/8f44cbb48c2f4a54e35d991a903a8528178ce1a8.tar.gz";
+      sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
+    };
+
+    # Re-add the overlay to suppress module errors
+    allowMissingModulesOverlay = final: super: {
+      makeModulesClosure = args:
+        super.makeModulesClosure (args // { allowMissing = true; });
+    };
 
     commonModules = [
+      { nixpkgs.overlays = [ allowMissingModulesOverlay ]; }
       ./hardware-configuration.nix
-      # Use the corrected path string
-      nixosHardwarePath
+      # Use the fetched nixos-hardware path
+      "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
       ./modules/canbus.nix
