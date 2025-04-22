@@ -44,6 +44,7 @@
       ./modules/canbus.nix
       ./modules/glances-web.nix
       ./modules/hwclock.nix
+      ./modules/watchdog.nix
       ./modules/secrets.nix
       ./modules/system.nix
       ./modules/boot.nix

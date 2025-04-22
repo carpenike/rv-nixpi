@@ -12,6 +12,7 @@
     pkgs.kbd
     pkgs.wget
     pkgs.tmux
+    pkgs.raspberrypi-tools # <-- Add this line
 
     # Monitoring tools
     pkgs.htop
