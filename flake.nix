@@ -22,13 +22,13 @@
   let
     system = "aarch64-linux";
 
-    # Use nixos-hardware from nixpkgs input for better compatibility
-    nixosHardware = inputs.nixpkgs.lib.makeSearchPathOutput "share" "nixos-hardware/raspberry-pi/4";
+    # Construct the path directly from the nixpkgs input
+    nixosHardwarePath = "${nixpkgs}/share/nixos-hardware/raspberry-pi/4";
 
     commonModules = [
       ./hardware-configuration.nix
-      # Import the default module from the nixosHardware path
-      (import "${nixosHardware}/default.nix")
+      # Use the constructed path string
+      nixosHardwarePath
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
       ./modules/canbus.nix
