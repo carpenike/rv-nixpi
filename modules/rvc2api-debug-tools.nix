@@ -40,8 +40,11 @@ in {
         #!/usr/bin/env bash
         set -euo pipefail
 
-        # Use standard Bash default parameter expansion
-        DBC_PATH="${1}:-/etc/nixos/files/rvc.dbc"
+        # Set default DBC path if no argument is provided
+        DBC_PATH="$1"
+        if [ -z "$DBC_PATH" ]; then
+          DBC_PATH="/etc/nixos/files/rvc.dbc"
+        fi
 
         if [ ! -f "$DBC_PATH" ]; then
           echo "❌ DBC file not found at $DBC_PATH"
