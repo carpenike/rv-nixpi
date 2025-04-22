@@ -27,8 +27,8 @@
 
     commonModules = [
       ./hardware-configuration.nix
-      # Use the nixosHardware path defined above
-      nixosHardware
+      # Import the default module from the nixosHardware path
+      (import "${nixosHardware}/default.nix")
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
       ./modules/canbus.nix
