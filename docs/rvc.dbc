@@ -1,4 +1,4 @@
-VERSION "1.0_revised"
+VERSION ""
 
 NS_ :
     NS_DESC_
@@ -12,107 +12,124 @@ BS_:
 BU_: RVCController
 
 BO_ 98048 GENERAL_RESET: 1 RVCController
- SG_ reboot : 0|2@0+ (1,0) [0|0] "" RVCController
- SG_ clear_faults : 2|2@0+ (1,0) [0|0] "" RVCController
- SG_ reset_to_default_settings : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ reset_statistics : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ reboot : 0|2@0+ (1,) [0|0] "" RVCController
+ SG_ clear_faults : 2|2@0+ (1,) [0|0] "" RVCController
+ SG_ reset_to_default_settings : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ reset_statistics : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 98048 reboot 0 "no action" 1 "Reboot" ;
 VAL_ 98048 clear_faults 0 "no action" 1 "clear faults" ;
 VAL_ 98048 reset_to_default_settings 0 "no action" 1 "reset to default settings" ;
 VAL_ 98048 reset_statistics 0 "no action" 1 "reset statistics" ;
 
-BO_ 97792 TERMINAL: 8 RVCController
- SG_ unknown : 0|64@0+ (1,0) [0|0] "" RVCController
+BO_ 97792 TERMINAL: 1 RVCController
 
 BO_ 130776 GENERIC_CONFIGURATION_STATUS: 8 RVCController
- SG_ manufacturer_code_lsb : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ manufacturer_code_ms_bits : 8|3@0+ (1,0) [0|0] "" RVCController
- SG_ function_instance : 11|5@0+ (1,0) [0|0] "" RVCController
- SG_ function : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ firmware_revision : 24|8@0+ (1,0) [0|0] "" RVCController
- SG_ configuration_type_lsb : 32|8@0+ (1,0) [0|0] "" RVCController
- SG_ configuration_type : 40|8@0+ (1,0) [0|0] "" RVCController
- SG_ configuration_type_msb : 48|8@0+ (1,0) [0|0] "" RVCController
- SG_ configuration_revision : 56|8@0+ (1,0) [0|0] "" RVCController
+ SG_ manufacturer_code__LSB : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ manufacturer_code__MS_bits : 8|3@0+ (1,) [0|0] "" RVCController
+ SG_ function_instance : 11|5@0+ (1,) [0|0] "" RVCController
+ SG_ function : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ firmware_revision : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ configuration_type__LSB : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ configuration_type : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ configuration_type__MSB : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ configuration_revision : 56|8@0+ (1,) [0|0] "" RVCController
 
 BO_ 131071 DATE_TIME_STATUS: 8 RVCController
- SG_ year : 0|8@0+ (1,0) [0|0] "year" RVCController
- SG_ month : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ date : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ day_of_week : 24|8@0+ (1,0) [0|0] "" RVCController
- SG_ hour : 32|8@0+ (1,0) [0|0] "" RVCController
- SG_ minute : 40|8@0+ (1,0) [0|0] "" RVCController
- SG_ second : 48|8@0+ (1,0) [0|0] "" RVCController
- SG_ time_zone : 56|8@0+ (1,0) [0|0] "" RVCController
+ SG_ year : 0|8@0+ (1,) [0|0] "year" RVCController
+ SG_ month : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ date : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ day_of_week : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ hour : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ minute : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ second : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ time_zone : 56|8@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131071 day_of_week 1 "Sunday" 2 "Monday" 3 "Tuesday" 4 "Wednesday" 5 "Thursday" 6 "Friday" 7 "Saturday" ;
 VAL_ 131071 time_zone 0 "Greenwich Mean Time" 4 "Eastern Daylight Time" 5 "Eastern Standard Time" 7 "Pacific Daylight Time" 8 "Pacific Standard Time" 22 "Central European Summer Time" ;
 
 BO_ 131070 SET_DATE_TIME_COMMAND: 8 RVCController
- SG_ year : 0|8@0+ (1,0) [0|0] "year" RVCController
- SG_ month : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ date : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ day_of_week : 24|8@0+ (1,0) [0|0] "" RVCController
- SG_ hour : 32|8@0+ (1,0) [0|0] "" RVCController
- SG_ minute : 40|8@0+ (1,0) [0|0] "" RVCController
- SG_ second : 48|8@0+ (1,0) [0|0] "" RVCController
- SG_ time_zone : 56|8@0+ (1,0) [0|0] "" RVCController
+ SG_ year : 0|8@0+ (1,) [0|0] "year" RVCController
+ SG_ month : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ date : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ day_of_week : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ hour : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ minute : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ second : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ time_zone : 56|8@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131070 day_of_week 1 "Sunday" 2 "Monday" 3 "Tuesday" 4 "Wednesday" 5 "Thursday" 6 "Friday" 7 "Saturday" ;
 VAL_ 131070 time_zone 0 "Greenwich Mean Time" 4 "Eastern Daylight Time" 5 "Eastern Standard Time" 7 "Pacific Daylight Time" 8 "Pacific Standard Time" 22 "Central European Summer Time" ;
 
 BO_ 131069 DC_SOURCE_STATUS_1: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_voltage : 16|16@0+ (0.001,0) [0|0] "V" RVCController
- SG_ dc_current : 32|32@0+ (0.001,0) [0|0] "A" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_voltage : 16|16@0+ (0.001,) [0|0] "V" RVCController
+ SG_ dc_current : 32|32@0+ (0.001,) [0|0] "A" RVCController
+
 VAL_ 131069 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
 VAL_ 131069 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
 
+BO_ 69629 DC_SOURCE_STATUS_SPYDER: 8 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_voltage : 16|16@0+ (0.001,) [0|0] "V" RVCController
+ SG_ dc_current : 32|32@0+ (0.001,) [0|0] "A" RVCController
+
+VAL_ 69629 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
+VAL_ 69629 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
+
 BO_ 131068 DC_SOURCE_STATUS_2: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ source_temperature : 16|16@0- (0.1,-40) [0|0] "Deg C" RVCController
- SG_ state_of_charge : 32|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ time_remaining : 40|16@0+ (1,0) [0|0] "min" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ source_temperature : 16|16@0+ (0.1,-4) [0|0] "Deg C" RVCController
+ SG_ state_of_charge : 32|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ time_remaining : 40|16@0+ (1,) [0|0] "min" RVCController
+
 VAL_ 131068 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
 VAL_ 131068 device_priority 120 "battery soc device" 100 "inverter Charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
 
 BO_ 131067 DC_SOURCE_STATUS_3: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ state_of_health : 16|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ capacity_remaining : 24|16@0+ (0.1,0) [0|0] "Ah" RVCController
- SG_ relative_capacity : 40|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ ac_rms_ripple : 48|16@0+ (1,0) [0|0] "mV" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ state_of_health : 16|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ capacity_remaining : 24|16@0+ (0.1,) [0|0] "Ah" RVCController
+ SG_ relative_capacity : 40|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ ac_rms_ripple : 48|16@0+ (1,) [0|0] "mV" RVCController
+
 VAL_ 131067 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
 VAL_ 131067 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
 
 BO_ 130761 DC_SOURCE_STATUS_4: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ desired_charge_state : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ desired_dc_voltage : 24|16@0+ (0.001,0) [0|0] "V" RVCController
- SG_ desired_dc_current : 40|16@0+ (0.1,0) [0|0] "A" RVCController
- SG_ battery_type : 56|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ desired_charge_state : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ desired_dc_voltage : 24|16@0+ (0.001,) [0|0] "V" RVCController
+ SG_ desired_dc_current : 40|16@0+ (0.1,) [0|0] "A" RVCController
+ SG_ battery_type : 56|4@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130761 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
 VAL_ 130761 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
 VAL_ 130761 desired_charge_state 0 "undefined" 1 "do not charge" 2 "bulk" 3 "absorbtion" 4 "overcharge" 5 "equalize" 6 "float" 7 "constant voltage current" ;
 VAL_ 130761 battery_type 0 "flooded" 1 "gel" 2 "agm" 3 "lithium iron phosphate" ;
 
 BO_ 130760 DC_SOURCE_STATUS_5: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ hp_dc_voltage : 16|32@0+ (0.000001,0) [0|0] "V" RVCController
- SG_ dc_voltage_rate_of_change : 48|16@0+ (0.001,0) [0|0] "mV/s" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ hp_dc_voltage : 16|32@0+ (0.001,) [0|0] "V" RVCController
+ SG_ dc_voltage_rate_of_change : 48|16@0+ (0.001,) [0|0] "mV/s" RVCController
+
 VAL_ 130760 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
 VAL_ 130760 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
 
 BO_ 130759 DC_SOURCE_STATUS_6: 3 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ high_voltage_limit_status : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ high_voltage_disconnect_status : 18|2@0+ (1,0) [0|0] "" RVCController
- SG_ low_voltage_limit_status : 20|2@0+ (1,0) [0|0] "" RVCController
- SG_ low_voltage_disconnect_status : 22|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ device_priority : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_voltage_limit_status : 16|2@0+ (1,) [0|0] "" RVCController
+ SG_ high_voltage_disconnect_status : 18|2@0+ (1,) [0|0] "" RVCController
+ SG_ low_voltage_limit_status : 20|2@0+ (1,) [0|0] "" RVCController
+ SG_ low_voltage_disconnect_status : 22|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130759 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
 VAL_ 130759 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
 VAL_ 130759 high_voltage_limit_status 0 "not reached" 1 "limit reached" ;
@@ -120,149 +137,131 @@ VAL_ 130759 high_voltage_disconnect_status 0 "connected" 1 "charge bus disconnec
 VAL_ 130759 low_voltage_limit_status 0 "not reached" 1 "limit reached" ;
 VAL_ 130759 low_voltage_disconnect_status 0 "connected" 1 "charge bus disconnected" ;
 
-BO_ 69629 DC_SOURCE_STATUS_SPYDER: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ device_priority : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_voltage : 16|16@0+ (0.001,0) [0|0] "V" RVCController
- SG_ dc_current : 32|32@0+ (0.001,0) [0|0] "A" RVCController
-VAL_ 69629 instance 0 "invalid" 1 "main house battery bank" 2 "chassis start battery" 3 "secondary house battery bank" ;
-VAL_ 69629 device_priority 120 "battery soc device" 100 "inverter charger" 80 "charger" 60 "inverter" 40 "voltmeter ammeter" 20 "voltmeter" ;
-
 BO_ 131066 COMMUNICATION_STATUS_1: 8 RVCController
- SG_ timer_count : 0|32@0+ (1,0) [0|0] "ms" RVCController
- SG_ receive_error_count : 32|16@0+ (1,0) [0|0] "" RVCController
- SG_ transmit_error_count : 48|16@0+ (1,0) [0|0] "" RVCController
+ SG_ timer_count : 0|32@0+ (1,) [0|0] "ms" RVCController
+ SG_ receive_error_count : 32|16@0+ (1,) [0|0] "" RVCController
+ SG_ transmit_error_count : 48|16@0+ (1,) [0|0] "" RVCController
 
 BO_ 131065 COMMUNICATION_STATUS_2: 8 RVCController
- SG_ transmitted_frames_count : 0|32@0+ (1,0) [0|0] "" RVCController
- SG_ received_frames_count : 32|32@0+ (1,0) [0|0] "" RVCController
+ SG_ transmitted_frames_count : 0|32@0+ (1,) [0|0] "" RVCController
+ SG_ received_frames_count : 32|32@0+ (1,) [0|0] "" RVCController
 
 BO_ 131064 COMMUNICATION_STATUS_3: 6 RVCController
- SG_ bus_off_error_count : 0|16@0+ (1,0) [0|0] "" RVCController
- SG_ receive_frames_dropped_count : 16|16@0+ (1,0) [0|0] "" RVCController
- SG_ transmit_frames_dropped_count : 32|16@0+ (1,0) [0|0] "" RVCController
+ SG_ bus_off_error_count : 0|16@0+ (1,) [0|0] "" RVCController
+ SG_ receive_frames_dropped_count : 16|16@0+ (1,) [0|0] "" RVCController
+ SG_ transmit_frames_dropped_count : 32|16@0+ (1,) [0|0] "" RVCController
 
 BO_ 131063 WATERHEATER_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ operating_modes : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ set_point_temperature : 16|16@0+ (0.1,0) [0|0] "Deg C" RVCController
- SG_ water_temperature : 32|16@0+ (0.1,0) [0|0] "Deg C" RVCController
- SG_ thermostat_status : 48|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_status : 50|2@0+ (1,0) [0|0] "" RVCController
- SG_ ac_element_status : 52|2@0+ (1,0) [0|0] "" RVCController
- SG_ high_temp_limit_sw_stat : 54|2@0+ (1,0) [0|0] "" RVCController
- SG_ failure_to_ignite_status : 56|2@0+ (1,0) [0|0] "" RVCController
- SG_ ac_power_failure_status : 58|2@0+ (1,0) [0|0] "" RVCController
- SG_ dc_power_failure_status : 60|2@0+ (1,0) [0|0] "" RVCController
- SG_ dc_power_warning_status : 62|2@0+ (1,0) [0|0] "" RVCController
-VAL_ 131063 operating_modes 0 "off" 1 "combustion" 2 "electric" 3 "gas/electric (both)" 4 "automatic (electric if available, otherwise combustion)" 5 "test combustion (forced on)" 6 "test electric (forced on)" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ operating_modes : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ set_point_temperature : 16|16@0+ (0.1,) [0|0] "Deg C" RVCController
+ SG_ water_temperature : 32|16@0+ (0.1,) [0|0] "Deg C" RVCController
+ SG_ thermostat_status : 48|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_status : 50|2@0+ (1,) [0|0] "" RVCController
+ SG_ ac_element_status : 52|2@0+ (1,) [0|0] "" RVCController
+ SG_ high_temperature_limit_switch_status : 54|2@0+ (1,) [0|0] "" RVCController
+ SG_ failure_to_ignite_status : 56|2@0+ (1,) [0|0] "" RVCController
+ SG_ ac_power_failure_status : 58|2@0+ (1,) [0|0] "" RVCController
+ SG_ dc_power_failure_status : 60|2@0+ (1,) [0|0] "" RVCController
+ SG_ dc_power_warning_status : 62|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 131063 operating_modes 0 "False" 1 "combustion" 2 "electric" 3 "gas/electric (both)" 4 "automatic (electric if available, otherwise combustion)" 5 "test combustion (forced on)" 6 "test electric (forced on)" ;
 VAL_ 131063 thermostat_status 0 "set point met" 1 "set point not met (heat is being applied)" ;
-VAL_ 131063 burner_status 0 "off" 1 "burner is lit" ;
+VAL_ 131063 burner_status 0 "False" 1 "burner is lit" ;
 VAL_ 131063 ac_element_status 0 "ac element is inactive" 1 "ac element is active" ;
-VAL_ 131063 high_temp_limit_sw_stat 0 "limit switch not tripped" 1 "limit switch tripped" ;
+VAL_ 131063 high_temperature_limit_switch_status 0 "limit switch not tripped" 1 "limit switch tripped" ;
 VAL_ 131063 failure_to_ignite_status 0 "no failure" 1 "device has failed to ignite" ;
 VAL_ 131063 ac_power_failure_status 0 "ac power present" 1 "ac power not present" ;
 VAL_ 131063 dc_power_failure_status 0 "dc power present" 1 "dc power not present" ;
 VAL_ 131063 dc_power_warning_status 0 "dc power sufficient" 1 "dc power warning" ;
 
 BO_ 131062 WATERHEATER_COMMAND: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ operating_modes : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ set_point_temperature : 16|16@0+ (0.1,0) [0|0] "" RVCController
- SG_ reserved1 : 32|16@0+ (1,0) [0|0] "" RVCController
- SG_ electric_element_level : 48|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved2 : 52|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved3 : 56|8@0+ (1,0) [0|0] "" RVCController
-VAL_ 131062 operating_modes 0 "off" 1 "combustion" 2 "electric" 3 "gas/electric (both)" 4 "automatic (electric if available, combustion otherwise)" 5 "test combustion (forced on)" 6 "test electric (forced on)" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ operating_modes : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ set_point_temperature : 16|16@0+ (1,) [0|0] "" RVCController
+ SG_ reserved_32 : 32|16@0+ (1,) [0|0] "" RVCController
+ SG_ electric_element_level : 48|4@0+ (1,) [0|0] "" RVCController
+ SG_ reserved_52 : 52|4@0+ (1,) [0|0] "" RVCController
+ SG_ reserved_56 : 56|8@0+ (1,) [0|0] "" RVCController
+
+VAL_ 131062 operating_modes 0 "False" 1 "combustion" 2 "electric" 3 "gas/electric (both)" 4 "automatic (electric if available, combustion otherwise)" 5 "test combustion (forced on)" 6 "test electric (forced on)" ;
 
 BO_ 130713 WATERHEATER_STATUS_2: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ electric_element_level : 8|4@0+ (1,0) [0|0] "" RVCController
- SG_ max_electric_element_level : 12|4@0+ (1,0) [0|0] "" RVCController
- SG_ engine_preheat : 16|4@0+ (1,0) [0|0] "" RVCController
- SG_ coolant_level_warning : 20|2@0+ (1,0) [0|0] "" RVCController
- SG_ hot_water_priority : 22|2@0+ (1,0) [0|0] "" RVCController
- SG_ output_status_burner : 24|2@0+ (1,0) [0|0] "" RVCController
- SG_ output_status_burner_indicator : 26|2@0+ (1,0) [0|0] "" RVCController
- SG_ output_status_electric_low : 28|2@0+ (1,0) [0|0] "" RVCController
- SG_ output_status_electric_high : 30|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_overcurrent_status : 32|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_undercurrent_status : 34|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_temperature_status : 36|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_input_status : 38|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_indic_overcurr_stat : 40|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_indic_undrcurr_stat : 42|2@0+ (1,0) [0|0] "" RVCController
- SG_ burner_indic_temp_stat : 44|2@0+ (1,0) [0|0] "" RVCController
- SG_ reserved : 46|2@0+ (1,0) [0|0] "" RVCController
- SG_ electric_low_overcurr_stat : 48|2@0+ (1,0) [0|0] "" RVCController
- SG_ electric_low_undrcurr_stat : 50|2@0+ (1,0) [0|0] "" RVCController
- SG_ electric_low_temp_stat : 52|2@0+ (1,0) [0|0] "" RVCController
- SG_ electric_low_input_stat : 54|2@0+ (1,0) [0|0] "" RVCController
- SG_ elec_high_elem_overcurr_stat : 56|2@0+ (1,0) [0|0] "" RVCController
- SG_ elec_high_elem_undrcurr_stat : 58|2@0+ (1,0) [0|0] "" RVCController
- SG_ elec_high_elem_temp_stat : 60|2@0+ (1,0) [0|0] "" RVCController
- SG_ elec_high_elem_input_stat : 62|2@0+ (1,0) [0|0] "" RVCController
-VAL_ 130713 engine_preheat 0 "off" 1 "on" 5 "test (forced on)" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ electric_element_level : 8|4@0+ (1,) [0|0] "" RVCController
+ SG_ max_electric_element_level : 12|4@0+ (1,) [0|0] "" RVCController
+ SG_ engine_preheat : 16|4@0+ (1,) [0|0] "" RVCController
+ SG_ coolant_level_warning : 20|2@0+ (1,) [0|0] "" RVCController
+ SG_ hot_water_priority : 22|2@0+ (1,) [0|0] "" RVCController
+ SG_ output_status___burner : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ output_status___burner_indicator : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ output_status___electric_low : 28|2@0+ (1,) [0|0] "" RVCController
+ SG_ output_status___electric_high : 30|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_overcurrent_status : 32|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_undercurrent_status : 34|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_temperature_status : 36|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_input_status : 38|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_indicator_overcurrent_status : 40|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_indicator_undercurrent_status : 42|2@0+ (1,) [0|0] "" RVCController
+ SG_ burner_indicator_temperature_status : 44|2@0+ (1,) [0|0] "" RVCController
+ SG_ reserved_46 : 46|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_low_overcurrent_status : 48|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_low_undercurrent_status : 50|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_low_temperature_status : 52|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_low_input_status : 54|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_high_element_overcurrent_status : 56|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_high_element_undercurrent_status : 58|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_high_element_temperature_status : 60|2@0+ (1,) [0|0] "" RVCController
+ SG_ electric_high_element_input_status : 62|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130713 engine_preheat 0 "False" 1 "True" 65 "test (forced on)" ;
 VAL_ 130713 coolant_level_warning 0 "coolant level sufficent" 1 "coolant level low (shutoff)" ;
 VAL_ 130713 hot_water_priority 0 "domestic water priority" 1 "heating priority" ;
-VAL_ 130713 output_status_burner 0 "off" 1 "on" ;
-VAL_ 130713 output_status_burner_indicator 0 "off" 1 "on" ;
-VAL_ 130713 output_status_electric_low 0 "off" 1 "on" ;
-VAL_ 130713 output_status_electric_high 0 "off" 1 "on" ;
+VAL_ 130713 output_status___burner 0 "False" 1 "True" ;
+VAL_ 130713 output_status___burner_indicator 0 "False" 1 "True" ;
+VAL_ 130713 output_status___electric_low 0 "False" 1 "True" ;
+VAL_ 130713 output_status___electric_high 0 "False" 1 "True" ;
 VAL_ 130713 burner_overcurrent_status 0 "no overcurrent detected" 1 "overcurrent detected" ;
 VAL_ 130713 burner_undercurrent_status 0 "no undercurrent detected" 1 "undercurrent detected" ;
 VAL_ 130713 burner_temperature_status 0 "temperature normal" 1 "temperature warning" ;
 VAL_ 130713 burner_input_status 0 "off (inactive)" 1 "on (active)" ;
-VAL_ 130713 burner_indic_overcurr_stat 0 "no overcurrent detected" 1 "overcurrent detected" ;
-VAL_ 130713 burner_indic_undrcurr_stat 0 "no undercurrent detected" 1 "undercurrent detected" ;
-VAL_ 130713 burner_indic_temp_stat 0 "temperature normal" 1 "temperature warning" ;
-VAL_ 130713 electric_low_overcurr_stat 0 "no overcurrent detected" 1 "overcurrent detected" ;
-VAL_ 130713 electric_low_undrcurr_stat 0 "no undercurrent detected" 1 "undercurrent detected" ;
-VAL_ 130713 electric_low_temp_stat 0 "temperature normal" 1 "temperature warning" ;
-VAL_ 130713 electric_low_input_stat 0 "off (inactive)" 1 "on (active)" ;
-VAL_ 130713 elec_high_elem_overcurr_stat 0 "no overcurrent detected" 1 "overcurrent detected" ;
-VAL_ 130713 elec_high_elem_undrcurr_stat 0 "no undercurrent detected" 1 "undercurrent detected" ;
-VAL_ 130713 elec_high_elem_temp_stat 0 "temperature normal" 1 "temperature warning" ;
-VAL_ 130713 elec_high_elem_input_stat 0 "off (inactive)" 1 "on (active)" ;
+VAL_ 130713 burner_indicator_overcurrent_status 0 "no overcurrent detected" 1 "overcurrent detected" ;
+VAL_ 130713 burner_indicator_undercurrent_status 0 "no undercurrent detected" 1 "undercurrent detected" ;
+VAL_ 130713 burner_indicator_temperature_status 0 "temperature normal" 1 "temperature warning" ;
+VAL_ 130713 electric_low_overcurrent_status 0 "no overcurrent detected" 1 "overcurrent detected" ;
+VAL_ 130713 electric_low_undercurrent_status 0 "no undercurrent detected" 1 "undercurrent detected" ;
+VAL_ 130713 electric_low_temperature_status 0 "temperature normal" 1 "temperature warning" ;
+VAL_ 130713 electric_low_input_status 0 "off (inactive)" 1 "on (active)" ;
+VAL_ 130713 electric_high_element_overcurrent_status 0 "no overcurrent detected" 1 "overcurrent detected" ;
+VAL_ 130713 electric_high_element_undercurrent_status 0 "no undercurrent detected" 1 "undercurrent detected" ;
+VAL_ 130713 electric_high_element_temperature_status 0 "temperature normal" 1 "temperature warning" ;
+VAL_ 130713 electric_high_element_input_status 0 "off (inactive)" 1 "on (active)" ;
 
 BO_ 130712 WATERHEATER_COMMAND_2: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ engine_preheat : 8|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved1 : 12|4@0+ (1,0) [0|0] "" RVCController
- SG_ command : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ reserved2 : 24|40@0+ (1,0) [0|0] "" RVCController
-VAL_ 130712 engine_preheat 0 "off" 1 "on" 5 "test (forced on)" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ engine_preheat : 8|4@0+ (1,) [0|0] "" RVCController
+ SG_ reserved_12 : 12|4@0+ (1,) [0|0] "" RVCController
+ SG_ command : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ reserved_24 : 24|40@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130712 engine_preheat 0 "False" 1 "True" 65 "test (forced on)" ;
 VAL_ 130712 command 0 "electric low - enable" 1 "electric low - disable" 2 "electric low - toggle" 3 "electric high - enable" 4 "electric High - disable" 5 "electric High - toggle" 6 "burner - enable" 7 "burner - disable" 8 "burner - toggle" 9 "electric - cycle (low to high to off)" 10 "electric - cycle (high to low to off)" 11 "electric low test - toggle" 12 "electric high test - toggle" 13 "burner test - toggle" ;
 
-BO_ 130711 CIRCULATION_PUMP_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ output_status : 8|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved1 : 12|4@0+ (1,0) [0|0] "" RVCController
- SG_ pump_overcurrent_status : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ pump_undercurrent_status : 18|2@0+ (1,0) [0|0] "" RVCController
- SG_ pump_temperature_status : 20|2@0+ (1,0) [0|0] "" RVCController
- SG_ reserved2 : 22|2@0+ (1,0) [0|0] "" RVCController
- SG_ reserved3 : 24|40@0+ (1,0) [0|0] "" RVCController
-VAL_ 130711 output_status 0 "off" 1 "on" 5 "test (forced on)" ;
-VAL_ 130711 pump_overcurrent_status 0 "no overcurrent detected" 1 "overcurrent detected" ;
-VAL_ 130711 pump_undercurrent_status 0 "no undercurrent detected" 1 "undercurrent detected" ;
-VAL_ 130711 pump_temperature_status 0 "temperature normal" 1 "temperature warning" ;
+BO_ 130711 CIRCULATION_PUMP_STATUS: 1 RVCController
+ SG_ placeholder_130711 : 0|1@0+ (1,0) [0|0] "" RVCController
 
-BO_ 130710 CIRCULATION_PUMP_COMMAND: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ output_mode : 8|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved1 : 12|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved2 : 16|48@0+ (1,0) [0|0] "" RVCController
-VAL_ 130710 output_mode 0 "off" 5 "test (forced on)" ;
+BO_ 130710 CIRCULATION_PUMP_COMMAND: 1 RVCController
+ SG_ placeholder_130710 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131061 GAS_SENSOR_STATUS: 5 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ type : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ ppm : 16|16@0+ (1,0) [0|0] "ppm" RVCController
- SG_ alarm : 32|2@0+ (1,0) [0|0] "" RVCController
- SG_ warning : 34|2@0+ (1,0) [0|0] "" RVCController
- SG_ dc_supply_failure : 36|2@0+ (1,0) [0|0] "" RVCController
- SG_ sensor_failure : 38|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ type : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ ppm : 16|16@0+ (1,) [0|0] "ppm" RVCController
+ SG_ alarm : 32|2@0+ (1,) [0|0] "bit" RVCController
+ SG_ warning : 34|2@0+ (1,) [0|0] "bit" RVCController
+ SG_ dc_supply_failure : 36|2@0+ (1,) [0|0] "bit" RVCController
+ SG_ sensor_failure : 38|2@0+ (1,) [0|0] "bit" RVCController
+
 VAL_ 131061 type 1 "co" 2 "lp gas" 3 "smoke" ;
 VAL_ 131061 alarm 0 "no alarm" 1 "alarm" ;
 VAL_ 131061 warning 0 "no warning" 1 "warning" ;
@@ -270,453 +269,608 @@ VAL_ 131061 dc_supply_failure 0 "no failure" 1 "failure" ;
 VAL_ 131061 sensor_failure 0 "no failure" 1 "failure" ;
 
 BO_ 131060 CHASSIS_MOBILITY_STATUS: 8 RVCController
- SG_ engine_rpms : 0|16@0+ (1,0) [0|0] "rpm" RVCController
- SG_ vehicle_speed : 16|16@0+ (0.01,0) [0|0] "kph" RVCController
- SG_ park_brake_status : 32|2@0+ (1,0) [0|0] "" RVCController
- SG_ transmission_lock_status : 34|2@0+ (1,0) [0|0] "" RVCController
- SG_ engine_lock_status : 36|2@0+ (1,0) [0|0] "" RVCController
- SG_ ignition_switch_status : 40|2@0+ (1,0) [0|0] "" RVCController
- SG_ accessory_switch_status : 42|3@0+ (1,0) [0|0] "" RVCController
- SG_ transmission_current_gear : 48|8@0+ (1,0) [0|0] "" RVCController
- SG_ transmission_gear_selected : 56|8@0+ (1,0) [0|0] "" RVCController
+ SG_ engine_rpms : 0|16@0+ (1,) [0|0] "rpm" RVCController
+ SG_ vehicle_speed : 16|16@0+ (0.01,) [0|0] "kph" RVCController
+ SG_ park_brake_status : 32|2@0+ (1,) [0|0] "" RVCController
+ SG_ transmission_lock_status : 34|2@0+ (1,) [0|0] "" RVCController
+ SG_ engine_lock_status : 36|2@0+ (1,) [0|0] "" RVCController
+ SG_ ignition_switch_status : 40|2@0+ (1,) [0|0] "" RVCController
+ SG_ accessory_switch_status : 42|3@0+ (1,) [0|0] "" RVCController
+ SG_ transmission_current_gear : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ transmission_gear_selected : 56|8@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131060 park_brake_status 0 "park brake released" 1 "park brake engaged" ;
 VAL_ 131060 transmission_lock_status 0 "transmission not locked" 1 "transmission locked" ;
 VAL_ 131060 engine_lock_status 0 "engine free to start" 1 "engine locked" ;
-VAL_ 131060 ignition_switch_status 0 "off" 1 "on" ;
-VAL_ 131060 accessory_switch_status 0 "off" 1 "on" ;
+VAL_ 131060 ignition_switch_status 0 "False" 1 "True" ;
+VAL_ 131060 accessory_switch_status 0 "False" 1 "True" ;
 VAL_ 131060 transmission_current_gear 124 "reverse 1" 125 "neutral" 126 "forward 1" 127 "forward 2" 128 "forward 3" 129 "forward 4" 130 "forward 5" 131 "forward 6" 132 "forward 7" 251 "park" ;
 VAL_ 131060 transmission_gear_selected 124 "reverse 1" 125 "neutral" 126 "forward 1" 127 "forward 2" 128 "forward 3" 129 "forward 4" 130 "forward 5" 131 "forward 6" 132 "forward 7" 251 "park" ;
 
 BO_ 131059 CHASSIS_MOBILITY_COMMAND: 3 RVCController
- SG_ park_brake_command : 0|2@0+ (1,0) [0|0] "" RVCController
- SG_ park_brake_user_override : 2|2@0+ (1,0) [0|0] "" RVCController
- SG_ transmission_command : 8|2@0+ (1,0) [0|0] "" RVCController
- SG_ transmission_lock_user_override : 10|2@0+ (1,0) [0|0] "" RVCController
- SG_ engine_lock_command : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ engine_lock_user_override : 18|2@0+ (1,0) [0|0] "" RVCController
-VAL_ 131059 park_brake_command 0 "please release chassis" 1 "please immobilize chassis" 2 "error" 3 "do not care about status" ;
-VAL_ 131059 park_brake_user_override 0 "normal priority" 1 "override" 2 "error" 3 "na" ;
-VAL_ 131059 transmission_command 0 "please release transmission" 1 "please lock transmission" 2 "error" 3 "do not care about status" ;
-VAL_ 131059 transmission_lock_user_override 0 "normal priority" 1 "override" 2 "error" 3 "na" ;
-VAL_ 131059 engine_lock_command 0 "please release engine" 1 "please lock engine" 2 "error" 3 "do not care about status" ;
-VAL_ 131059 engine_lock_user_override 0 "normal priority" 1 "override" 2 "error" 3 "na" ;
+ SG_ park_brake_command : 0|2@0+ (1,) [0|0] "" RVCController
+ SG_ park_brake_user_override : 2|2@0+ (1,) [0|0] "" RVCController
+ SG_ transmission_command : 8|2@0+ (1,) [0|0] "" RVCController
+ SG_ transmission_lock_user_override : 10|2@0+ (1,) [0|0] "" RVCController
+ SG_ engine_lock_command : 16|2@0+ (1,) [0|0] "" RVCController
+ SG_ engine_lock_user_override : 18|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 131059 park_brake_command 0 "please release chassis" 1 "please immobilize chassis" 10 "error" 11 "do not care about status" ;
+VAL_ 131059 park_brake_user_override 0 "normal priority" 1 "override" 10 "error" 11 "na" ;
+VAL_ 131059 transmission_command 0 "please release transmission" 1 "please lock transmission" 10 "error" 11 "do not care about status" ;
+VAL_ 131059 transmission_lock_user_override 0 "normal priority" 1 "override" 10 "error" 11 "na" ;
+VAL_ 131059 engine_lock_command 0 "please release engine" 1 "please lock engine" 10 "error" 11 "do not care about status" ;
+VAL_ 131059 engine_lock_user_override 0 "normal priority" 1 "override" 10 "error" 11 "na" ;
 
 BO_ 131058 AAS_CONFIG_STATUS: 6 RVCController
- SG_ left_front_sensor_mode : 0|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ right_front_sensor_mode : 8|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ right_rear_sensor_mode : 16|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ left_rear_sensor_mode : 24|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ height_corr_thresh_time : 32|8@0+ (1,0) [0|0] "min" RVCController
- SG_ solenoid_on_time : 40|8@0+ (1,0) [0|0] "min" RVCController
+ SG_ left_front_sensor_mode : 0|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ right_front_sensor_mode : 8|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ right_rear_sensor_mode : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ left_rear_sensor_mode : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ height_correction_threshold_time : 32|8@0+ (1,) [0|0] "min" RVCController
+ SG_ solenoid_on_time : 40|8@0+ (1,) [0|0] "min" RVCController
 
 BO_ 131057 AAS_COMMAND: 6 RVCController
- SG_ left_front_sensor_mode : 0|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ right_front_sensor_mode : 8|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ right_rear_sensor_mode : 16|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ left_rear_sensor_mode : 24|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ height_corr_thresh_time : 32|8@0+ (1,0) [0|0] "min" RVCController
- SG_ solenoid_on_time : 40|8@0+ (1,0) [0|0] "min" RVCController
+ SG_ left_front_sensor_mode : 0|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ right_front_sensor_mode : 8|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ right_rear_sensor_mode : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ left_rear_sensor_mode : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ height_correction_threshold_time : 32|8@0+ (1,) [0|0] "min" RVCController
+ SG_ solenoid_on_time : 40|8@0+ (1,) [0|0] "min" RVCController
 
 BO_ 131056 AAS_STATUS: 6 RVCController
- SG_ aas_operating_status : 0|2@0+ (1,0) [0|0] "" RVCController
- SG_ aas_mode : 2|4@0+ (1,0) [0|0] "" RVCController
- SG_ left_front_sensor_mode : 8|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ right_front_sensor_mode : 16|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ right_rear_sensor_mode : 24|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ left_rear_sensor_mode : 32|8@0+ (1,0) [0|0] "Pct" RVCController
- SG_ tag_axle_position : 40|2@0+ (1,0) [0|0] "" RVCController
-VAL_ 131056 aas_operating_status 0 "off" 1 "on" ;
-VAL_ 131056 aas_mode 0 "normal" 1 "fly mode" 2 "reset" 14 "error" 15 "na" ;
+ SG_ aas_operating_status : 0|2@0+ (1,) [0|0] "" RVCController
+ SG_ aas_mode : 2|4@0+ (1,) [0|0] "" RVCController
+ SG_ left_front_sensor_mode : 8|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ right_front_sensor_mode : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ right_rear_sensor_mode : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ left_rear_sensor_mode : 32|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ tag_axle_position : 40|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 131056 aas_operating_status 0 "False" 1 "True" ;
+VAL_ 131056 aas_mode 0 "normal" 1 "fly mode" 8 "reset" 1110 "error" 1111 "na" ;
 VAL_ 131056 tag_axle_position 0 "down" 1 "up" ;
 
 BO_ 131055 AAS_SENSOR_STATUS: 8 RVCController
- SG_ lf_sensor_stat_low_ride : 0|2@0+ (1,0) [0|0] "" RVCController
- SG_ lf_sensor_stat_med_ride : 2|2@0+ (1,0) [0|0] "" RVCController
- SG_ lf_sensor_stat_high_ride : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ lf_sensor_transition : 6|2@0+ (1,0) [0|0] "" RVCController
- SG_ lf_quad_enc_stat_chan_a : 8|2@0+ (1,0) [0|0] "" RVCController
- SG_ lf_quad_enc_stat_chan_b : 10|2@0+ (1,0) [0|0] "" RVCController
- SG_ rf_sensor_stat_low_ride : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ rf_sensor_stat_med_ride : 18|2@0+ (1,0) [0|0] "" RVCController
- SG_ rf_sensor_stat_high_ride : 20|2@0+ (1,0) [0|0] "" RVCController
- SG_ rf_sensor_transition : 22|2@0+ (1,0) [0|0] "" RVCController
- SG_ rf_quad_enc_stat_chan_a : 24|2@0+ (1,0) [0|0] "" RVCController
- SG_ rf_quad_enc_stat_chan_b : 26|2@0+ (1,0) [0|0] "" RVCController
- SG_ steer_quad_enc_stat_chan_a : 28|2@0+ (1,0) [0|0] "" RVCController
- SG_ steer_quad_enc_stat_chan_b : 30|2@0+ (1,0) [0|0] "" RVCController
- SG_ lr_sensor_stat_low_ride : 32|2@0+ (1,0) [0|0] "" RVCController
- SG_ lr_sensor_stat_med_ride : 34|2@0+ (1,0) [0|0] "" RVCController
- SG_ lr_sensor_stat_high_ride : 36|2@0+ (1,0) [0|0] "" RVCController
- SG_ lr_sensor_transition : 38|2@0+ (1,0) [0|0] "" RVCController
- SG_ lr_quad_enc_stat_chan_a : 40|2@0+ (1,0) [0|0] "" RVCController
- SG_ lr_quad_enc_stat_chan_b : 42|2@0+ (1,0) [0|0] "" RVCController
- SG_ rr_sensor_stat_low_ride : 48|2@0+ (1,0) [0|0] "" RVCController
- SG_ rr_sensor_stat_med_ride : 50|2@0+ (1,0) [0|0] "" RVCController
- SG_ rr_sensor_stat_high_ride : 52|2@0+ (1,0) [0|0] "" RVCController
- SG_ rr_sensor_transition : 54|2@0+ (1,0) [0|0] "" RVCController
- SG_ rr_quad_enc_stat_chan_a : 56|2@0+ (1,0) [0|0] "" RVCController
- SG_ rr_quad_enc_stat_chan_b : 58|2@0+ (1,0) [0|0] "" RVCController
-VAL_ 131055 lf_sensor_stat_low_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 lf_sensor_stat_med_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 lf_sensor_stat_high_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 lf_sensor_transition 0 "no transition" 1 "transition was made" ;
-VAL_ 131055 rf_sensor_stat_low_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 rf_sensor_stat_med_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 rf_sensor_stat_high_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 rf_sensor_transition 0 "no transition" 1 "transition was made" ;
-VAL_ 131055 lr_sensor_stat_low_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 lr_sensor_stat_med_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 lr_sensor_stat_high_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 lr_sensor_transition 0 "no transition" 1 "transition was made" ;
-VAL_ 131055 rr_sensor_stat_low_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 rr_sensor_stat_med_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 rr_sensor_stat_high_ride 0 "under set point" 1 "over set point" ;
-VAL_ 131055 rr_sensor_transition 0 "no transition" 1 "transition was made" ;
+ SG_ left_front_sensor_status_low_ride : 0|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_front_sensor_status_medium_ride : 2|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_front_sensor_status_high_ride : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_front_sensor_transition : 6|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_front_quadrature_encoder_status_channel_A : 8|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_front_quadrature_encoder_status_channel_B : 10|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_front_sensor_status_low_ride : 16|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_front_sensor_status_medium_ride : 18|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_front_sensor_status_high_ride : 20|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_front_sensor_transition : 22|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_front_quadrature_encoder_status_channel_A : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_front_quadrature_encoder_status_channel_B : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ steering_sensor_quadrature_encoder_status_channel_A : 28|2@0+ (1,) [0|0] "" RVCController
+ SG_ steering_sensor_quadrature_encoder_status_channel_B : 30|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_rear_sensor_status_low_ride : 32|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_rear_sensor_status_medium_ride : 34|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_rear_sensor_status_high_ride : 36|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_rear_sensor_transition : 38|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_rear_quadrature_encoder_status_channel_A : 40|2@0+ (1,) [0|0] "" RVCController
+ SG_ left_rear_quadrature_encoder_status_channel_B : 42|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_rear_sensor_status_low_ride : 48|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_rear_sensor_status_medium_ride : 50|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_rear_sensor_status_high_ride : 52|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_rear_sensor_transition : 54|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_rear_quadrature_encoder_status_channel_A : 56|2@0+ (1,) [0|0] "" RVCController
+ SG_ right_rear_quadrature_encoder_status_channel_B : 58|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 131055 left_front_sensor_status_low_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 left_front_sensor_status_medium_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 left_front_sensor_status_high_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 left_front_sensor_transition 0 "no transition" 1 "transition was made" ;
+VAL_ 131055 right_front_sensor_status_low_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 right_front_sensor_status_medium_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 right_front_sensor_status_high_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 right_front_sensor_transition 0 "no transition" 1 "transition was made" ;
+VAL_ 131055 left_rear_sensor_status_low_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 left_rear_sensor_status_medium_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 left_rear_sensor_status_high_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 left_rear_sensor_transition 0 "no transition" 1 "transition was made" ;
+VAL_ 131055 right_rear_sensor_status_low_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 right_rear_sensor_status_medium_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 right_rear_sensor_status_high_ride 0 "under set point" 1 "over set point" ;
+VAL_ 131055 right_rear_sensor_transition 0 "no transition" 1 "transition was made" ;
 
 BO_ 130769 SUSPENSION_AIR_PRESSURE_STATUS: 7 RVCController
- SG_ susp_sys_supply_pressure : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ steer_axle_left_air_spring : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ steer_axle_right_air_spring : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ drive_axle_left_air_spring : 24|8@0+ (1,0) [0|0] "" RVCController
- SG_ drive_axle_right_air_spring : 32|8@0+ (1,0) [0|0] "" RVCController
- SG_ tag_axle_left_air_spring : 40|8@0+ (1,0) [0|0] "" RVCController
- SG_ tag_axle_right_air_spring : 48|8@0+ (1,0) [0|0] "" RVCController
+ SG_ suspension_system_supply_pressure : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ steer_axle_left_air_spring : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ steer_axle_right_air_spring : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ drive_axle_left_air_spring : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ drive_axle_right_air_spring : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ tag_axle_left_air_spring : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ tag_axle_left_right_spring : 48|8@0+ (1,) [0|0] "" RVCController
 
 BO_ 131054 LEVELING_CONTROL_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131054 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131053 LEVELING_CONTROL_STATUS: 1 RVCController
+ SG_ placeholder_131053 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131052 LEVELING_JACK_STATUS: 1 RVCController
+ SG_ placeholder_131052 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131051 LEVELING_SENSOR_STATUS: 1 RVCController
+ SG_ placeholder_131051 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131050 HYDRAULIC_PUMP_STATUS: 1 RVCController
+ SG_ placeholder_131050 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130748 HYDRAULIC_PUMP_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130748 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131049 LEVELING_AIR_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131049 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131048 SLIDE_STATUS: 1 RVCController
+ SG_ placeholder_131048 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131047 SLIDE_COMMAND: 1 RVCController
+ SG_ placeholder_131047 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131046 SLIDE_SENSOR_STATUS: 1 RVCController
+ SG_ placeholder_131046 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131045 SLIDE_MOTOR_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131045 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131044 FURNACE_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131044 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131043 FURNACE_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131043 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131042 THERMOSTAT_STATUS_1: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ operating_mode : 8|4@0+ (1,0) [0|0] "" RVCController
- SG_ fan_mode : 12|2@0+ (1,0) [0|0] "" RVCController
- SG_ schedule_mode : 14|2@0+ (1,0) [0|0] "" RVCController
- SG_ fan_speed : 16|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ setpoint_temp_heat : 24|16@0+ (0.1,0) [0|0] "Deg C" RVCController
- SG_ setpoint_temp_cool : 40|16@0+ (0.1,0) [0|0] "Deg C" RVCController
-VAL_ 131042 operating_mode 0 "off" 1 "cool" 2 "heat" 3 "auto" 4 "fan only" ;
-VAL_ 131042 fan_mode 0 "auto" 1 "on" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ operating_mode : 8|4@0+ (1,) [0|0] "" RVCController
+ SG_ fan_mode : 12|2@0+ (1,) [0|0] "" RVCController
+ SG_ schedule_mode : 14|2@0+ (1,) [0|0] "" RVCController
+ SG_ fan_speed : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ setpoint_temp_heat : 24|16@0+ (0.1,) [0|0] "Deg C" RVCController
+ SG_ setpoint_temp_cool : 40|16@0+ (0.1,) [0|0] "Deg C" RVCController
+
+VAL_ 131042 operating_mode 0 "False" 1 "cool" 8 "heat" 9 "auto" 64 "fan only" ;
+VAL_ 131042 fan_mode 0 "auto" 1 "True" ;
 VAL_ 131042 schedule_mode 0 "disabled" 1 "enabled" ;
 
-BO_ 130810 THERMOSTAT_STATUS_2: 3 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ current_schedule_instance : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ number_of_schedule_instances : 16|8@0+ (1,0) [0|0] "" RVCController
-
 BO_ 130809 THERMOSTAT_COMMAND_1: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ operating_mode : 8|4@0+ (1,0) [0|0] "" RVCController
- SG_ fan_mode : 12|2@0+ (1,0) [0|0] "" RVCController
- SG_ schedule_mode : 14|2@0+ (1,0) [0|0] "" RVCController
- SG_ fan_speed : 16|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ setpoint_temp_heat : 24|16@0+ (0.1,0) [0|0] "Deg C" RVCController
- SG_ setpoint_temp_cool : 40|16@0+ (0.1,0) [0|0] "Deg C" RVCController
-VAL_ 130809 operating_mode 0 "off" 1 "cool" 2 "heat" 3 "auto" 4 "fan only" ;
-VAL_ 130809 fan_mode 0 "auto" 1 "on" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ operating_mode : 8|4@0+ (1,) [0|0] "" RVCController
+ SG_ fan_mode : 12|2@0+ (1,) [0|0] "" RVCController
+ SG_ schedule_mode : 14|2@0+ (1,) [0|0] "" RVCController
+ SG_ fan_speed : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ setpoint_temp_heat : 24|16@0+ (0.1,) [0|0] "Deg C" RVCController
+ SG_ setpoint_temp_cool : 40|16@0+ (0.1,) [0|0] "Deg C" RVCController
+
+VAL_ 130809 operating_mode 0 "False" 1 "cool" 8 "heat" 9 "auto" 64 "fan only" ;
+VAL_ 130809 fan_mode 0 "auto" 1 "True" ;
 VAL_ 130809 schedule_mode 0 "disabled" 1 "enabled" ;
 
+BO_ 130810 THERMOSTAT_STATUS_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ current_schedule_instance : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ number_of_schedule_instances : 16|8@0+ (1,) [0|0] "" RVCController
+
 BO_ 130808 THERMOSTAT_COMMAND_2: 2 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ current_schedule_instance : 8|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ current_schedule_instance : 8|8@0+ (1,) [0|0] "" RVCController
 
 BO_ 130807 THERMOSTAT_SCHEDULE_STATUS_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130807 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130806 THERMOSTAT_SCHEDULE_STATUS_2: 1 RVCController
+ SG_ placeholder_130806 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130805 THERMOSTAT_SCHEDULE_COMMAND_1: 1 RVCController
+ SG_ placeholder_130805 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130804 THERMOSTAT_SCHEDULE_COMMAND_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130804 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130972 THERMOSTAT_AMBIENT_STATUS: 3 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ ambient_temp : 8|16@0- (0.1,0) [0|0] "Deg C" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ ambient_temp : 8|16@0+ (0.1,-4) [0|0] "Deg C" RVCController
 
 BO_ 131041 AIR_CONDITIONER_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ operating_mode : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ max_fan_speed : 16|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ max_ac_output_level : 24|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ fan_speed : 32|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ air_conditioning_output_level : 40|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ dead_band : 48|8@0+ (0.1,0) [0|0] "" RVCController
- SG_ second_stage_dead_band : 56|8@0+ (0.1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ operating_mode : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ max_fan_speed : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ max_air_conditioning_output_level : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ fan_speed : 32|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ air_conditioning_output_level : 40|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ dead_band : 48|8@0+ (1,) [0|0] "uint8" RVCController
+ SG_ second_stage_dead_band : 56|8@0+ (1,) [0|0] "uint8" RVCController
+
 VAL_ 131041 operating_mode 0 "automatic" 1 "manual" ;
 
 BO_ 131040 AIR_CONDITIONER_COMMAND: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ operating_mode : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ max_fan_speed : 16|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ max_ac_output_level : 24|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ fan_speed : 32|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ air_conditioning_output_level : 40|8@0+ (0.5,0) [0|0] "Pct" RVCController
- SG_ dead_band : 48|8@0+ (0.1,0) [0|0] "" RVCController
- SG_ second_stage_dead_band : 56|8@0+ (0.1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ operating_mode : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ max_fan_speed : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ max_air_conditioning_output_level : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ fan_speed : 32|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ air_conditioning_output_level : 40|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ dead_band : 48|8@0+ (1,) [0|0] "uint8" RVCController
+ SG_ second_stage_dead_band : 56|8@0+ (1,) [0|0] "uint8" RVCController
+
 VAL_ 131040 operating_mode 0 "automatic" 1 "manual" ;
 
 BO_ 130971 HEAT_PUMP_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130970 HEAT_PUMP_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130971 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131039 GENERATOR_AC_STATUS_1: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 131038 GENERATOR_AC_STATUS_2: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 131037 GENERATOR_AC_STATUS_3: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 130964 GENERATOR_AC_STATUS_4: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 130758 GENERATOR_DC_STATUS_1: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ charge_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ charge_current : 24|16@0+ (0.1,0) [0|0] "a" RVCController
- SG_ charge_curr_pct_of_max : 40|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ operating_state : 48|8@0+ (1,0) [0|0] "" RVCController
- VAL_ 130758 operating_state 0 "undefined" 1 "do not charge" 2 "bulk" 3 "absorption" 4 "overcharge" 5 "equalize" 6 "float" 7 "constant voltage/current" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ charge_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ charge_current : 24|16@0+ (0.1,) [0|0] "a" RVCController
+ SG_ charge_current_percent_of_maximum : 40|8@0+ (1,) [0|0] "pct" RVCController
+ SG_ operating_state : 48|8@0+ (1,) [0|0] "" RVCController
 
 BO_ 130757 GENERATOR_DC_CONFIGURATION_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130757 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130756 GENERATOR_DC_COMMAND: 1 RVCController
+ SG_ placeholder_130756 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130755 GENERATOR_DC_CONFIGURATION_COMMAND: 1 RVCController
+ SG_ placeholder_130755 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130754 GENERATOR_DC_EQUALIZATION_STATUS: 1 RVCController
+ SG_ placeholder_130754 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130753 GENERATOR_DC_EQUALIZATION_CONFIGURATION_STATUS: 1 RVCController
+ SG_ placeholder_130753 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130752 GENERATOR_DC_EQUALIZATION_CONFIGURATION_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130752 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131036 GENERATOR_STATUS_1: 8 RVCController
- SG_ status : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ engine_run_time : 8|32@0+ (1,0) [0|0] "" RVCController
- SG_ engine_load : 40|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ start_battery_voltage : 48|16@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ status : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ engine_run_time : 8|32@0+ (1,) [0|0] "" RVCController
+ SG_ engine_load : 40|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ start_battery_voltage : 48|16@0+ (0.001,) [0|0] "v" RVCController
+
 VAL_ 131036 status 0 "stopped" 1 "preheat" 2 "cranking" 3 "running" 4 "priming" 5 "fault" 6 "engine run only" 7 "test mode" 8 "voltage adjust mode" 9 "fault bypass mode" 10 "configuration mode" ;
 
 BO_ 131035 GENERATOR_STATUS_2: 7 RVCController
- SG_ temp_shutdown_switch : 0|2@0+ (1,0) [0|0] "" RVCController
- SG_ oil_press_shutdown_switch : 2|2@0+ (1,0) [0|0] "" RVCController
- SG_ oil_level_shutdown_switch : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ caution_light : 6|2@0+ (1,0) [0|0] "" RVCController
- SG_ engine_coolant_temperature : 8|8@0- (1,-40) [0|0] "deg c" RVCController
- SG_ engine_oil_pressure : 16|8@0+ (1,0) [0|0] "kPa" RVCController
- SG_ engine_rpm : 24|16@0+ (1,0) [0|0] "RPM" RVCController
- SG_ fuel_rate : 40|16@0+ (0.01,0) [0|0] "lph" RVCController
-VAL_ 131035 temp_shutdown_switch 0 "temperature shutdown not active" 1 "temperature shutdown active" ;
-VAL_ 131035 oil_press_shutdown_switch 0 "oil pressure shutdown not active" 1 "oil pressure shutdown active" ;
+ SG_ temperature_shutdown_switch : 0|2@0+ (1,) [0|0] "" RVCController
+ SG_ oil_pressure_shutdown_switch : 2|2@0+ (1,) [0|0] "" RVCController
+ SG_ oil_level_shutdown_switch : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ caution_light : 6|2@0+ (1,) [0|0] "" RVCController
+ SG_ engine_coolant_temperature : 8|8@0+ (1,) [0|0] "deg c" RVCController
+ SG_ engine_oil_pressure : 16|8@0+ (1,) [0|0] "kPa" RVCController
+ SG_ engine_rpm : 24|16@0+ (1,) [0|0] "RPM" RVCController
+ SG_ fuel_rate : 40|16@0+ (0.01,) [0|0] "lph" RVCController
+
+VAL_ 131035 temperature_shutdown_switch 0 "temperature shutdown not active" 1 "temperature shutdown active" ;
+VAL_ 131035 oil_pressure_shutdown_switch 0 "oil pressure shutdown not active" 1 "oil pressure shutdown active" ;
 VAL_ 131035 oil_level_shutdown_switch 0 "oil level switch not active" 1 "low oil level detected" ;
 VAL_ 131035 caution_light 0 "caution light off" 1 "caution light on" ;
 
 BO_ 131034 GENERATOR_COMMAND: 1 RVCController
- SG_ command : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ command : 0|8@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131034 command 0 "stop" 1 "start" 2 "manual prime" 3 "manual preheat" ;
 
 BO_ 131033 GENERATOR_START_CONFIG_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131033 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131032 GENERATOR_START_CONFIG_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131032 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131031 INVERTER_AC_STATUS_1: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131031 line 0 "1" 1 "2" ;
 VAL_ 131031 input_output 0 "input" 1 "output" ;
 
 BO_ 131030 INVERTER_AC_STATUS_2: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131030 line 0 "1" 1 "2" ;
 VAL_ 131030 input_output 0 "input" 1 "output" ;
 
 BO_ 131029 INVERTER_AC_STATUS_3: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131029 line 0 "1" 1 "2" ;
 VAL_ 131029 input_output 0 "input" 1 "output" ;
 
 BO_ 130959 INVERTER_AC_STATUS_4: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130959 line 0 "1" 1 "2" ;
 VAL_ 130959 input_output 0 "input" 1 "output" ;
 
-BO_ 130958 INV_ACFAULT_CFG_STAT_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+BO_ 130958 INVERTER_ACFAULT_CONFIGURATION_STATUS_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
 
-BO_ 130957 INV_ACFAULT_CFG_STAT_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+BO_ 130956 INVERTER_ACFAULT_CONFIGURATION_COMMAND_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
 
-BO_ 130956 INV_ACFAULT_CFG_CMD_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+BO_ 130953 CHARGER_ACFAULT_CONFIGURATION_STATUS_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
 
-BO_ 130955 INV_ACFAULT_CFG_CMD_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+BO_ 130951 CHARGER_ACFAULT_CONFIGURATION_COMMAND_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
+
+BO_ 130743 GENERIC_ACFAULT_CONFIGURATION_STATUS_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
+
+BO_ 130741 GENERIC_ACFAULT_CONFIGURATION_COMMAND_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
+
+BO_ 130948 ATS_ACFAULT_CONFIGURATION_STATUS_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
+
+BO_ 130946 ATS_ACFAULT_CONFIGURATION_COMMAND_1: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ extreme_low_voltage_level : 8|8@0+ (1,) [0|0] "v" RVCController
+ SG_ low_voltage_level : 16|8@0+ (1,) [0|0] "v" RVCController
+ SG_ high_voltage_level : 24|8@0+ (1,) [0|0] "v" RVCController
+ SG_ extreme_high_voltage_level : 32|8@0+ (1,) [0|0] "v" RVCController
+ SG_ qualification_time : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ bypass_mode : 48|2@0+ (1,) [0|0] "" RVCController
+
+BO_ 130957 INVERTER_ACFAULT_CONFIGURATION_STATUS_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130955 INVERTER_ACFAULT_CONFIGURATION_COMMAND_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130952 CHARGER_ACFAULT_CONFIGURATION_STATUS_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130950 CHARGER_ACFAULT_CONFIGURATION_COMMAND_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130742 GENERIC_ACFAULT_CONFIGURATION_STATUS_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130740 GENERIC_ACFAULT_CONFIGURATION_COMMAND_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130947 ATS_ACFAULT_CONFIGURATION_STATUS_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
+
+BO_ 130945 ATS_ACFAULT_CONFIGURATION_COMMAND_2: 3 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ high_frequency_limit : 8|8@0+ (1,) [0|0] "Hz" RVCController
+ SG_ low_frequency_limit : 16|8@0+ (1,) [0|0] "Hz" RVCController
 
 BO_ 131028 INVERTER_STATUS: 3 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ status : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ batt_temp_sensor_present : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_sense_enabled : 18|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ status : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ battery_temperature_sensor_present : 16|2@0+ (1,) [0|0] "" RVCController
+ SG_ load_sense_enabled : 18|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131028 status 0 "disabled" 1 "invert" 2 "ac passthru" 3 "aps only" 4 "load sense" 5 "waiting to invert" ;
-VAL_ 131028 batt_temp_sensor_present 0 "no sensor in use" 1 "sensor present and active" ;
+VAL_ 131028 battery_temperature_sensor_present 0 "no sensor in use" 1 "sensor present and active" ;
 VAL_ 131028 load_sense_enabled 0 "load sense disabled" 1 "load sense enabled" ;
 
 BO_ 131027 INVERTER_COMMAND: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ inverter_enable : 8|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_sense_enable : 10|2@0+ (1,0) [0|0] "" RVCController
- SG_ pass_through_enable : 12|2@0+ (1,0) [0|0] "" RVCController
- SG_ inverter_enable_on_startup : 56|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_sense_enable_on_startup : 58|2@0+ (1,0) [0|0] "" RVCController
- SG_ pass_through_enable_startup : 60|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ inverter_enable : 8|2@0+ (1,) [0|0] "" RVCController
+ SG_ load_sense_enable : 10|2@0+ (1,) [0|0] "" RVCController
+ SG_ pass_through_enable : 12|2@0+ (1,) [0|0] "" RVCController
+ SG_ inverter_enable_on_startup : 56|2@0+ (1,) [0|0] "" RVCController
+ SG_ load_sense_enable_on_startup : 58|2@0+ (1,) [0|0] "" RVCController
+ SG_ pass_through_enable_on_startup : 56|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131027 inverter_enable 0 "disable" 1 "enable" ;
 VAL_ 131027 load_sense_enable 0 "disable" 1 "enable" ;
 VAL_ 131027 pass_through_enable 0 "disable" 1 "enable" ;
 VAL_ 131027 inverter_enable_on_startup 0 "disable" 1 "enable" ;
 VAL_ 131027 load_sense_enable_on_startup 0 "disable" 1 "enable" ;
-VAL_ 131027 pass_through_enable_startup 0 "disable" 1 "enable" ;
+VAL_ 131027 pass_through_enable_on_startup 0 "disable" 1 "enable" ;
 
 BO_ 131026 INVERTER_CONFIGURATION_STATUS_1: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ load_sense_power_threshold : 8|16@0+ (1,0) [0|0] "w" RVCController
- SG_ load_sense_interval : 24|16@0+ (1,0) [0|0] "sec" RVCController
- SG_ dc_src_shutdown_volt_min : 40|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ inverter_enable_on_startup : 56|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_sense_enable_on_startup : 58|2@0+ (1,0) [0|0] "" RVCController
- SG_ ac_passthru_enable_startup : 60|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ load_sense_power_threshold : 8|16@0+ (1,) [0|0] "w" RVCController
+ SG_ load_sense_interval : 24|16@0+ (1,) [0|0] "sec" RVCController
+ SG_ dc_source_shutdown_voltage_minimum : 40|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ inverter_enable_on_startup : 56|2@0+ (1,) [0|0] "" RVCController
+ SG_ load_sense_enable_on_startup : 58|2@0+ (1,) [0|0] "" RVCController
+ SG_ ac_pass_through_enable_on_startup : 60|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131026 inverter_enable_on_startup 0 "disabled" 1 "enabled" ;
 VAL_ 131026 load_sense_enable_on_startup 0 "disabled" 1 "enabled" ;
-VAL_ 131026 ac_passthru_enable_startup 0 "disabled" 1 "enabled" ;
+VAL_ 131026 ac_pass_through_enable_on_startup 0 "disabled" 1 "enabled" ;
 
 BO_ 131025 INVERTER_CONFIGURATION_STATUS_2: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_src_shutdown_volt_max : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ dc_src_warn_volt_min : 24|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ dc_src_warn_volt_max : 40|16@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_source_shutdown_voltage_maximum : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ dc_source_warning_voltage_minimum : 24|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ dc_source_shutdown_voltage_maximum : 40|16@0+ (0.001,) [0|0] "v" RVCController
 
 BO_ 130766 INVERTER_CONFIGURATION_STATUS_3: 4 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_source_shutdown_delay : 8|16@0+ (1,0) [0|0] "sec" RVCController
- SG_ stack_mode : 24|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_source_shutdown_delay : 8|16@0+ (1,) [0|0] "sec" RVCController
+ SG_ stack_mode : 24|8@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130766 stack_mode 0 "stand-alone" 1 "master" 2 "slave" 3 "line 2 master" ;
 
 BO_ 131024 INVERTER_CONFIGURATION_COMMAND_1: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ load_sense_power_threshold : 8|16@0+ (1,0) [0|0] "w" RVCController
- SG_ load_sense_interval : 24|16@0+ (1,0) [0|0] "sec" RVCController
- SG_ dc_src_shutdown_volt_min : 40|16@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ load_sense_power_threshold : 8|16@0+ (1,) [0|0] "w" RVCController
+ SG_ load_sense_interval : 24|16@0+ (1,) [0|0] "sec" RVCController
+ SG_ dc_source_shutdown_voltage_minimum : 40|16@0+ (0.001,) [0|0] "v" RVCController
 
 BO_ 131023 INVERTER_CONFIGURATION_COMMAND_2: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_src_shutdown_volt_max : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ dc_src_warn_volt_min : 24|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ dc_src_warn_volt_max : 40|16@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_source_shutdown_voltage_maximum : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ dc_source_warning_voltage_minimum : 24|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ dc_source_shutdown_voltage_maximum : 40|16@0+ (0.001,) [0|0] "v" RVCController
 
 BO_ 130765 INVERTER_CONFIGURATION_COMMAND_3: 4 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_source_shutdown_delay : 8|16@0+ (1,0) [0|0] "sec" RVCController
- SG_ stack_mode : 24|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_source_shutdown_delay : 8|16@0+ (1,) [0|0] "sec" RVCController
+ SG_ stack_mode : 24|8@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130765 stack_mode 0 "stand-alone" 1 "master" 2 "slave" 3 "line 2 master" ;
 
 BO_ 131022 INVERTER_STATISTIC_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131022 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131021 INVERTER_APS_STATUS: 1 RVCController
+ SG_ placeholder_131021 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 131020 INVERTER_DCBUS_STATUS: 1 RVCController
+ SG_ placeholder_131020 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 131019 INVERTER_OPE_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131019 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130792 INVERTER_DC_STATUS: 5 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ dc_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ dc_amperage : 24|16@0+ (0.1,0) [0|0] "a" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ dc_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ dc_amperage : 24|16@0+ (0.1,) [0|0] "a" RVCController
 
 BO_ 130749 INVERTER_TEMPERATURE_STATUS: 5 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ fet_temperature : 8|16@0- (0.1,-40) [0|0] "deg c" RVCController
- SG_ transformer_temperature : 24|16@0- (0.1,-40) [0|0] "deg c" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ fet_temperature : 8|16@0+ (1,) [0|0] "deg c" RVCController
+ SG_ transformer_temperature : 24|16@0+ (1,) [0|0] "deg c" RVCController
 
 BO_ 131018 CHARGER_AC_STATUS_1: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131018 line 0 "1" 1 "2" ;
 VAL_ 131018 input_output 0 "input" 1 "output" ;
 
 BO_ 131017 CHARGER_AC_STATUS_2: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131017 line 0 "1" 1 "2" ;
 VAL_ 131017 input_output 0 "input" 1 "output" ;
 
 BO_ 131016 CHARGER_AC_STATUS_3: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131016 line 0 "1" 1 "2" ;
 VAL_ 131016 input_output 0 "input" 1 "output" ;
 
 BO_ 130954 CHARGER_AC_STATUS_4: 1 RVCController
- SG_ instance : 0|4@0+ (1,0) [0|0] "" RVCController
- SG_ line : 4|2@0+ (1,0) [0|0] "" RVCController
- SG_ input_output : 6|2@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ input_output : 6|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130954 line 0 "1" 1 "2" ;
 VAL_ 130954 input_output 0 "input" 1 "output" ;
 
-BO_ 130953 CHG_ACFAULT_CFG_STAT_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130952 CHG_ACFAULT_CFG_STAT_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130951 CHG_ACFAULT_CFG_CMD_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130950 CHG_ACFAULT_CFG_CMD_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
 BO_ 131015 CHARGER_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ charge_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ charge_current : 24|16@0+ (0.1,0) [0|0] "a" RVCController
- SG_ charge_curr_pct_of_max : 40|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ operating_state : 48|8@0+ (1,0) [0|0] "" RVCController
- SG_ default_state_on_power_up : 56|2@0+ (1,0) [0|0] "" RVCController
- SG_ auto_recharge_enable : 58|2@0+ (1,0) [0|0] "" RVCController
- SG_ force_charge : 60|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ charge_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ charge_current : 24|16@0+ (0.1,) [0|0] "a" RVCController
+ SG_ charge_current_percent_of_maximum : 40|8@0+ (1,) [0|0] "pct" RVCController
+ SG_ operating_state : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ default_state_on_power_up : 56|2@0+ (1,) [0|0] "" RVCController
+ SG_ auto_recharge_enable : 58|2@0+ (1,) [0|0] "" RVCController
+ SG_ force_charge : 60|4@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131015 operating_state 0 "undefined" 1 "do not charge" 2 "bulk" 3 "absorption" 4 "overcharge" 5 "equalize" 6 "float" 7 "constant voltage/current" ;
 VAL_ 131015 default_state_on_power_up 0 "disabled" 1 "enabled" ;
 VAL_ 131015 auto_recharge_enable 0 "disabled" 1 "enabled" ;
 VAL_ 131015 force_charge 0 "charging not forced" 1 "force charge to bulk" 2 "force charge to float" ;
 
 BO_ 131014 CHARGER_CONFIGURATION_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ charging_algorithm : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ charger_mode : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ battery_sensor_present : 24|2@0+ (1,0) [0|0] "" RVCController
- SG_ charger_installation_line : 26|2@0+ (1,0) [0|0] "" RVCController
- SG_ battery_type : 28|4@0+ (1,0) [0|0] "" RVCController
- SG_ battery_bank_size : 32|16@0+ (1,0) [0|0] "ah" RVCController
- SG_ maximum_charging_current : 48|16@0+ (0.1,0) [0|0] "a" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ charging_algorithm : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ charger_mode : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ battery_sensor_present : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ charger_installation_line : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ battery_type : 28|4@0+ (1,) [0|0] "" RVCController
+ SG_ battery_bank_size : 32|16@0+ (1,) [0|0] "ah" RVCController
+ SG_ maximum_charging_current : 48|16@0+ (0.1,) [0|0] "a" RVCController
+
 VAL_ 131014 charging_algorithm 0 "constant voltage" 1 "constant current" 2 "3-stage" 3 "2-stage" 4 "trickle" 249 "custom 2" 250 "custom 1" ;
 VAL_ 131014 charger_mode 0 "stand-alone" 1 "primary" 2 "secondary" 3 "linked to dc source" ;
 VAL_ 131014 battery_sensor_present 0 "no sensor in use" 1 "sensor present and active" ;
@@ -724,25 +878,27 @@ VAL_ 131014 charger_installation_line 0 "1" 1 "2" ;
 VAL_ 131014 battery_type 0 "flooded" 1 "gel" 2 "agm" 3 "lithium iron phosphate" ;
 
 BO_ 131013 CHARGER_COMMAND: 3 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ status : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ default_state_on_power_up : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ auto_recharge_enable : 18|2@0+ (1,0) [0|0] "" RVCController
- SG_ force_charge : 20|4@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ status : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ default_state_on_power_up : 16|2@0+ (1,) [0|0] "" RVCController
+ SG_ auto_recharge_enable : 18|2@0+ (1,) [0|0] "" RVCController
+ SG_ force_charge : 20|4@0+ (1,) [0|0] "" RVCController
+
 VAL_ 131013 status 0 "disable" 1 "enable charger" 2 "start equalization" ;
 VAL_ 131013 default_state_on_power_up 0 "disabled" 1 "enabled" ;
 VAL_ 131013 auto_recharge_enable 0 "disabled" 1 "enabled" ;
 VAL_ 131013 force_charge 0 "cancel forcing" 1 "force charge to bulk" 2 "force charge to float" ;
 
 BO_ 131012 CHARGER_CONFIGURATION_COMMAND: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ charging_algorithm : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ charger_mode : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ battery_sensor_present : 24|2@0+ (1,0) [0|0] "" RVCController
- SG_ charger_installation_line : 26|2@0+ (1,0) [0|0] "" RVCController
- SG_ battery_type : 28|4@0+ (1,0) [0|0] "" RVCController
- SG_ battery_bank_size : 32|16@0+ (1,0) [0|0] "ah" RVCController
- SG_ maximum_charging_current : 48|16@0+ (0.1,0) [0|0] "a" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ charging_algorithm : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ charger_mode : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ battery_sensor_present : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ charger_installation_line : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ battery_bank_size : 32|16@0+ (1,) [0|0] "ah" RVCController
+ SG_ battery_type : 48|4@0+ (1,) [0|0] "" RVCController
+ SG_ maximum_charging_current : 56|8@0+ (1,) [0|0] "a" RVCController
+
 VAL_ 131012 charging_algorithm 0 "constant voltage" 1 "constant current" 2 "3-stage" 3 "2-stage" 4 "trickle" 249 "custom 2" 250 "custom 1" ;
 VAL_ 131012 charger_mode 0 "stand-alone" 1 "primary" 2 "secondary" 3 "linked to dc source" ;
 VAL_ 131012 battery_sensor_present 0 "no sensor in use" 1 "sensor present and active" ;
@@ -750,218 +906,543 @@ VAL_ 131012 charger_installation_line 0 "1" 1 "2" ;
 VAL_ 131012 battery_type 0 "flooded" 1 "gel" 2 "agm" 3 "lithium iron phosphate" ;
 
 BO_ 130966 CHARGER_CONFIGURATION_STATUS_2: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ bulk_charge_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ absorption_charge_voltage : 24|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ float_charge_voltage : 40|16@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ maximum_charge_current_as_percent : 8|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ charge_rate_limit_as_percent_of_bank_size : 16|8@0+ (1,) [0|0] "pct" RVCController
+ SG_ shore_breaker_size : 24|8@0+ (1,) [0|0] "a" RVCController
+ SG_ default_battery_temperature : 32|8@0+ (1,) [0|0] "deg c" RVCController
+ SG_ recharge_voltage : 40|16@0+ (0.001,) [0|0] "v" RVCController
 
 BO_ 130965 CHARGER_CONFIGURATION_COMMAND_2: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ bulk_charge_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ absorption_charge_voltage : 24|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ float_charge_voltage : 40|16@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ maximum_charge_current_as_percent : 8|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ charge_rate_limit_as_percent_of_bank_size : 16|8@0+ (1,) [0|0] "pct" RVCController
+ SG_ shore_breaker_size : 24|8@0+ (1,) [0|0] "a" RVCController
+ SG_ default_battery_temperature : 32|8@0+ (1,) [0|0] "deg c" RVCController
+ SG_ recharge_voltage : 40|16@0+ (0.001,) [0|0] "v" RVCController
 
 BO_ 130764 CHARGER_CONFIGURATION_STATUS_3: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ bulk_charge_time_limit : 8|16@0+ (1,0) [0|0] "min" RVCController
- SG_ absorption_charge_time_limit : 24|16@0+ (1,0) [0|0] "min" RVCController
- SG_ float_charge_time_limit : 40|16@0+ (1,0) [0|0] "min" RVCController
- SG_ auto_recharge_voltage : 56|8@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ bulk_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ absorption_voltage : 24|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ float_voltage : 40|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ temperature_compensation_constant : 56|8@0+ (0.001,) [0|0] "mV/K" RVCController
 
 BO_ 130763 CHARGER_CONFIGURATION_COMMAND_3: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ bulk_charge_time_limit : 8|16@0+ (1,0) [0|0] "min" RVCController
- SG_ absorption_charge_time_limit : 24|16@0+ (1,0) [0|0] "min" RVCController
- SG_ float_charge_time_limit : 40|16@0+ (1,0) [0|0] "min" RVCController
- SG_ auto_recharge_voltage : 56|8@0+ (0.001,0) [0|0] "v" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ bulk_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ absorption_voltage : 24|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ float_voltage : 40|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ temperature_compensation_constant : 56|8@0+ (0.001,) [0|0] "mV/K" RVCController
 
 BO_ 130751 CHARGER_CONFIGURATION_STATUS_4: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ battery_temperature_compensation : 8|16@0+ (0.001,0) [0|0] "v/deg c" RVCController
- SG_ battery_temperature_limit_low : 24|16@0- (0.1,-40) [0|0] "deg c" RVCController
- SG_ battery_temperature_limit_high : 40|16@0- (0.1,-40) [0|0] "deg c" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ bulk_time : 8|16@0+ (1,) [0|0] "min" RVCController
+ SG_ absorption_time : 24|16@0+ (1,) [0|0] "min" RVCController
+ SG_ float_time : 40|16@0+ (1,) [0|0] "min" RVCController
 
 BO_ 130750 CHARGER_CONFIGURATION_COMMAND_4: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ battery_temperature_compensation : 8|16@0+ (0.001,0) [0|0] "v/deg c" RVCController
- SG_ battery_temperature_limit_low : 24|16@0- (0.1,-40) [0|0] "deg c" RVCController
- SG_ battery_temperature_limit_high : 40|16@0- (0.1,-40) [0|0] "deg c" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ bulk_time : 8|16@0+ (1,) [0|0] "min" RVCController
+ SG_ absorption_time : 24|16@0+ (1,) [0|0] "min" RVCController
+ SG_ float_time : 40|16@0+ (1,) [0|0] "min" RVCController
 
 BO_ 130969 CHARGER_EQUALIZATION_STATUS: 4 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ equalization_status : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ equalization_time_remaining : 16|8@0+ (1,0) [0|0] "min" RVCController
- SG_ pre_charging_status : 24|2@0+ (1,0) [0|0] "" RVCController
-VAL_ 130969 equalization_status 0 "equalization not active" 1 "equalization active" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ time_remaining : 8|16@0+ (1,) [0|0] "min" RVCController
+ SG_ pre_charging_status : 24|2@0+ (1,) [0|0] "" RVCController
+
 VAL_ 130969 pre_charging_status 0 "pre-charging not in process" 1 "charging batteries to prepare for equalization" ;
 
 BO_ 130968 CHARGER_EQUALIZATION_CONFIGURATION_STATUS: 5 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ equalization_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ equalization_time_limit : 24|8@0+ (1,0) [0|0] "min" RVCController
- SG_ equalization_interval : 32|8@0+ (1,0) [0|0] "days" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ equalization_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ equalization_time : 24|16@0+ (1,) [0|0] "min" RVCController
 
 BO_ 130967 CHARGER_EQUALIZATION_CONFIGURATION_COMMAND: 5 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ equalization_voltage : 8|16@0+ (0.001,0) [0|0] "v" RVCController
- SG_ equalization_time_limit : 24|8@0+ (1,0) [0|0] "min" RVCController
- SG_ equalization_interval : 32|8@0+ (1,0) [0|0] "days" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ equalization_voltage : 8|16@0+ (0.001,) [0|0] "v" RVCController
+ SG_ equalization_time : 24|16@0+ (1,) [0|0] "min" RVCController
 
 BO_ 130747 GENERIC_AC_STATUS_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 130746 GENERIC_AC_STATUS_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 130745 GENERIC_AC_STATUS_3: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 130744 GENERIC_AC_STATUS_4: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130743 GEN_ACFAULT_CFG_STAT_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130742 GEN_ACFAULT_CFG_STAT_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130741 GEN_ACFAULT_CFG_CMD_1: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
-
-BO_ 130740 GEN_ACFAULT_CFG_CMD_2: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ line : 4|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 131007 AC_LOAD_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ status : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ current : 16|16@0+ (0.1,0) [0|0] "a" RVCController
- SG_ power : 32|16@0+ (1,0) [0|0] "w" RVCController
- SG_ default_state_on_power_up : 48|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_level : 50|4@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_active : 54|2@0+ (1,0) [0|0] "" RVCController
- SG_ fault_status : 56|8@0+ (1,0) [0|0] "" RVCController
-VAL_ 131007 status 0 "off" 1 "on" ;
-VAL_ 131007 default_state_on_power_up 0 "off" 1 "on" 2 "last state" ;
-VAL_ 131007 load_shed_level 0 "no shed" 1 "level 1" 2 "level 2" 3 "level 3" 4 "level 4" 5 "level 5" 6 "level 6" 7 "level 7" 8 "level 8" 9 "level 9" 10 "level 10" 11 "level 11" 12 "level 12" 13 "level 13" 14 "level 14" 15 "level 15" ;
-VAL_ 131007 load_shed_active 0 "not active" 1 "active" ;
-VAL_ 131007 fault_status 0 "no fault" 1 "over current" 2 "under current" 3 "over temp" 4 "input fault" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ operating_status : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ operating_mode : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ variable_level_capability : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ priority : 28|4@0+ (1,) [0|0] "" RVCController
+ SG_ delay : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ demanded_current : 40|8@0+ (1,) [0|0] "A" RVCController
+ SG_ present_current : 48|16@0+ (0.1,) [0|0] "A" RVCController
 
-BO_ 130781 AC_LOAD_STATUS_2: 4 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ energy : 8|24@0+ (1,0) [0|0] "wh" RVCController
-
-BO_ 131006 AC_LOAD_COMMAND: 6 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ command : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ default_state_on_power_up : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_level : 18|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved : 22|26@0+ (1,0) [0|0] "" RVCController
-VAL_ 131006 command 0 "off" 1 "on" 2 "toggle" ;
-VAL_ 131006 default_state_on_power_up 0 "off" 1 "on" 2 "last state" ;
-VAL_ 131006 load_shed_level 0 "no shed" 1 "level 1" 2 "level 2" 3 "level 3" 4 "level 4" 5 "level 5" 6 "level 6" 7 "level 7" 8 "level 8" 9 "level 9" 10 "level 10" 11 "level 11" 12 "level 12" 13 "level 13" 14 "level 14" 15 "level 15" ;
+VAL_ 131007 operating_mode 0 "automatic" 1 "manual" ;
+VAL_ 131007 variable_level_capability 0 "not variable" 1 "variable" ;
+VAL_ 131007 priority 0 "highest priority" 1101 "lowest priority" 1110 "error" 1111 "no data" ;
 
 BO_ 131005 DC_LOAD_STATUS: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ status : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ current : 16|16@0+ (0.1,0) [0|0] "a" RVCController
- SG_ power : 32|16@0+ (1,0) [0|0] "w" RVCController
- SG_ default_state_on_power_up : 48|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_level : 50|4@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_active : 54|2@0+ (1,0) [0|0] "" RVCController
- SG_ fault_status : 56|8@0+ (1,0) [0|0] "" RVCController
-VAL_ 131005 status 0 "off" 1 "on" ;
-VAL_ 131005 default_state_on_power_up 0 "off" 1 "on" 2 "last state" ;
-VAL_ 131005 load_shed_level 0 "no shed" 1 "level 1" 2 "level 2" 3 "level 3" 4 "level 4" 5 "level 5" 6 "level 6" 7 "level 7" 8 "level 8" 9 "level 9" 10 "level 10" 11 "level 11" 12 "level 12" 13 "level 13" 14 "level 14" 15 "level 15" ;
-VAL_ 131005 load_shed_active 0 "not active" 1 "active" ;
-VAL_ 131005 fault_status 0 "no fault" 1 "over current" 2 "under current" 3 "over temp" 4 "input fault" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ operating_status : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ operating_mode : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ variable_level_capability : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ priority : 28|4@0+ (1,) [0|0] "" RVCController
+ SG_ delay : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ demanded_current : 40|8@0+ (1,) [0|0] "A" RVCController
+ SG_ present_current : 48|16@0+ (0.1,) [0|0] "A" RVCController
+
+VAL_ 131005 operating_mode 0 "automatic" 1 "manual" ;
+VAL_ 131005 variable_level_capability 0 "not variable" 1 "variable" ;
+VAL_ 131005 priority 0 "highest priority" 1101 "lowest priority" 1110 "error" 1111 "no data" ;
+
+BO_ 130781 AC_LOAD_STATUS_2: 4 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ lock_status : 8|2@0+ (1,) [0|0] "" RVCController
+ SG_ overcurrent_status : 10|2@0+ (1,) [0|0] "" RVCController
+ SG_ override_status : 12|2@0+ (1,) [0|0] "" RVCController
+ SG_ enable_status : 14|2@0+ (1,) [0|0] "" RVCController
+ SG_ last_command : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ interlock_status : 24|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130781 lock_status 0 "unlocked" 1 "locked" 11 "lock command not supported" ;
+VAL_ 130781 overcurrent_status 0 "not in overcurrent" 1 "in overcurrent" 11 "status not available" ;
+VAL_ 130781 override_status 0 "override inactive" 1 "override active" 11 "override status unavailable" ;
+VAL_ 130781 enable_status 0 "enabled" 1 "disabled" 11 "enable status unavailable" ;
+VAL_ 130781 last_command 0 "set level" 1 "True" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 33 "lock" 34 "unlock" 49 "flash" ;
+VAL_ 130781 interlock_status 0 "interlock not active" 1 "interlock active" 2 "interlock not supported" ;
+
+BO_ 131006 AC_LOAD_COMMAND: 6 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ desired_level : 16|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ desired_operating_mode : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ interlock : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ priority : 28|4@0+ (1,) [0|0] "" RVCController
+ SG_ command : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ delay_duration : 40|8@0+ (1,) [0|0] "" RVCController
+
+VAL_ 131006 desired_operating_mode 0 "automatic" 1 "manual" ;
+VAL_ 131006 interlock 0 "no interlock active" 1 "interlock a" 10 "interlock b" ;
+VAL_ 131006 priority 0 "highest priority" 1101 "lowest priority" 1110 "error" 1111 "no data" ;
+VAL_ 131006 command 0 "set level" 1 "on duration" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 17 "ramp brightness" 18 "ramp toggle" 19 "ramp up" 20 "ramp down" 21 "ramp up/down" 22 "increment one level" 23 "decrement one level" 33 "lock" 34 "unlock" 49 "flash" 50 "flash momentarily" ;
 
 BO_ 130780 DC_LOAD_STATUS_2: 4 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ energy : 8|24@0+ (1,0) [0|0] "wh" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ lock_status : 8|2@0+ (1,) [0|0] "" RVCController
+ SG_ overcurrent_status : 10|2@0+ (1,) [0|0] "" RVCController
+ SG_ override_status : 12|2@0+ (1,) [0|0] "" RVCController
+ SG_ enable_status : 14|2@0+ (1,) [0|0] "" RVCController
+ SG_ last_command : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ interlock_status : 24|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130780 lock_status 0 "unlocked" 1 "locked" 11 "lock command not supported" ;
+VAL_ 130780 overcurrent_status 0 "not in overcurrent" 1 "in overcurrent" 11 "status not available" ;
+VAL_ 130780 override_status 0 "override inactive" 1 "override active" 11 "override status unavailable" ;
+VAL_ 130780 enable_status 0 "enabled" 1 "disabled" 11 "enable status unavailable" ;
+VAL_ 130780 last_command 0 "set level" 1 "True" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 33 "lock" 34 "unlock" 49 "flash" ;
+VAL_ 130780 interlock_status 0 "interlock not active" 1 "interlock active" 2 "interlock not supported" ;
 
 BO_ 131004 DC_LOAD_COMMAND: 6 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ command : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ default_state_on_power_up : 16|2@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_level : 18|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved : 22|26@0+ (1,0) [0|0] "" RVCController
-VAL_ 131004 command 0 "off" 1 "on" 2 "toggle" ;
-VAL_ 131004 default_state_on_power_up 0 "off" 1 "on" 2 "last state" ;
-VAL_ 131004 load_shed_level 0 "no shed" 1 "level 1" 2 "level 2" 3 "level 3" 4 "level 4" 5 "level 5" 6 "level 6" 7 "level 7" 8 "level 8" 9 "level 9" 10 "level 10" 11 "level 11" 12 "level 12" 13 "level 13" 14 "level 14" 15 "level 15" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ desired_level : 16|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ desired_operating_mode : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ interlock : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ command : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ delay_duration : 40|8@0+ (1,) [0|0] "sec" RVCController
+
+VAL_ 131004 desired_operating_mode 0 "automatic" 1 "manual" ;
+VAL_ 131004 interlock 0 "no interlock active" 1 "interlock a" 10 "interlock b" ;
+VAL_ 131004 command 0 "set level" 1 "on duration" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 33 "lock" 34 "unlock" 49 "flash" ;
 
 BO_ 131003 DC_DIMMER_STATUS_1: 6 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ status : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ level : 16|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ default_state_on_power_up : 24|2@0+ (1,0) [0|0] "" RVCController
- SG_ default_level_on_power_up : 26|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ load_shed_level : 34|4@0+ (1,0) [0|0] "" RVCController
- SG_ load_shed_active : 38|2@0+ (1,0) [0|0] "" RVCController
- SG_ fault_status : 40|8@0+ (1,0) [0|0] "" RVCController
-VAL_ 131003 status 0 "off" 1 "on" ;
-VAL_ 131003 default_state_on_power_up 0 "off" 1 "on" 2 "last state" ;
-VAL_ 131003 load_shed_level 0 "no shed" 1 "level 1" 2 "level 2" 3 "level 3" 4 "level 4" 5 "level 5" 6 "level 6" 7 "level 7" 8 "level 8" 9 "level 9" 10 "level 10" 11 "level 11" 12 "level 12" 13 "level 13" 14 "level 14" 15 "level 15" ;
-VAL_ 131003 load_shed_active 0 "not active" 1 "active" ;
-VAL_ 131003 fault_status 0 "no fault" 1 "over current" 2 "under current" 3 "over temp" 4 "input fault" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ master_brightness : 8|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ red_brightness : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ green_brightness : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ blue_brightness : 32|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ on_duration : 40|4@0+ (1,) [0|0] "" RVCController
+ SG_ off_duration : 44|4@0+ (1,) [0|0] "" RVCController
+
+BO_ 131001 DC_DIMMER_COMMAND: 6 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ master_brightness : 8|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ red_brightness : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ green_brightness : 24|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ blue_brightness : 32|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ on_duration : 40|4@0+ (1,) [0|0] "" RVCController
+ SG_ off_duration : 44|4@0+ (1,) [0|0] "" RVCController
 
 BO_ 131002 DC_DIMMER_STATUS_2: 6 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ current : 8|16@0+ (0.1,0) [0|0] "a" RVCController
- SG_ power : 24|16@0+ (1,0) [0|0] "w" RVCController
- SG_ reserved : 40|8@0+ (1,0) [0|0] "" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ master_current : 8|8@0+ (1,) [0|0] "A" RVCController
+ SG_ red_current : 16|8@0+ (1,) [0|0] "A" RVCController
+ SG_ green_current : 24|8@0+ (1,) [0|0] "A" RVCController
+ SG_ blue_current : 32|8@0+ (1,) [0|0] "A" RVCController
+ SG_ master_fault : 40|2@0+ (1,) [0|0] "" RVCController
+ SG_ red_fault : 42|2@0+ (1,) [0|0] "" RVCController
+ SG_ green_fault : 44|2@0+ (1,) [0|0] "" RVCController
+ SG_ blue_fault : 46|2@0+ (1,) [0|0] "" RVCController
 
-BO_ 130778 DC_DIMMER_STATUS_3: 8 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ energy : 8|24@0+ (1,0) [0|0] "wh" RVCController
- SG_ reserved : 32|32@0+ (1,0) [0|0] "" RVCController
+VAL_ 131002 master_fault 0 "no fault" 1 "burnt bulb" ;
+VAL_ 131002 red_fault 0 "no fault" 1 "burnt bulb" ;
+VAL_ 131002 green_fault 0 "no fault" 1 "Burnt bulb" ;
+VAL_ 131002 blue_fault 0 "no fault" 1 "Burnt bulb" ;
+
+BO_ 130778 DC_DIMMER_STATUS_3: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ operating_status__brightness : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ lock_status : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ overcurrent_status : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ override_status : 28|2@0+ (1,) [0|0] "" RVCController
+ SG_ enable_status : 30|2@0+ (1,) [0|0] "" RVCController
+ SG_ delay_duration : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ last_command : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ interlock_status : 48|2@0+ (1,) [0|0] "" RVCController
+ SG_ load_status : 50|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130778 lock_status 0 "load is unlocked" 1 "load is locked" 11 "lock command is not supported" ;
+VAL_ 130778 overcurrent_status 0 "load is not in overcurrent" 1 "load is in overcurrent" 11 "overcurrent status is unavailable or not supported" ;
+VAL_ 130778 override_status 0 "external override is inactive" 1 "external override is active" 11 "override status is unavailable or not supported" ;
+VAL_ 130778 enable_status 0 "load is enabled" 1 "load is disabled" 11 "enable status is unavailable or not supported" ;
+VAL_ 130778 last_command 0 "set brightness" 1 "on duration" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 17 "ramp brightness" 18 "ramp toggle" 19 "ramp up" 20 "ramp down" 21 "ramp up/down" 33 "lock" 34 "unlock" 49 "flash" 50 "flash momentarily" ;
+VAL_ 130778 interlock_status 0 "interlock command is not active" 1 "interlock command is active" 11 "interlock command is not supported" ;
+VAL_ 130778 load_status 0 "operating status is zero" 1 "operating status is non-zero or flashing" 11 "interlock command is not supported" ;
 
 BO_ 130779 DC_DIMMER_COMMAND_2: 6 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ command : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ level : 16|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ default_state_on_power_up : 24|2@0+ (1,0) [0|0] "" RVCController
- SG_ default_level_on_power_up : 26|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ load_shed_level : 34|4@0+ (1,0) [0|0] "" RVCController
- SG_ reserved : 38|10@0+ (1,0) [0|0] "" RVCController
-VAL_ 130779 command 0 "off" 1 "on" 2 "toggle" 3 "set level" 4 "increase level" 5 "decrease level" ;
-VAL_ 130779 default_state_on_power_up 0 "off" 1 "on" 2 "last state" ;
-VAL_ 130779 load_shed_level 0 "no shed" 1 "level 1" 2 "level 2" 3 "level 3" 4 "level 4" 5 "level 5" 6 "level 6" 7 "level 7" 8 "level 8" 9 "level 9" 10 "level 10" 11 "level 11" 12 "level 12" 13 "level 13" 14 "level 14" 15 "level 15" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ desired_level : 16|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ command : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ delay_duration : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ interlock : 40|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130779 command 0 "set brightness" 1 "on duration" 2 "on delay" 3 "False" 4 "stop" 5 "toggle" 6 "memory off" 17 "ramp brightness" 18 "ramp toggle" 19 "ramp up" 20 "ramp down" 21 "ramp up/down" 33 "lock" 34 "unlock" 49 "flash" 50 "flash momentarily" ;
+VAL_ 130779 interlock 0 "no interlock active" 1 "interlock a" 10 "interlock b" ;
 
 BO_ 131000 DIGITAL_INPUT_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_131000 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130775 GENERIC_INDICATOR_STATUS: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_type : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_status : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_value : 24|16@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_color : 40|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_brightness : 48|8@0+ (0.5,0) [0|0] "pct" RVCController
-VAL_ 130775 indicator_type 0 "generic" 1 "led" 2 "lcd" 3 "incandescent" ;
-VAL_ 130775 indicator_status 0 "off" 1 "on" 2 "flashing" ;
-VAL_ 130775 indicator_color 0 "none" 1 "red" 2 "green" 3 "blue" 4 "amber" 5 "white" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ brightness : 16|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ bank_select : 24|4@0+ (1,) [0|0] "" RVCController
+ SG_ delay_duration : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ led1_status : 40|2@0+ (1,) [0|0] "" RVCController
+ SG_ led2_status : 42|2@0+ (1,) [0|0] "" RVCController
+ SG_ last_command : 48|8@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130775 led1_status 0 "False" 1 "True" ;
+VAL_ 130775 led2_status 0 "False" 1 "True" ;
+VAL_ 130775 last_command 0 "set brightness for led1 and led2" 1 "led1 off, led2 off" 2 "led1 on, led2 off" 3 "led1 off, led2 on" 4 "led1 on, led1 on" 17 "ramp brightness to new value" 51 "flash alternate" ;
 
 BO_ 130777 GENERIC_INDICATOR_COMMAND: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_type : 8|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_command : 16|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_value : 24|16@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_color : 40|8@0+ (1,0) [0|0] "" RVCController
- SG_ indicator_brightness : 48|8@0+ (0.5,0) [0|0] "pct" RVCController
-VAL_ 130777 indicator_type 0 "generic" 1 "led" 2 "lcd" 3 "incandescent" ;
-VAL_ 130777 indicator_command 0 "off" 1 "on" 2 "toggle" 3 "flash" 4 "set value" 5 "set color" 6 "set brightness" ;
-VAL_ 130777 indicator_color 0 "none" 1 "red" 2 "green" 3 "blue" 4 "amber" 5 "white" ;
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ brightness : 16|8@0+ (0.5,) [0|0] "pct" RVCController
+ SG_ bank_select : 24|4@0+ (1,) [0|0] "" RVCController
+ SG_ duration : 32|8@0+ (1,) [0|0] "sec" RVCController
+ SG_ function : 48|8@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130777 function 0 "set brightness for led1 and led2" 1 "led1 off, led2 off" 2 "led1 on, led2 off" 3 "led1 off, led2 on" 4 "led1 on, led1 on" 17 "ramp brightness to new value" 51 "flash alternate" ;
 
 BO_ 130784 DC_MOTOR_CONTROL_STATUS: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130784 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130785 DC_MOTOR_CONTROL_COMMAND: 1 RVCController
- SG_ reserved : 0|8@0+ (1,0) [0|0] "" RVCController
+ SG_ placeholder_130785 : 0|1@0+ (1,0) [0|0] "" RVCController
 
 BO_ 130999 TANK_STATUS: 7 RVCController
- SG_ instance : 0|8@0+ (1,0) [0|0] "" RVCController
- SG_ level : 8|8@0+ (0.5,0) [0|0] "pct" RVCController
- SG_ temperature : 16|16@0- (0.1,-40) [0|0] "deg c" RVCController
- SG_ pressure : 32|8@0+ (1,0) [0|0] "kpa" RVCController
- SG_ tank_size : 40|16@0+ (1,0) [0|0] "Liter" RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ relative_level : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ resolution : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ absolute_level : 24|16@0+ (1,) [0|0] "Liter" RVCController
+ SG_ tank_size : 40|16@0+ (1,) [0|0] "Liter" RVCController
+
 VAL_ 130999 instance 0 "fresh water" 1 "black waste" 2 "gray waste" 3 "lpg" 16 "second fresh water" 17 "second black waste" 18 "second gray waste" 19 "second lpg" ;
+
+BO_ 130998 TANK_CALIBRATION_COMMAND: 1 RVCController
+ SG_ placeholder_130998 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130997 TANK_GEOMETRY_STATUS: 1 RVCController
+ SG_ placeholder_130997 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130996 TANK_GEOMETRY_COMMAND: 1 RVCController
+ SG_ placeholder_130996 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130995 WATER_PUMP_STATUS: 1 RVCController
+ SG_ placeholder_130995 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130994 WATER_PUMP_COMMAND: 1 RVCController
+ SG_ placeholder_130994 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130993 AUTOFILL_STATUS: 1 RVCController
+ SG_ placeholder_130993 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130992 AUTOFILL_COMMAND: 1 RVCController
+ SG_ placeholder_130992 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130991 WASTEDUMP_STATUS: 1 RVCController
+ SG_ placeholder_130991 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130990 WASTEDUMP_COMMAND: 1 RVCController
+ SG_ placeholder_130990 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130989 ATS_AC_STATUS_1: 1 RVCController
+ SG_ instance : 0|3@0+ (1,) [0|0] "" RVCController
+ SG_ input_output_type : 3|1@0+ (1,) [0|0] "" RVCController
+ SG_ source : 4|3@0+ (1,) [0|0] "" RVCController
+ SG_ leg : 7|1@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130989 input_output_type 0 "input" 1 "output" ;
+VAL_ 130989 source 0 "primary" 1 "secondary" 111 "invalid" ;
+VAL_ 130989 leg 0 "1" 1 "2" ;
+
+BO_ 130988 ATS_AC_STATUS_2: 1 RVCController
+ SG_ instance : 0|3@0+ (1,) [0|0] "" RVCController
+ SG_ input_output_type : 3|1@0+ (1,) [0|0] "" RVCController
+ SG_ source : 4|3@0+ (1,) [0|0] "" RVCController
+ SG_ leg : 7|1@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130988 input_output_type 0 "input" 1 "output" ;
+VAL_ 130988 source 0 "primary" 1 "secondary" 111 "invalid" ;
+VAL_ 130988 leg 0 "1" 1 "2" ;
+
+BO_ 130987 ATS_AC_STATUS_3: 1 RVCController
+ SG_ instance : 0|3@0+ (1,) [0|0] "" RVCController
+ SG_ input_output_type : 3|1@0+ (1,) [0|0] "" RVCController
+ SG_ source : 4|3@0+ (1,) [0|0] "" RVCController
+ SG_ leg : 7|1@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130987 input_output_type 0 "input" 1 "output" ;
+VAL_ 130987 source 0 "primary" 1 "secondary" 111 "invalid" ;
+VAL_ 130987 leg 0 "1" 1 "2" ;
+
+BO_ 130949 ATS_AC_STATUS_4: 1 RVCController
+ SG_ instance : 0|3@0+ (1,) [0|0] "" RVCController
+ SG_ input_output_type : 3|1@0+ (1,) [0|0] "" RVCController
+ SG_ source : 4|3@0+ (1,) [0|0] "" RVCController
+ SG_ leg : 7|1@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130949 input_output_type 0 "input" 1 "output" ;
+VAL_ 130949 source 0 "primary" 1 "secondary" 111 "invalid" ;
+VAL_ 130949 leg 0 "1" 1 "2" ;
+
+BO_ 130986 ATS_STATUS: 1 RVCController
+ SG_ placeholder_130986 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130985 ATS_COMMAND: 1 RVCController
+ SG_ placeholder_130985 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130981 WEATHER_STATUS_1: 1 RVCController
+ SG_ placeholder_130981 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130980 WEATHER_STATUS_2: 1 RVCController
+ SG_ placeholder_130980 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130979 ALTIMETER_STATUS: 1 RVCController
+ SG_ placeholder_130979 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130978 ALTIMETER_COMMAND: 1 RVCController
+ SG_ placeholder_130978 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130977 WEATHER_CALIBRATE_COMMAND: 1 RVCController
+ SG_ placeholder_130977 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130976 COMPASS_BEARING_STATUS: 1 RVCController
+ SG_ placeholder_130976 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130975 COMPASS_CALIBRATE_COMMAND: 1 RVCController
+ SG_ placeholder_130975 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130944 GENERATOR_DEMAND_STATUS: 1 RVCController
+ SG_ placeholder_130944 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130815 GENERATOR_DEMAND_COMMAND: 1 RVCController
+ SG_ placeholder_130815 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130814 AGS_CRITERION_STATUS: 1 RVCController
+ SG_ placeholder_130814 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130770 AGS_CRITERION_STATUS_2: 1 RVCController
+ SG_ placeholder_130770 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130813 AGS_CRITERION_COMMAND: 1 RVCController
+ SG_ placeholder_130813 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130773 AGS_DEMAND_CONFIGURATION_STATUS: 1 RVCController
+ SG_ placeholder_130773 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130772 AGS_DEMAND_CONFIGURATION_COMMAND: 1 RVCController
+ SG_ placeholder_130772 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130812 FLOOR_HEAT_STATUS: 1 RVCController
+ SG_ placeholder_130812 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130811 FLOOR_HEAT_COMMAND: 1 RVCController
+ SG_ placeholder_130811 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130801 TIRE_RAW_STATUS: 1 RVCController
+ SG_ placeholder_130801 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130800 TIRE_STATUS: 1 RVCController
+ SG_ placeholder_130800 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130799 TIRE_SLOW_LEAK_ALARM: 1 RVCController
+ SG_ placeholder_130799 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130798 TIRE_TEMPERATURE_CONFIGURATION_STATUS: 1 RVCController
+ SG_ placeholder_130798 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130797 TIRE_PRESSURE_CONFIGURATION_STATUS: 1 RVCController
+ SG_ placeholder_130797 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130796 TIRE_PRESSURE_CONFIGURATION_COMMAND: 1 RVCController
+ SG_ placeholder_130796 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130795 TIRE_TEMPERATURE_CONFIGURATION_COMMAND: 1 RVCController
+ SG_ placeholder_130795 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130794 TIRE_ID_STATUS: 1 RVCController
+ SG_ placeholder_130794 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130793 TIRE_ID_COMMAND: 1 RVCController
+ SG_ placeholder_130793 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130803 AWNING_STATUS: 1 RVCController
+ SG_ placeholder_130803 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130802 AWNING_COMMAND: 1 RVCController
+ SG_ placeholder_130802 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130782 WINDOW_SHADE_CONTROL_STATUS: 7 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ motor_duty : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ lock_status : 24|2@0+ (1,) [0|0] "" RVCController
+ SG_ motor_status : 26|2@0+ (1,) [0|0] "" RVCController
+ SG_ forward_status : 28|2@0+ (1,) [0|0] "" RVCController
+ SG_ reverse_status : 30|2@0+ (1,) [0|0] "" RVCController
+ SG_ duration : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ last_command : 40|8@0+ (1,) [0|0] "" RVCController
+ SG_ overcurrent_status : 48|2@0+ (1,) [0|0] "" RVCController
+ SG_ override_status : 50|2@0+ (1,) [0|0] "" RVCController
+ SG_ disable1_status : 52|2@0+ (1,) [0|0] "" RVCController
+ SG_ disable2_status : 54|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130782 lock_status 0 "unlocked" 1 "locked" 11 "lock command not supported" ;
+VAL_ 130782 motor_status 0 "inactive" 1 "active" ;
+VAL_ 130782 forward_status 0 "inactive" 1 "active" ;
+VAL_ 130782 reverse_status 0 "inactive" 1 "active" ;
+VAL_ 130782 last_command 4 "stop" 129 "forward" 65 "reverse" 133 "toggle forward" 69 "toggle reverse" 16 "tilt" 33 "lock" 34 "unlock" ;
+VAL_ 130782 overcurrent_status 0 "not in overcurrent" 1 "has drawn overcurrent" 11 "overcurrent status unavailable" ;
+VAL_ 130782 override_status 0 "external override inactive" 1 "external override active" 11 "override status unavailable" ;
+VAL_ 130782 disable1_status 0 "inactive" 1 "active" 11 "not supported" ;
+VAL_ 130782 disable2_status 0 "inactive" 1 "active" 11 "not supported" ;
+
+BO_ 130783 WINDOW_SHADE_CONTROL_COMMAND: 6 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ group : 8|8@0+ (1,) [0|0] "bitmap" RVCController
+ SG_ motor_duty : 16|8@0+ (1,) [0|0] "Pct" RVCController
+ SG_ command : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ duration : 32|8@0+ (1,) [0|0] "" RVCController
+ SG_ interlock : 40|8@0+ (1,) [0|0] "bitmap" RVCController
+
+VAL_ 130783 command 4 "stop" 129 "forward" 65 "reverse" 133 "toggle forward" 69 "toggle reverse" 16 "tilt" 33 "lock" 34 "unlock" ;
+
+BO_ 130789 LOCK_STATUS: 2 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ lock_status : 8|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130789 lock_status 0 "unlocked" 1 "locked" ;
+
+BO_ 130788 LOCK_COMMAND: 2 RVCController
+ SG_ instance : 0|8@0+ (1,) [0|0] "" RVCController
+ SG_ lock_status : 8|2@0+ (1,) [0|0] "" RVCController
+
+VAL_ 130788 lock_status 0 "unlocked" 1 "locked" ;
+
+BO_ 130787 WINDOW_STATUS: 1 RVCController
+ SG_ placeholder_130787 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130786 WINDOW_COMMAND: 1 RVCController
+ SG_ placeholder_130786 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 65267 GPS_POSITION: 1 RVCController
+ SG_ placeholder_65267 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130771 GPS_STATUS: 1 RVCController
+ SG_ placeholder_130771 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130768 DC_DISCONNECT_STATUS: 1 RVCController
+ SG_ placeholder_130768 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130767 DC_DISCONNECT_COMMAND: 1 RVCController
+ SG_ placeholder_130767 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130739 SOLAR_CONTROLLER_STATUS: 1 RVCController
+ SG_ placeholder_130739 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130738 SOLAR_CONTROLLER_CONFIGURATION_STATUS: 1 RVCController
+ SG_ placeholder_130738 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130737 SOLAR_CONTROLLER_COMMAND: 1 RVCController
+ SG_ placeholder_130737 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130736 SOLAR_CONTROLLER_CONFIGURATION_COMMAND: 1 RVCController
+ SG_ placeholder_130736 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130735 SOLAR_EQUALIZATION_STATUS: 1 RVCController
+ SG_ placeholder_130735 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130734 SOLAR_EQUALIZATION_CONFIGURATION_STATUS: 1 RVCController
+ SG_ placeholder_130734 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130733 SOLAR_EQUALIZATION_CONFIGURATION_COMMAND: 1 RVCController
+ SG_ placeholder_130733 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130774 MFG_SPECIFIC_CLAIM_REQUEST: 1 RVCController
+ SG_ placeholder_130774 : 0|1@0+ (1,0) [0|0] "" RVCController
+
+BO_ 130762 DM_RV: 8 RVCController
+ SG_ operating_status : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ yellow_lamp_status : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ red_lamp_status : 6|2@0+ (1,) [0|0] "" RVCController
+ SG_ dsa : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ spn_msb : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ spn_isb : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ fmi : 32|5@0+ (1,) [0|0] "" RVCController
+ SG_ spn_lsb : 37|3@0+ (1,) [0|0] "" RVCController
+ SG_ occurrence_count : 40|7@0+ (1,) [0|0] "" RVCController
+ SG_ dsa_extension : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ bank_select : 56|4@0+ (1,) [0|0] "" RVCController
+
+BO_ 65226 DM_1: 8 RVCController
+ SG_ operating_status : 0|4@0+ (1,) [0|0] "" RVCController
+ SG_ yellow_lamp_status : 4|2@0+ (1,) [0|0] "" RVCController
+ SG_ red_lamp_status : 6|2@0+ (1,) [0|0] "" RVCController
+ SG_ dsa : 8|8@0+ (1,) [0|0] "" RVCController
+ SG_ spn_msb : 16|8@0+ (1,) [0|0] "" RVCController
+ SG_ spn_isb : 24|8@0+ (1,) [0|0] "" RVCController
+ SG_ fmi : 32|5@0+ (1,) [0|0] "" RVCController
+ SG_ spn_lsb : 37|3@0+ (1,) [0|0] "" RVCController
+ SG_ occurrence_count : 40|7@0+ (1,) [0|0] "" RVCController
+ SG_ dsa_extension : 48|8@0+ (1,) [0|0] "" RVCController
+ SG_ bank_select : 56|4@0+ (1,) [0|0] "" RVCController
