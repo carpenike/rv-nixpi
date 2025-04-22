@@ -128,7 +128,8 @@
     DAYS=$((UPTIME_SEC / 86400))
     HOURS=$(( (UPTIME_SEC % 86400) / 3600 ))
     MINS=$(( (UPTIME_SEC % 3600) / 60 ))
-    echo "Uptime (boot): ${DAYS}d ${HOURS}h ${MINS}m"
+    # Escape shell variables for Nix
+    echo "Uptime (boot): ''${DAYS}d ''${HOURS}h ''${MINS}m"
 
     # Display disk usage for / and /boot
     echo "" # Add a blank line for spacing
