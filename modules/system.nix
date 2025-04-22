@@ -10,4 +10,6 @@
   };
 
   nixpkgs.config.allowUnfree = true;
+
+  services.rvc2api.debugTools.enable = true;
 }
