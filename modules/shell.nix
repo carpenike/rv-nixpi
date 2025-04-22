@@ -17,7 +17,7 @@
       set -l current_hostname (hostname)
 
       # Performance Metrics
-      set -l uptime_str (uptime -p) # Pretty uptime string (e.g., "up 2 hours, 5 minutes")
+      set -l uptime_str (uptime | awk '{for (i=3; i<=NF; i++) {printf "%s ", $i; if ($i ~ /,$/) break;}}') # Pretty uptime string (e.g., "up 2 hours, 5 minutes")
       set -l load_avg (uptime | command awk -F 'load average: ' '{print $2}' | command awk -F, '{print $1}')
       set -l mem_info (free -h | command awk '/^Mem:/ {print $3" / "$2}') # Used / Total RAM
       set -l disk_usage (df -h / | command awk 'NR==2 {print $5}') # Root partition usage %
@@ -104,4 +104,32 @@
 
   # Optional: Set fish as the default shell system-wide (you already set it per user)
   # users.defaultUserShell = pkgs.fish;
+
+  # Set the Message of the Day (MOTD)
+  programs.bash.loginShellInit = ''
+    # Clear the screen
+    clear
+
+    # Display system information using fastfetch
+    ${pkgs.fastfetch}/bin/fastfetch --config none --logo none \\
+      --structure 'os,host,kernel,uptime,packages,shell,term' \\
+      --color-keys primary \\
+      --color-title primary \\
+      --color-separator '#555555'
+
+    # Display custom uptime message (parsing standard uptime output)
+    echo "Uptime (parsed): $(uptime | awk '{for (i=3; i<=NF; i++) {printf "%s ", $i; if ($i ~ /,$/) break;}}')"
+
+    # Display disk usage for / and /boot
+    echo "" # Add a blank line for spacing
+    ${pkgs.coreutils}/bin/df -h / /boot
+
+    # Display available updates if any
+    if [ -e /run/motd-updates ]; then
+      echo "" # Add a blank line for spacing
+      cat /run/motd-updates
+    fi
+
+    echo "" # Add a final blank line
+  '';
 }
