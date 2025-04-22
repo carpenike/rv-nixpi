@@ -62,11 +62,12 @@
 
       # Use nix build --print-out-paths to get the store path without creating a result link
       # Need to accept the flake config potentially and enable experimental features
+      # Redirect stderr to /dev/null to hide build output on success
       remote_system=$(${pkgs.nix}/bin/nix build \
         --extra-experimental-features 'nix-command flakes' \
         --print-out-paths \
         "$flake_uri" \
-        --option accept-flake-config true)
+        --option accept-flake-config true 2>/dev/null)
 
       if [ $? -ne 0 ] || [ -z "$remote_system" ]; then
         echo "❌ Error: Failed to build the derivation for the remote configuration."
