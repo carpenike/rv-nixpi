@@ -77,19 +77,17 @@
 
   # Explicitly configure systemd-networkd for wired interfaces
   systemd.network.networks."10-wired" = {
-    matchConfig.Name = "end0"; # Match the specific Ethernet interface name
+    matchConfig.Name = "end0";
     networkConfig = {
-      DHCP = "ipv4"; # Enable DHCPv4 for this interface
-      RequiredForOnline = "no"; # Don't block boot if Ethernet isn't connected
+      DHCP = "ipv4";
     };
   };
 
   # Explicitly configure systemd-networkd for wireless interfaces
   systemd.network.networks."20-wireless" = {
-    matchConfig.Name = "wlan0"; # Match the wireless interface name
+    matchConfig.Name = "wlan0";
     networkConfig = {
-      DHCP = "ipv4"; # Enable DHCPv4 for this interface
-      RequiredForOnline = "no"; # Don't block boot if Wi-Fi isn't immediately available
+      DHCP = "ipv4";
     };
   };
 }
