@@ -27,16 +27,17 @@
   # Enable the systemd-networkd service itself
   systemd.network.enable = true;
 
-  systemd.network.networks = {
-    # Configure wlan0 for DHCP using systemd-networkd
-    "10-wlan0" = {
-      matchConfig.Name = "wlan0";
-      networkConfig.DHCP = "ipv4";
+  systemd.network.links = {
+    # phys spi0.0 (shows up under /devices/.../spi0.0) → rename to can0
+    "10-can0" = {
+      matchConfig.KernelPath = [ "*spi0.0*" ];
+      linkConfig.Name       = "can0";
     };
-    # Configure end0 for DHCP using systemd-networkd
-    "10-end0" = {
-      matchConfig.Name = "end0"; # Changed from eth0
-      networkConfig.DHCP = "ipv4";
+
+    # phys spi0.1 (shows up under /devices/.../spi0.1) → rename to can1
+    "20-can1" = {
+      matchConfig.KernelPath = [ "*spi0.1*" ];
+      linkConfig.Name       = "can1";
     };
   };
 
