@@ -22,14 +22,13 @@
   let
     system = "aarch64-linux";
 
-    nixosHardware = fetchTarball {
-      url = "https://github.com/NixOS/nixos-hardware/archive/8f44cbb48c2f4a54e35d991a903a8528178ce1a8.tar.gz";
-      sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
-    };
+    # Use nixos-hardware from nixpkgs input for better compatibility
+    nixosHardware = inputs.nixpkgs.lib.makeSearchPathOutput "share" "nixos-hardware/raspberry-pi/4";
 
     commonModules = [
       ./hardware-configuration.nix
-      "${nixosHardware}/raspberry-pi/4"
+      # Use the nixosHardware path defined above
+      nixosHardware
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
       ./modules/canbus.nix
