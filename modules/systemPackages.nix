@@ -13,6 +13,12 @@
     pkgs.wget
     pkgs.tmux
 
+    # Monitoring tools
+    pkgs.htop
+    # pkgs.glances # <-- Removed, now defined in glances-web.nix
+    # pkgs.iotop # Uncomment if needed
+    # pkgs.nmon # Uncomment if needed
+
     (pkgs.writeShellScriptBin "update-nix" ''
       #!/usr/bin/env bash
       set -euo pipefail

@@ -42,6 +42,8 @@
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
       ./modules/canbus.nix
+      ./modules/glances-web.nix
+      ./modules/hwclock.nix
       ./modules/secrets.nix
       ./modules/system.nix
       ./modules/boot.nix
