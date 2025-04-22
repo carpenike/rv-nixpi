@@ -22,12 +22,12 @@
   let
     system = "aarch64-linux";
 
-    # Construct the path directly from the nixpkgs input
-    nixosHardwarePath = "${nixpkgs}/share/nixos-hardware/raspberry-pi/4";
+    # Construct the path relative to the nixpkgs source tree
+    nixosHardwarePath = "${nixpkgs}/nixos/modules/hardware/raspberry-pi/4";
 
     commonModules = [
       ./hardware-configuration.nix
-      # Use the constructed path string
+      # Use the corrected path string
       nixosHardwarePath
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
