@@ -54,8 +54,10 @@
       echo "   Latest remote commit ($BRANCH_NAME): $remote_commit_sha"
 
       echo "🛠️ Determining store path for the remote configuration..."
+      # Construct the full flake output path for the NixOS system derivation
+      flake_output_path="nixosConfigurations.''${FLAKE_OUTPUT_NAME}.config.system.build.toplevel"
       # Escape $ for Nix string interpolation
-      flake_uri="github:carpenike/rv-nixpi/''${remote_commit_sha}#''${FLAKE_OUTPUT_NAME}"
+      flake_uri="github:carpenike/rv-nixpi/''${remote_commit_sha}#''${flake_output_path}"
       echo "   Building derivation from: $flake_uri"
 
       # Use nix build --print-out-paths to get the store path without creating a result link
