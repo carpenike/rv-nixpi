@@ -17,7 +17,13 @@
       set -l current_hostname (hostname)
 
       # Performance Metrics
-      set -l uptime_str (uptime | awk '{for (i=3; i<=NF; i++) {printf "%s ", $i; if ($i ~ /,$/) break;}}') # Pretty uptime string (e.g., "up 2 hours, 5 minutes")
+      # Calculate uptime directly from /proc/uptime
+      set -l uptime_sec (string split '.' (cat /proc/uptime))[1]
+      set -l days (math $uptime_sec / 86400)
+      set -l hours (math ($uptime_sec % 86400) / 3600)
+      set -l mins (math ($uptime_sec % 3600) / 60)
+      set -l uptime_direct_str "${days}d ${hours}h ${mins}m"
+
       set -l load_avg (uptime | command awk -F 'load average: ' '{print $2}' | command awk -F, '{print $1}')
       set -l mem_info (free -h | command awk '/^Mem:/ {print $3" / "$2}') # Used / Total RAM
       set -l disk_usage (df -h / | command awk 'NR==2 {print $5}') # Root partition usage %
@@ -51,8 +57,8 @@
       set -l welcome_content "Welcome to "(set_color $color_host)$current_hostname(set_color $color_reset)
       set -l kernel_content "  Kernel: "(set_color $color_kernel)$kernel_version(set_color $color_reset)
       set -l system_content "  System: "(set_color $color_system)$system_label(set_color $color_reset)
-      set -l uptime_content "  Uptime: "(set_color $color_uptime)$uptime_str(set_color $color_reset)
-      set -l load_content "  Load (1m):"(set_color $color_load)$load_avg(set_color $color_reset) # Clarified load timeframe
+      set -l uptime_direct_content "  Uptime (boot): "(set_color $color_uptime)$uptime_direct_str(set_color $color_reset)
+      set -l load_content "  Load (1m):"(set_color $color_load)$load_avg(set_color $color_reset)
       set -l memory_content "  Memory: "(set_color $color_mem)$mem_info(set_color $color_reset)
       set -l disk_content "  Disk /: "(set_color $color_disk)$disk_usage(set_color $color_reset)
 
@@ -60,8 +66,8 @@
       set -l welcome_plain "Welcome to $current_hostname"
       set -l kernel_plain "  Kernel: $kernel_version"
       set -l system_plain "  System: $system_label"
-      set -l uptime_plain "  Uptime: $uptime_str"
-      set -l load_plain "  Load (1m):$load_avg" # Updated plain text
+      set -l uptime_direct_plain "  Uptime (boot): $uptime_direct_str"
+      set -l load_plain "  Load (1m):$load_avg"
       set -l memory_plain "  Memory: $mem_info"
       set -l disk_plain "  Disk /: $disk_usage"
 
@@ -81,9 +87,9 @@
       set -l system_padding (string repeat -n (math $inner_width - (string length $system_plain)) " ")
       printf "%s %s%s %s\n" $box_v $system_content $system_padding $box_v
 
-      # Uptime line
-      set -l uptime_padding (string repeat -n (math $inner_width - (string length $uptime_plain)) " ")
-      printf "%s %s%s %s\n" $box_v $uptime_content $uptime_padding $box_v
+      # Uptime line (calculated)
+      set -l uptime_direct_padding (string repeat -n (math $inner_width - (string length $uptime_direct_plain)) " ")
+      printf "%s %s%s %s\n" $box_v $uptime_direct_content $uptime_direct_padding $box_v
 
       # Load line
       set -l load_padding (string repeat -n (math $inner_width - (string length $load_plain)) " ")
@@ -110,15 +116,19 @@
     # Clear the screen
     clear
 
-    # Display system information using fastfetch
+    # Display system information using fastfetch (excluding uptime)
     ${pkgs.fastfetch}/bin/fastfetch --config none --logo none \\
-      --structure 'os,host,kernel,uptime,packages,shell,term' \\
+      --structure 'os,host,kernel,packages,shell,term' \\
       --color-keys primary \\
       --color-title primary \\
       --color-separator '#555555'
 
-    # Display custom uptime message (parsing standard uptime output)
-    echo "Uptime (parsed): $(uptime | awk '{for (i=3; i<=NF; i++) {printf "%s ", $i; if ($i ~ /,$/) break;}}')"
+    # Display uptime calculated directly from /proc/uptime
+    UPTIME_SEC=$(awk '{print int($1)}' /proc/uptime)
+    DAYS=$((UPTIME_SEC / 86400))
+    HOURS=$(( (UPTIME_SEC % 86400) / 3600 ))
+    MINS=$(( (UPTIME_SEC % 3600) / 60 ))
+    echo "Uptime (boot): ${DAYS}d ${HOURS}h ${MINS}m"
 
     # Display disk usage for / and /boot
     echo "" # Add a blank line for spacing
