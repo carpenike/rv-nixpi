@@ -17,6 +17,7 @@
       "can_raw"
       "can_dev"
       "mcp251x"
+      "can-gw"
     ];
 
     initrd.kernelModules = [ "dwc2" ];
