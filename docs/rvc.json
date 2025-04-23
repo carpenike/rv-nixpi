@@ -479,6 +479,82 @@
         { "name": "text", "start_bit": 0, "length": 64 }
       ]
     },
+    {
+      "name": "ATS_AC_STATUS_1_4F",
+      "id": 234859855,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 1",
+      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "io_type",                  "start_bit": 3,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "source",                   "start_bit": 4,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "leg",                      "start_bit": 7,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,    "offset": 0, "unit": "Vac" },
+        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "offset": 0, "unit": "Aac" },
+        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125, "offset": 0, "unit": "Hz" },
+        { "name": "fault_open_ground",        "start_bit": 56, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_ground_current",     "start_bit": 62, "length": 2,  "scale": 1,      "offset": 0, "unit": null }
+      ]
+    },  
+    {
+      "name": "TANK_STATUS_AF",
+      "id": 436189103,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xAF",
+      "description": "Tank Status",
+      "pdf_reference": "Sec. 6.28.2 (Table 6.28.2b)",
+      "signals": [
+        { "name": "instance",        "start_bit": 0,  "length": 8,  "scale": 1, "offset": 0, "unit": null },
+        { "name": "relative_level",  "start_bit": 8,  "length": 8,  "scale": 1, "offset": 0, "unit": null },
+        { "name": "resolution",      "start_bit": 16, "length": 8,  "scale": 1, "offset": 0, "unit": null },
+        { "name": "absolute_level",  "start_bit": 24, "length": 16, "scale": 1, "offset": 0, "unit": "L"   },
+        { "name": "tank_size",       "start_bit": 40, "length": 16, "scale": 1, "offset": 0, "unit": "L"   }
+      ]
+    },  
+    {
+      "name": "DM_RV_FC",
+      "id": 419351292,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xFC",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null }
+      ]
+    },  
+    {
+      "name": "AIR_CONDITIONER_STATUS_97",
+      "id": 436199831,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "Air Conditioner Status",
+      "pdf_reference": "Sec. 6.17.4 (Table 6.17.4b)",
+      "signals": [
+        { "name": "instance",                "start_bit": 0,  "length": 8,  "scale": 1,   "offset": 0, "unit": null },
+        { "name": "operating_mode",          "start_bit": 8,  "length": 8,  "scale": 1,   "offset": 0, "unit": null },
+        { "name": "max_fan_speed",           "start_bit": 16, "length": 8,  "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "max_ac_output_level",     "start_bit": 24, "length": 8,  "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "fan_speed",               "start_bit": 32, "length": 8,  "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "ac_output_level",         "start_bit": 40, "length": 8,  "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "dead_band",               "start_bit": 48, "length": 8,  "scale": 0.1, "offset": 0, "unit": "°C" },
+        { "name": "second_stage_dead_band",  "start_bit": 56, "length": 8,  "scale": 0.1, "offset": 0, "unit": "°C" }
+      ]
+    },
 
 
 
