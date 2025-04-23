@@ -12,21 +12,23 @@ in {
   config = lib.mkIf config.services.rvc2api.debugTools.enable {
     environment.systemPackages = [
       pythonEnv
-
+      pkgs.jq
       # live‐CAN tester, now JSON‐based
       (pkgs.writeShellScriptBin "rvc-can-test" ''
         #!/usr/bin/env bash
         set -euo pipefail
 
-        # Set default CAN interface if no argument is provided
-        INTERFACE="$1"
-        if [ -z "$INTERFACE" ]; then
+        # Set default CAN interface if provided, else can0
+        if [ $# -ge 1 ]; then
+          INTERFACE="$1"
+        else
           INTERFACE="can0"
         fi
 
-        # Set default JSON path if no argument is provided
-        JSON_PATH="$2"
-        if [ -z "$JSON_PATH" ]; then
+        # Set default JSON defs path if provided, else /etc/nixos/files/rvc.json
+        if [ $# -ge 2 ]; then
+          JSON_PATH="$2"
+        else
           JSON_PATH="/etc/nixos/files/rvc.json"
         fi
 
@@ -53,9 +55,10 @@ in {
         #!/usr/bin/env bash
         set -euo pipefail
 
-        # Set default JSON path if no argument is provided
-        JSON_PATH="$1"
-        if [ -z "$JSON_PATH" ]; then
+        # Set default JSON path if provided, else /etc/nixos/files/rvc.json
+        if [ $# -ge 1 ]; then
+          JSON_PATH="$1"
+        else
           JSON_PATH="/etc/nixos/files/rvc.json"
         fi
 
