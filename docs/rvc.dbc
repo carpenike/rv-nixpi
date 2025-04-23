@@ -104,6 +104,22 @@ BO_ 2566834847 DM_RV_9F: 8 RVCNode
     SG_ SPN_ISB                 :  24|8@1+ (1,0)   [0|255]   "" RVCController
     SG_ SPN_LSB_and_FMI         :  32|8@1+ (1,0)   [0|255]   "" RVCController
 
+// DC_MOTOR_CONTROL_STATUS (DGN = 0x1FEE0) from SA = 0x9D
+// Defined in § 6.27.2 of the RV-C spec :contentReference[oaicite:0]{index=0}
+BO_ 2583351245 DC_MOTOR_CONTROL_STATUS: 8 RVCNode  
+    SG_ instance            :  0| 8@1+ (1,0)   [0|250]  ""   RVCController  
+    SG_ motor_duty          :  8| 8@1+ (0.4,0) [0|100] "%"  RVCController  
+    SG_ motor_status        : 16| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ forward_status      : 18| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ reverse_status      : 20| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ duration            : 32| 8@1+ (1,0)   [0|240] "s"  RVCController  
+    SG_ last_command        : 40| 8@1+ (1,0)   [0|255] ""   RVCController  
+    SG_ overcurrent_status  : 48| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ override_status     : 50| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ disable1_status     : 52| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ disable2_status     : 54| 2@1+ (1,0)   [0|3]    ""   RVCController  
+    SG_ short_duration      : 56| 8@1+ (5,0)   [0|1275] "ms" RVCController 
+
 // UNKNOWN ENTRIES
 
 // UNKNOWN_1FF2E (DGN = 1FF2Eh, extended ID = 0x98FF2E75 = 2566860405)
