@@ -1041,6 +1041,29 @@
       ]
     },
     {
+      "name": "WATERHEATER_STATUS_99",
+      "id": 436205465,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Water Heater Status",
+      "pdf_reference": "Sec. 6.9.2 (Tables 6.9.2a & 6.9.2b)",
+      "signals": [
+        { "name": "instance",                              "start_bit": 0,  "length": 8 },
+        { "name": "operating_modes",                       "start_bit": 8,  "length": 8 },
+        { "name": "set_point_temperature",                 "start_bit": 16, "length": 16, "unit": "°C" },
+        { "name": "water_temperature",                     "start_bit": 32, "length": 16, "unit": "°C" },
+        { "name": "thermostat_status",                     "start_bit": 48, "length": 2 },
+        { "name": "burner_status",                         "start_bit": 50, "length": 2 },
+        { "name": "ac_element_status",                     "start_bit": 52, "length": 2 },
+        { "name": "high_temperature_limit_switch_status",  "start_bit": 54, "length": 2 },
+        { "name": "failure_to_ignite_status",              "start_bit": 56, "length": 2 },
+        { "name": "ac_power_failure_status",               "start_bit": 58, "length": 2 },
+        { "name": "dc_power_failure_status",               "start_bit": 60, "length": 2 },
+        { "name": "dc_power_warning_status",               "start_bit": 62, "length": 2 }
+      ]
+    },    
+    {
       "name": "MFG_SPECIFIC_CLAIM_REQUEST_4F",
       "id": 434292399,
       "extended": true,
@@ -1110,6 +1133,41 @@
         { "name": "config_revision",       "start_bit":  56, "length": 8 }
       ]
     },
+    {
+      "name": "ATS_COMMAND_9D",
+      "id": 436185501,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Transfer Switch Command",
+      "pdf_reference": "Sec. 6.32.5 (Tables 6.32.5a & 6.32.5b)",
+      "signals": [
+        { "name": "transfer_switch_instance",  "start_bit": 0,  "length": 8 },
+        { "name": "command",                    "start_bit": 8,  "length": 8 },
+        { "name": "operation_time",             "start_bit": 16, "length": 16, "unit": "s" },
+        { "name": "fault_nak_code",             "start_bit": 32, "length": 8 },
+        { "name": "requesting_source_address",  "start_bit": 40, "length": 8 }
+      ]
+    },
+    {
+      "name": "WATERHEATER_COMMAND_2_9D",
+      "id": 436115613,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Water Heater Command 2",
+      "pdf_reference": "Sec. 6.9.5 (Tables 6.9.5a & 6.9.5b)",
+      "signals": [
+        { "name": "instance",               "start_bit": 0,  "length": 8 },
+        { "name": "operating_modes",        "start_bit": 8,  "length": 8 },
+        { "name": "electric_element_enable","start_bit": 16, "length": 2 },
+        { "name": "igniter_enable",         "start_bit": 18, "length": 2 },
+        { "name": "pump_enable",            "start_bit": 20, "length": 2 },
+        { "name": "fuel_valve_enable",      "start_bit": 22, "length": 2 },
+        { "name": "preheat_time",           "start_bit": 24, "length": 16, "unit": "s" },
+        { "name": "lockout_time",           "start_bit": 40, "length": 16, "unit": "s" }
+      ]
+    },    
 
 
 
