@@ -1250,7 +1250,78 @@
     },    
 
 
-
+    {
+      "name": "UNKNOWN_19FFE19A",
+      "id": 436199834,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit":  0, "length": 8 },
+        { "name": "byte_1", "start_bit":  8, "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FBDA9D",
+      "id": 435935901,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit":  0, "length": 8 },
+        { "name": "byte_1", "start_bit":  8, "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FFE198",
+      "id": 436199832,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit":  0, "length": 8 },
+        { "name": "byte_1", "start_bit":  8, "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FF9C75",
+      "id": 436182133,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit":  0, "length": 8 },
+        { "name": "byte_1", "start_bit":  8, "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },    
     {
       "name": "UNKNOWN_19FF9C75",
       "id": 436115861,
