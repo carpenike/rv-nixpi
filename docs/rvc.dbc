@@ -17,8 +17,8 @@ BU_: RVCController RVCNode // Define default node names
 // NOTE: Default DLC is 8 bytes, common in RV-C/J1939 PGNs.
 // NOTE: Factor/offset are (1,0) unless units imply scaling (requires manual interpretation). Min/Max are defaults for type.
 
-// DM_RV (DGN = 0x1FECA) from SA=0x9D  
-BO_ 419351197 DM_RV: 8 RVCNode  
+// DM_RV (DGN = 0x1FECA) from SA=0x9D, extended
+BO_ 2566834845 DM_RV: 8 RVCNode  
     SG_ operating_status        :   0| 2@1+ (1,0)   [0|3]    "" RVCController  
     SG_ operating_status_detail :   2| 2@1+ (1,0)   [0|3]    "" RVCController  
     SG_ yellow_lamp_status      :   4| 2@1+ (1,0)   [0|3]    "" RVCController  
@@ -28,8 +28,8 @@ BO_ 419351197 DM_RV: 8 RVCNode
     SG_ SPN_ISB                 :  24| 8@1+ (1,0)   [0|255]  "" RVCController  
     SG_ SPN_LSB_and_FMI         :  32| 8@1+ (1,0)   [0|255]  "" RVCController  
 
-// AIR_CONDITIONER_STATUS (DGN = 0x1FFE1) from SA=0x96  
-BO_ 436199830 AIR_CONDITIONER_STATUS: 8 RVCNode  
+// AIR_CONDITIONER_STATUS (DGN = 0x1FFE1) from SA=0x96, extended
+BO_ 2583683478 AIR_CONDITIONER_STATUS: 8 RVCNode  
     SG_ instance                  :   0| 8@1+ (1,0)   [0|255] ""   RVCController  
     SG_ operating_mode            :   8| 8@1+ (1,0)   [0|255] ""   RVCController  
     SG_ max_fan_speed             :  16| 8@1+ (0.5,0) [0|100] "%"  RVCController  
