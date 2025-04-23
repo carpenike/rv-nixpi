@@ -25,15 +25,17 @@ try:
         print(f"ID: {msg.arbitration_id:08X}, Extended: {msg.is_extended_id}, Data: {msg.data.hex()}")
 
         try:
-            # Apply extended ID fix
-            frame_id = msg.arbitration_id
-            if msg.is_extended_id:
-                frame_id |= 0x80000000
+            if msg.arbitration_id > 0x7FF:
+                # Force the extended format
+                frame_id = msg.arbitration_id | 0x80000000
+            else:
+                frame_id = msg.arbitration_id
 
             decoded = db.decode_message(frame_id, msg.data)
             print(f"[{msg.arbitration_id:08X}] {decoded}")
-        except Exception:
-            print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded)")
+        except Exception as e:
+            print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded) -- {str(e)}")
+
 except KeyboardInterrupt:
     print("Stopping listener...")
     bus.shutdown()
