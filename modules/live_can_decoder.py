@@ -26,7 +26,6 @@ try:
 
         try:
             if msg.arbitration_id > 0x7FF:
-                # Force the extended format
                 frame_id = msg.arbitration_id | 0x80000000
             else:
                 frame_id = msg.arbitration_id
@@ -34,7 +33,9 @@ try:
             decoded = db.decode_message(frame_id, msg.data)
             print(f"[{msg.arbitration_id:08X}] {decoded}")
         except Exception as e:
-            print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded) -- ID={frame_id} Error={str(e)}")
+            import traceback
+            traceback.print_exc()
+            print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded) -- ID={frame_id} Error={repr(e)}")
 
 except KeyboardInterrupt:
     print("Stopping listener...")
