@@ -61,7 +61,7 @@
       ]
     },
     {
-      "name": "ATS_AC_STATUS_4_4F",
+      "name": "ATS_STATUS",
       "id": 436185679,
       "extended": true,
       "length": 3,
@@ -74,7 +74,133 @@
         { "name": "mode",          "start_bit": 16, "length": 2 },
         { "name": "reserved",      "start_bit": 18, "length": 6 }
       ]
-    },    
+    },
+    {
+      "name": "ATS_AC_STATUS_1_4F",
+      "id": 2382343503,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 1",
+      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "io_type",                  "start_bit": 3,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "source",                   "start_bit": 4,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "leg",                      "start_bit": 7,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,    "offset": 0, "unit": "Vac" },
+        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "offset": 0, "unit": "Aac" },
+        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125,"offset": 0, "unit": "Hz"  },
+        { "name": "fault_open_ground",        "start_bit": 56, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_ground_current",     "start_bit": 62, "length": 2,  "scale": 1,      "offset": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_1_4F",
+      "id": 234859855,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 1",
+      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "io_type",                  "start_bit": 3,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "source",                   "start_bit": 4,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "leg",                      "start_bit": 7,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,    "offset": 0, "unit": "Vac" },
+        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "offset": 0, "unit": "Aac" },
+        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125, "offset": 0, "unit": "Hz" },
+        { "name": "fault_open_ground",        "start_bit": 56, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
+        { "name": "fault_ground_current",     "start_bit": 62, "length": 2,  "scale": 1,      "offset": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_2_4F",
+      "id": 234859599,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 2",
+      "pdf_reference": "Sec. 6.32.2",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3 },
+        { "name": "io_type",                   "start_bit": 3,  "length": 1 },
+        { "name": "source",                    "start_bit": 4,  "length": 3 },
+        { "name": "leg",                       "start_bit": 7,  "length": 1 },
+        { "name": "rms_voltage",               "start_bit": 8,  "length": 16, "scale": 0.1,     "unit": "Vac" },
+        { "name": "rms_current",               "start_bit": 24, "length": 16, "scale": 0.1,     "unit": "Aac" },
+        { "name": "frequency",                 "start_bit": 40, "length": 16, "scale": 0.0078125, "unit": "Hz"  },
+        { "name": "fault_open_ground",         "start_bit": 56, "length": 2 },
+        { "name": "fault_open_neutral",        "start_bit": 58, "length": 2 },
+        { "name": "fault_reverse_polarity",    "start_bit": 60, "length": 2 },
+        { "name": "fault_ground_current",      "start_bit": 62, "length": 2 }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_3_4F",
+      "id": 234859343,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 3",
+      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit":   0, "length": 3 },
+        { "name": "io_type",                  "start_bit":   3, "length": 1 },
+        { "name": "source",                   "start_bit":   4, "length": 3 },
+        { "name": "leg",                      "start_bit":   7, "length": 1 },
+        { "name": "rms_voltage",              "start_bit":   8, "length":16, "scale": 0.1,     "unit": "Vac" },
+        { "name": "rms_current",              "start_bit":  24, "length":16, "scale": 0.1,     "unit": "Aac" },
+        { "name": "frequency",                "start_bit":  40, "length":16, "scale": 0.0078125,"unit": "Hz"  },
+        { "name": "fault_open_ground",        "start_bit":  56, "length": 2 },
+        { "name": "fault_open_neutral",       "start_bit":  58, "length": 2 },
+        { "name": "fault_reverse_polarity",   "start_bit":  60, "length": 2 },
+        { "name": "fault_ground_current",     "start_bit":  62, "length": 2 }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_4",
+      "id": 234849615,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 4",
+      "pdf_reference": "Sec. 6.32.2 → AC Point Status 4",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit":   0, "length": 8 },
+        { "name": "real_power",               "start_bit":   8, "length": 16, "unit": "W" },
+        { "name": "reactive_power",           "start_bit":  24, "length": 16, "unit": "VAr", "signed": true },
+        { "name": "harmonic_distortion",      "start_bit":  40, "length":  8, "unit": "%" },
+        { "name": "complementary_leg",        "start_bit":  48, "length":  8 }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_4_4F",
+      "id": 234859935,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 4",
+      "pdf_reference": "Sec. 6.32 (Tables 6.32.2a & 6.32.2b)",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit":  0, "length": 3 },
+        { "name": "io_type",                  "start_bit":  3, "length": 1 },
+        { "name": "source",                   "start_bit":  4, "length": 3 },
+        { "name": "leg",                      "start_bit":  7, "length": 1 },
+        { "name": "rms_voltage",              "start_bit":  8, "length": 16, "scale": 0.1,    "unit": "Vac" },
+        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "unit": "Aac" },
+        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125,"unit": "Hz"  },
+        { "name": "fault_open_ground",        "start_bit": 56, "length": 2 },
+        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2 },
+        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2 },
+        { "name": "fault_ground_current",     "start_bit": 62, "length": 2 }
+      ]
+    },
     {
       "name": "AIR_CONDITIONER_COMMAND",
       "id": 436199581,
@@ -177,28 +303,6 @@
         { "name": "disable1_status",    "start_bit": 52, "length": 2 },
         { "name": "disable2_status",    "start_bit": 54, "length": 2 },
         { "name": "short_duration",     "start_bit": 56, "length": 8,  "scale": 5, "unit": "ms" }
-      ]
-    },
-    {
-      "name": "ATS_AC_STATUS_1_4F",
-      "id": 2382343503,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x4F",
-      "description": "Transfer Switch AC Status 1",
-      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
-      "signals": [
-        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "io_type",                  "start_bit": 3,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "source",                   "start_bit": 4,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "leg",                      "start_bit": 7,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,    "offset": 0, "unit": "Vac" },
-        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "offset": 0, "unit": "Aac" },
-        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125,"offset": 0, "unit": "Hz"  },
-        { "name": "fault_open_ground",        "start_bit": 56, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "fault_ground_current",     "start_bit": 62, "length": 2,  "scale": 1,      "offset": 0, "unit": null }
       ]
     },
     {
@@ -370,50 +474,6 @@
       ]
     },
     {
-      "name": "ATS_AC_STATUS_4_4F",
-      "id": 234859935,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x4F",
-      "description": "Transfer Switch AC Status 4",
-      "pdf_reference": "Sec. 6.32 (Tables 6.32.2a & 6.32.2b)",
-      "signals": [
-        { "name": "transfer_switch_instance", "start_bit":  0, "length": 3 },
-        { "name": "io_type",                  "start_bit":  3, "length": 1 },
-        { "name": "source",                   "start_bit":  4, "length": 3 },
-        { "name": "leg",                      "start_bit":  7, "length": 1 },
-        { "name": "rms_voltage",              "start_bit":  8, "length": 16, "scale": 0.1,    "unit": "Vac" },
-        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "unit": "Aac" },
-        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125,"unit": "Hz"  },
-        { "name": "fault_open_ground",        "start_bit": 56, "length": 2 },
-        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2 },
-        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2 },
-        { "name": "fault_ground_current",     "start_bit": 62, "length": 2 }
-      ]
-    },    
-    {
-      "name": "ATS_AC_STATUS_2_4F",
-      "id": 234859599,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x4F",
-      "description": "Transfer Switch AC Status 2",
-      "pdf_reference": "Sec. 6.32.2",
-      "signals": [
-        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3 },
-        { "name": "io_type",                   "start_bit": 3,  "length": 1 },
-        { "name": "source",                    "start_bit": 4,  "length": 3 },
-        { "name": "leg",                       "start_bit": 7,  "length": 1 },
-        { "name": "rms_voltage",               "start_bit": 8,  "length": 16, "scale": 0.1,     "unit": "Vac" },
-        { "name": "rms_current",               "start_bit": 24, "length": 16, "scale": 0.1,     "unit": "Aac" },
-        { "name": "frequency",                 "start_bit": 40, "length": 16, "scale": 0.0078125, "unit": "Hz"  },
-        { "name": "fault_open_ground",         "start_bit": 56, "length": 2 },
-        { "name": "fault_open_neutral",        "start_bit": 58, "length": 2 },
-        { "name": "fault_reverse_polarity",    "start_bit": 60, "length": 2 },
-        { "name": "fault_ground_current",      "start_bit": 62, "length": 2 }
-      ]
-    },
-    {
       "name": "CHASSIS_MOBILITY_STATUS_9D",
       "id": 436204701,
       "extended": true,
@@ -480,28 +540,6 @@
         { "name": "text", "start_bit": 0, "length": 64 }
       ]
     },
-    {
-      "name": "ATS_AC_STATUS_1_4F",
-      "id": 234859855,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x4F",
-      "description": "Transfer Switch AC Status 1",
-      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
-      "signals": [
-        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "io_type",                  "start_bit": 3,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "source",                   "start_bit": 4,  "length": 3,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "leg",                      "start_bit": 7,  "length": 1,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,    "offset": 0, "unit": "Vac" },
-        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,    "offset": 0, "unit": "Aac" },
-        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078125, "offset": 0, "unit": "Hz" },
-        { "name": "fault_open_ground",        "start_bit": 56, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2,  "scale": 1,      "offset": 0, "unit": null },
-        { "name": "fault_ground_current",     "start_bit": 62, "length": 2,  "scale": 1,      "offset": 0, "unit": null }
-      ]
-    },  
     {
       "name": "TANK_STATUS_AF",
       "id": 436189103,
@@ -666,28 +704,6 @@
         { "name": "delay",            "start_bit":  32, "length": 8, "scale": 1, "offset": 0, "unit": "s"  },
         { "name": "demanded_current", "start_bit":  40, "length": 8, "scale": 1, "offset": 0, "unit": "A"  },
         { "name": "present_current",  "start_bit":  48, "length":16, "scale": 1, "offset": 0, "unit": "A"  }
-      ]
-    },
-    {
-      "name": "ATS_AC_STATUS_3_4F",
-      "id": 234859343,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x4F",
-      "description": "Transfer Switch AC Status 3",
-      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
-      "signals": [
-        { "name": "transfer_switch_instance", "start_bit":   0, "length": 3 },
-        { "name": "io_type",                  "start_bit":   3, "length": 1 },
-        { "name": "source",                   "start_bit":   4, "length": 3 },
-        { "name": "leg",                      "start_bit":   7, "length": 1 },
-        { "name": "rms_voltage",              "start_bit":   8, "length":16, "scale": 0.1,     "unit": "Vac" },
-        { "name": "rms_current",              "start_bit":  24, "length":16, "scale": 0.1,     "unit": "Aac" },
-        { "name": "frequency",                "start_bit":  40, "length":16, "scale": 0.0078125,"unit": "Hz"  },
-        { "name": "fault_open_ground",        "start_bit":  56, "length": 2 },
-        { "name": "fault_open_neutral",       "start_bit":  58, "length": 2 },
-        { "name": "fault_reverse_polarity",   "start_bit":  60, "length": 2 },
-        { "name": "fault_ground_current",     "start_bit":  62, "length": 2 }
       ]
     },
     {
