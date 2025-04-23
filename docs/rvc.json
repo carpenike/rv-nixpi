@@ -1232,6 +1232,89 @@
       ]
     },
     {
+      "name": "THERMOSTAT_AMBIENT_STATUS_9D",
+      "id": 436182173,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Thermostat Ambient Status",
+      "pdf_reference": "Sec. 6.16.11",
+      "signals": [
+        { "name": "instance",                "start_bit": 0,  "length": 8 },
+        { "name": "coolant_low_limit",       "start_bit": 8,  "length": 6,  "scale": 1, "unit": "°C" },
+        { "name": "coolant_high_limit",      "start_bit": 16, "length": 6,  "scale": 1, "unit": "°C" },
+        { "name": "control_mode",            "start_bit": 24, "length": 8 },
+        { "name": "status_flags",            "start_bit": 32, "length": 8 },
+        { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C" }
+      ]
+    },
+    {
+      "name": "GENERATOR_STATUS_1_9D",
+      "id": 436198557,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Generator Status 1",
+      "pdf_reference": "Sec. 6.18.23",
+      "signals": [
+        { "name": "status",                  "start_bit": 0,  "length": 8 },
+        { "name": "engine_run_time",         "start_bit": 8,  "length": 32, "scale": 1, "unit": "min" },
+        { "name": "engine_load",             "start_bit": 40, "length": 8,  "scale": 1, "unit": "%"   },
+        { "name": "start_battery_voltage",   "start_bit": 48, "length": 16, "scale": 1, "unit": "Vdc" }
+      ]
+    },
+    {
+      "name": "FIRMWARE_VERSION_9A",
+      "id": 494861978,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9A",
+      "description": "Firmware Version",
+      "pdf_reference": "Sec. 6.46.3",
+      "signals": [
+        { "name": "version",                 "start_bit": 0,  "length": 64 }
+      ]
+    },
+    {
+      "name": "CHASSIS_MOBILITY_STATUS_FC",
+      "id": 435867388,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xFC",
+      "description": "Chassis Mobility Status",
+      "pdf_reference": "Sec. 6.11.2",
+      "signals": [
+        { "name": "instance",                "start_bit": 0,  "length": 2 },
+        { "name": "position",                "start_bit": 2,  "length": 2 },
+        { "name": "movement_in_progress",    "start_bit": 4,  "length": 2 },
+        { "name": "unsuitable_surface",      "start_bit": 6,  "length": 2 },
+        { "name": "roll_mode_status",        "start_bit": 8,  "length": 4 },
+        { "name": "rate",                    "start_bit": 16, "length": 16, "scale": 0.1, "unit": "deg/s" },
+        { "name": "max_rate",                "start_bit": 32, "length": 16, "scale": 0.1, "unit": "deg/s" }
+      ]
+    },
+    {
+      "name": "THERMOSTAT_STATUS_1_9D",
+      "id": 436200093,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Thermostat Status 1",
+      "pdf_reference": "Sec. 6.16.2",
+      "signals": [
+        { "name": "instance",                "start_bit": 0,  "length": 8 },
+        { "name": "mode",                    "start_bit": 8,  "length": 2 },
+        { "name": "coolant_low_limit",       "start_bit": 10, "length": 6,  "scale": 1, "unit": "°C" },
+        { "name": "coolant_high_limit",      "start_bit": 16, "length": 6,  "scale": 1, "unit": "°C" },
+        { "name": "control_mode",            "start_bit": 24, "length": 8 },
+        { "name": "status_flags",            "start_bit": 32, "length": 8 },
+        { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C" }
+      ]
+    },
+
+
+
+    {
       "name": "UNKNOWN_18EAFF95",
       "id": 418054037,
       "extended": true,
@@ -1248,9 +1331,7 @@
         { "name": "raw_byte_6", "start_bit": 48, "length": 8 },
         { "name": "raw_byte_7", "start_bit": 56, "length": 8 }
       ]
-    },    
-
-
+    },
     {
       "name": "UNKNOWN_19FFE19A",
       "id": 436199834,
