@@ -76,6 +76,6 @@ in {
 
     # Deploy your decoder and JSON defs into /etc/nixos/files
     environment.etc."nixos/files/live_can_decoder.py".source = ./live_can_decoder.py;
-    environment.etc."nixos/files/rvc.json".source          = ./docs/rvc.json;
+    environment.etc."nixos/files/rvc.json".source          = ../docs/rvc.json;
   };
 }
