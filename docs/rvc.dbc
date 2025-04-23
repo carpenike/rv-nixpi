@@ -54,3 +54,41 @@ BO_ 2382333263 ATS_AC_STATUS_4_4F: 8 RVCNode
     SG_ fault_open_neutral          : 58|2@1+ (1,0) [0|3]   "" RVCController
     SG_ fault_reverse_polarity      : 60|2@1+ (1,0) [0|3]   "" RVCController
     SG_ fault_ground_current        : 62|2@1+ (1,0) [0|3]   "" RVCController
+
+// AIR_CONDITIONER_COMMAND (DGN = 0x1FFE0) from SA=0x9D
+BO_ 2583683229 AIR_CONDITIONER_COMMAND: 8 RVCNode
+    SG_ instance                   :   0| 8@1+ (1,0)    [0|255]   ""    RVCController
+    SG_ operating_mode             :   8| 8@1+ (1,0)    [0|255]   ""    RVCController
+    SG_ max_fan_speed              :  16| 8@1+ (0.4,0)  [0|100]  "Pct"  RVCController
+    SG_ max_ac_output_level        :  24| 8@1+ (0.4,0)  [0|100]  "Pct"  RVCController
+    SG_ fan_speed                  :  32| 8@1+ (0.4,0)  [0|100]  "Pct"  RVCController
+    SG_ ac_output_level            :  40| 8@1+ (0.4,0)  [0|100]  "Pct"  RVCController
+    SG_ dead_band                  :  48| 8@1+ (1,0)    [0|255]   ""    RVCController
+    SG_ second_stage_dead_band     :  56| 8@1+ (1,0)    [0|255]   ""    RVCController
+
+// WATERHEATER_STATUS_2 (DGN = 0x1FE99) from SA=0x99
+BO_ 2583599513 WATERHEATER_STATUS_2: 8 RVCNode
+    SG_ instance                      :   0| 8@1+ (1,0)    [0|255]   ""    RVCController
+    SG_ electric_element_level        :   8| 4@1+ (1,0)    [0|15]    ""    RVCController
+    SG_ max_electric_element_level    :  12| 4@1+ (1,0)    [0|15]    ""    RVCController
+    SG_ engine_preheat                :  16| 4@1+ (1,0)    [0|15]    ""    RVCController
+    SG_ coolant_level_warning         :  20| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ hot_water_priority            :  22| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ burner_status                 :  24| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ burner_indicator              :  26| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_low_overcurrent      :  32| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_low_undercurrent     :  34| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_low_temperature      :  36| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_low_input_status     :  38| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_high_overcurrent     :  40| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_high_undercurrent    :  42| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_high_temperature     :  44| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ electric_high_input_status    :  46| 2@1+ (1,0)    [0|3]     ""    RVCController
+
+// CIRCULATION_PUMP_STATUS (DGN = 0x1FE97) from SA=0x99
+BO_ 2583599001 CIRCULATION_PUMP_STATUS: 8 RVCNode
+    SG_ instance                   :   0| 8@1+ (1,0)    [0|255]   ""    RVCController
+    SG_ output_status              :   8| 4@1+ (1,0)    [0|15]    ""    RVCController
+    SG_ pump_overcurrent_status    :  16| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ pump_undercurrent_status   :  18| 2@1+ (1,0)    [0|3]     ""    RVCController
+    SG_ pump_temperature_status    :  20| 2@1+ (1,0)    [0|3]     ""    RVCController
