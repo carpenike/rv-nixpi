@@ -182,7 +182,7 @@ BO_ 2566834853 DM_RV_95: 8 RVCNode
 // WEATHER_WIND_STATUS from SA=0x8E (0x80000000 | 0x19FEDA8E = 2583059206)
 BO_ 2583059206 WEATHER_WIND_STATUS: 8 RVCNode
     SG_ wind_speed                 :   0| 8@1+ (1,0)     [0|250]   "kph"   RVCController
-    SG_ wind_direction             :   8|16@1+ (1/128,0) [0|359]   "deg"   RVCController
+    SG_ wind_direction             :   8|16@1+ (0.0078125,0) [0|359]   "deg"   RVCController
     SG_ solar_intensity            :  24| 8@1+ (1,0)     [0|250]   "kLux"  RVCController
     SG_ rain_intensity             :  32| 8@1+ (1,0)     [0|100]   "%"     RVCController
     SG_ wind_speed_alarm           :  40| 2@1+ (1,0)     [0|3]     ""      RVCController
