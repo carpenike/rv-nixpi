@@ -7,7 +7,7 @@ parser.add_argument("--interface", "-i", default="can0", help="CAN interface (e.
 parser.add_argument("--dbc", "-d", default="rvc.dbc", help="Path to DBC file")
 args = parser.parse_args()
 
-db = cantools.database.load_file(args.dbc)
+db = cantools.database.load_file(args.dbc, strict=False)
 
 bus = can.interface.Bus(channel=args.interface, interface="socketcan")
 
