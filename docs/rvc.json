@@ -689,9 +689,304 @@
         { "name": "fault_ground_current",     "start_bit":  62, "length": 2 }
       ]
     },
-    
+    {
+      "name": "DM_RV_96",
+      "id": 419351190,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0, "length": 2, "byte_order": "little_endian" },
+        { "name": "operating_status_detail", "start_bit":  2, "length": 2, "byte_order": "little_endian" },
+        { "name": "yellow_lamp_status",      "start_bit":  4, "length": 2, "byte_order": "little_endian" },
+        { "name": "red_lamp_status",         "start_bit":  6, "length": 2, "byte_order": "little_endian" },
+        { "name": "DSA",                     "start_bit":  8, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian" }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351183,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0, "length": 2, "byte_order": "little_endian" },
+        { "name": "operating_status_detail", "start_bit":  2, "length": 2, "byte_order": "little_endian" },
+        { "name": "yellow_lamp_status",      "start_bit":  4, "length": 2, "byte_order": "little_endian" },
+        { "name": "red_lamp_status",         "start_bit":  6, "length": 2, "byte_order": "little_endian" },
+        { "name": "DSA",                     "start_bit":  8, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian" }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_96",
+      "id": 494861974,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_97",
+      "id": 494861975,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_98",
+      "id": 494861976,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
 
 
+
+    {
+      "name": "UNKNOWN_19FFF799",
+      "id": 436207353,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit":  0, "length": 8 },
+        { "name": "byte_1", "start_bit":  8, "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FF9C75",
+      "id": 436116821,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FFE198",
+      "id": 436132376,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FFE19A",
+      "id": 436132378,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FACEFC",
+      "id": 436175852,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FEDB9D",
+      "id": 436132765,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FBDA9D",
+      "id": 435935917,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FF9C9D",
+      "id": 436116925,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FE989D",
+      "id": 436128157,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FFDC9D",
+      "id": 436155613,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_18E8FF8E",
+      "id": 417922958,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_18FECAAF",
+      "id": 419379375,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FECA4F",
+      "id": 436128335,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
     {
       "name": "UNKNOWN_1FF2E",
       "id": 419376757,
