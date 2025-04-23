@@ -22,16 +22,10 @@ try:
         if msg is None:
             continue
 
-        # Print debug info
         print(f"ID: {msg.arbitration_id:08X}, Extended: {msg.is_extended_id}, Data: {msg.data.hex()}")
 
         try:
-            # Force use of extended frame ID format if flagged as such
-            frame_id = msg.arbitration_id
-            if msg.is_extended_id:
-                frame_id |= 0x80000000
-
-            decoded = db.decode_message(frame_id, msg.data)
+            decoded = db.decode_message(msg.arbitration_id, msg.data)
             print(f"[{msg.arbitration_id:08X}] {decoded}")
         except Exception:
             print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded)")
