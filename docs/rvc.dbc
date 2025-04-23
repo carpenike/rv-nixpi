@@ -92,3 +92,62 @@ BO_ 2583599001 CIRCULATION_PUMP_STATUS: 8 RVCNode
     SG_ pump_overcurrent_status    :  16| 2@1+ (1,0)    [0|3]     ""    RVCController
     SG_ pump_undercurrent_status   :  18| 2@1+ (1,0)    [0|3]     ""    RVCController
     SG_ pump_temperature_status    :  20| 2@1+ (1,0)    [0|3]     ""    RVCController
+
+// DM_RV from SA=0x9F (DGN = 1FECAh, extended ID = 0x98FECA9F = 2566834847)
+BO_ 2566834847 DM_RV_9F: 8 RVCNode
+    SG_ operating_status        :   0|2@1+ (1,0)   [0|3]     "" RVCController
+    SG_ operating_status_detail :   2|2@1+ (1,0)   [0|3]     "" RVCController
+    SG_ yellow_lamp_status      :   4|2@1+ (1,0)   [0|3]     "" RVCController
+    SG_ red_lamp_status         :   6|2@1+ (1,0)   [0|3]     "" RVCController
+    SG_ DSA                     :   8|8@1+ (1,0)   [0|255]   "" RVCController
+    SG_ SPN_MSB                 :  16|8@1+ (1,0)   [0|255]   "" RVCController
+    SG_ SPN_ISB                 :  24|8@1+ (1,0)   [0|255]   "" RVCController
+    SG_ SPN_LSB_and_FMI         :  32|8@1+ (1,0)   [0|255]   "" RVCController
+
+// UNKNOWN ENTRIES
+
+// UNKNOWN_1FF2E (DGN = 1FF2Eh, extended ID = 0x98FF2E75 = 2566860405)
+BO_ 2566860405 UNKNOWN_1FF2E: 8 RVCNode
+    SG_ byte_0 :   0|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_1 :   8|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_2 :  16|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_3 :  24|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_4 :  32|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_5 :  40|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_6 :  48|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_7 :  56|8@1+ (1,0) [0|255] "" RVCController
+
+// UNKNOWN_1AAFD (DGN = 1AAFDh, extended ID = 0x99AAFD9D = 2578120093)
+BO_ 2578120093 UNKNOWN_1AAFD: 8 RVCNode
+    SG_ byte_0 :   0|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_1 :   8|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_2 :  16|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_3 :  24|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_4 :  32|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_5 :  40|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_6 :  48|8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_7 :  56|8@1+ (1,0) [0|255] "" RVCController
+
+// UNKNOWN_1FACE (DGN = 0x1FACE) from SA=0x9D  
+// (0x80000000 | 0x19FACE9D = 2583350941)
+BO_ 2583350941 UNKNOWN_1FACE: 8 RVCNode
+    SG_ byte0  :  0| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte1  :  8| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte2  : 16| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte3  : 24| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte4  : 32| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte5  : 40| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte6  : 48| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte7  : 56| 8@1+ (1,0) [0|255] "" RVCController
+
+// UNKNOWN_15FCE (DGN = 0x15FCE) from SA=0x9D  
+// (0x80000000 | 0x195FCE9D = 2573192861)
+BO_ 2573192861 UNKNOWN_15FCE: 8 RVCNode
+    SG_ byte0  :  0| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte1  :  8| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte2  : 16| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte3  : 24| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte4  : 32| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte5  : 40| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte6  : 48| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte7  : 56| 8@1+ (1,0) [0|255] "" RVCController
