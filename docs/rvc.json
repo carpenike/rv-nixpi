@@ -555,7 +555,141 @@
         { "name": "second_stage_dead_band",  "start_bit": 56, "length": 8,  "scale": 0.1, "offset": 0, "unit": "°C" }
       ]
     },
-
+    {
+      "name": "DM_RV_8E",
+      "id": 419351182,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8E",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 4" }
+      ]
+    },
+    {
+      "name": "DM_RV_9E",
+      "id": 419351198,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9E",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 4" }
+      ]
+    },
+    {
+      "name": "SET_DATE_TIME_COMMAND_75",
+      "id": 436207221,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x75",
+      "description": "Set System Date and Time Command",
+      "pdf_reference": "Sec. 6.4.3 (Table 6.4.3)&#8203;:contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}",
+      "signals": [
+        { "name": "year",          "start_bit":   0, "length": 8, "scale": 1, "offset": 2000, "unit": "year" },
+        { "name": "month",         "start_bit":   8, "length": 8, "scale": 1, "offset": 0,    "unit": "month" },
+        { "name": "day_of_month",  "start_bit":  16, "length": 8, "scale": 1, "offset": 0,    "unit": "day" },
+        { "name": "day_of_week",   "start_bit":  24, "length": 8, "scale": 1, "offset": 0,    "unit": "0=Sun…6=Sat" },
+        { "name": "hour",          "start_bit":  32, "length": 8, "scale": 1, "offset": 0,    "unit": "hr" },
+        { "name": "minute",        "start_bit":  40, "length": 8, "scale": 1, "offset": 0,    "unit": "min" },
+        { "name": "second",        "start_bit":  48, "length": 8, "scale": 1, "offset": 0,    "unit": "s"   },
+        { "name": "timezone",      "start_bit":  56, "length": 8, "scale": 1, "offset": 0,    "unit": "UTC offset (–96…+96 quarter-hours)" }
+      ]
+    },
+    {
+      "name": "SET_DATE_TIME_COMMAND_9D",
+      "id": 436207517,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Set System Date and Time Command",
+      "pdf_reference": "Sec. 6.4.3 (Table 6.4.3)",
+      "signals": [
+        { "name": "year",          "start_bit":   0, "length": 8, "scale": 1, "offset": 2000, "unit": "year" },
+        { "name": "month",         "start_bit":   8, "length": 8, "scale": 1, "offset": 0,    "unit": "month" },
+        { "name": "day_of_month",  "start_bit":  16, "length": 8, "scale": 1, "offset": 0,    "unit": "day" },
+        { "name": "day_of_week",   "start_bit":  24, "length": 8, "scale": 1, "offset": 0,    "unit": "0=Sun…6=Sat" },
+        { "name": "hour",          "start_bit":  32, "length": 8, "scale": 1, "offset": 0,    "unit": "hr" },
+        { "name": "minute",        "start_bit":  40, "length": 8, "scale": 1, "offset": 0,    "unit": "min" },
+        { "name": "second",        "start_bit":  48, "length": 8, "scale": 1, "offset": 0,    "unit": "s"   },
+        { "name": "timezone",      "start_bit":  56, "length": 8, "scale": 1, "offset": 0,    "unit": "UTC offset (–96…+96 quarter-hours)" }
+      ]
+    },
+    {
+      "name": "AC_LOAD_COMMAND_9D",
+      "id": 436190877,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "AC Load Command",
+      "pdf_reference": "Sec. 6.22.4 (Tables 6.22.4a & 6.22.4b)",
+      "signals": [
+        { "name": "instance",                "start_bit":   0, "length": 8, "scale": 1, "offset": 0, "unit": null },
+        { "name": "group",                   "start_bit":   8, "length": 8, "scale": 1, "offset": 0, "unit": null },
+        { "name": "desired_level",           "start_bit":  16, "length": 8, "scale": 1, "offset": 0, "unit": "%"  },
+        { "name": "desired_operating_mode",  "start_bit":  24, "length": 2, "scale": 1, "offset": 0, "unit": null },
+        { "name": "delay",                   "start_bit":  32, "length": 8, "scale": 1, "offset": 0, "unit": "s"  },
+        { "name": "demanded_current",        "start_bit":  40, "length": 8, "scale": 1, "offset": 0, "unit": "A"  },
+        { "name": "present_current",         "start_bit":  48, "length":16, "scale": 1, "offset": 0, "unit": "A"  }
+      ]
+    },
+    {
+      "name": "AC_LOAD_STATUS_9D",
+      "id": 436191133,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "AC Load Status",
+      "pdf_reference": "Sec. 6.22.2 (Table 6.22.2)",
+      "signals": [
+        { "name": "instance",         "start_bit":   0, "length": 8, "scale": 1, "offset": 0, "unit": null },
+        { "name": "group",            "start_bit":   8, "length": 8, "scale": 1, "offset": 0, "unit": null },
+        { "name": "operating_status", "start_bit":  16, "length": 8, "scale": 1, "offset": 0, "unit": "%"  },
+        { "name": "interlock_status", "start_bit":  24, "length": 2, "scale": 1, "offset": 0, "unit": null },
+        { "name": "delay",            "start_bit":  32, "length": 8, "scale": 1, "offset": 0, "unit": "s"  },
+        { "name": "demanded_current", "start_bit":  40, "length": 8, "scale": 1, "offset": 0, "unit": "A"  },
+        { "name": "present_current",  "start_bit":  48, "length":16, "scale": 1, "offset": 0, "unit": "A"  }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_3_4F",
+      "id": 234859343,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 3",
+      "pdf_reference": "Sec. 6.32.2 (Tables 6.32.2a & 6.32.2b)",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit":   0, "length": 3 },
+        { "name": "io_type",                  "start_bit":   3, "length": 1 },
+        { "name": "source",                   "start_bit":   4, "length": 3 },
+        { "name": "leg",                      "start_bit":   7, "length": 1 },
+        { "name": "rms_voltage",              "start_bit":   8, "length":16, "scale": 0.1,     "unit": "Vac" },
+        { "name": "rms_current",              "start_bit":  24, "length":16, "scale": 0.1,     "unit": "Aac" },
+        { "name": "frequency",                "start_bit":  40, "length":16, "scale": 0.0078125,"unit": "Hz"  },
+        { "name": "fault_open_ground",        "start_bit":  56, "length": 2 },
+        { "name": "fault_open_neutral",       "start_bit":  58, "length": 2 },
+        { "name": "fault_reverse_polarity",   "start_bit":  60, "length": 2 },
+        { "name": "fault_ground_current",     "start_bit":  62, "length": 2 }
+      ]
+    },
+    
 
 
     {
