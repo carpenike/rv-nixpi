@@ -27,4 +27,6 @@ try:
         except Exception:
             print(f"[{msg.arbitration_id:03X}] Raw data: {msg.data.hex()} (undecoded)")
 except KeyboardInterrupt:
+    print("Stopping listener...")
+    bus.shutdown() # Properly close the CAN bus connection
     print("Stopped by user.")
