@@ -120,6 +120,41 @@ BO_ 2583351245 DC_MOTOR_CONTROL_STATUS: 8 RVCNode
     SG_ disable2_status     : 54| 2@1+ (1,0)   [0|3]    ""   RVCController  
     SG_ short_duration      : 56| 8@1+ (5,0)   [0|1275] "ms" RVCController 
 
+// ATS_AC_STATUS_1 from SA=0x4F (DGN=0x1FFAD, ext ID = 0x8DFFAD4F = 2382343503)
+BO_ 2382343503 ATS_AC_STATUS_1_4F: 8 RVCNode
+    SG_ transfer_switch_instance :   0| 3@1+ (1,0)   [0|7]    "" RVCController
+    SG_ io_type                  :   3| 1@1+ (1,0)   [0|1]    "" RVCController
+    SG_ source                   :   4| 3@1+ (1,0)   [0|7]    "" RVCController
+    SG_ leg                      :   7| 1@1+ (1,0)   [0|1]    "" RVCController
+    SG_ rms_voltage              :   8|16@1+ (0.1,0) [0|6553.5] "Vac" RVCController
+    SG_ rms_current              :  24|16@1+ (0.1,0) [0|6553.5] "Aac" RVCController
+    SG_ frequency                :  40|16@1+ (0.0078125,0) [0|500] "Hz" RVCController
+    SG_ fault_open_ground        :  56| 2@1+ (1,0)   [0|3]    "" RVCController
+    SG_ fault_open_neutral       :  58| 2@1+ (1,0)   [0|3]    "" RVCController
+    SG_ fault_reverse_polarity   :  60| 2@1+ (1,0)   [0|3]    "" RVCController
+    SG_ fault_ground_current     :  62| 2@1+ (1,0)   [0|3]    "" RVCController
+
+// DM_RV from SA=0x95 (DGN=0x1FECA, ext ID = 0x98FECA95 = 2566834837)
+BO_ 2566834837 DM_RV_95: 8 RVCNode
+    SG_ operating_status        :   0| 2@1+ (1,0) [0|3]    "" RVCController
+    SG_ operating_status_detail :   2| 2@1+ (1,0) [0|3]    "" RVCController
+    SG_ yellow_lamp_status      :   4| 2@1+ (1,0) [0|3]    "" RVCController
+    SG_ red_lamp_status         :   6| 2@1+ (1,0) [0|3]    "" RVCController
+    SG_ DSA                     :   8| 8@1+ (1,0) [0|255]  "" RVCController
+    SG_ SPN_MSB                 :  16| 8@1+ (1,0) [0|255]  "" RVCController
+    SG_ SPN_ISB                 :  24| 8@1+ (1,0) [0|255]  "" RVCController
+    SG_ SPN_LSB_and_FMI         :  32| 8@1+ (1,0) [0|255]  "" RVCController
+
+// DC_DIMMER_STATUS_3 from SA=0x8E (DGN=0x1FEDA, ext ID = 0x99FEDA8E = 2583616142)
+BO_ 2583616142 DC_DIMMER_STATUS_3_8E: 8 RVCNode
+    SG_ instance            :   0| 8@1+ (1,0)   [0|250]  ""   RVCController
+    SG_ group               :   8| 8@1+ (1,0)   [0|255]  ""   RVCController
+    SG_ operating_status    :  16| 8@1+ (1,0)   [0|255]  ""   RVCController
+    SG_ lock_status         :  24| 2@1+ (1,0)   [0|3]    ""   RVCController
+    SG_ overcurrent_status  :  26| 2@1+ (1,0)   [0|3]    ""   RVCController
+    SG_ override_status     :  28| 2@1+ (1,0)   [0|3]    ""   RVCController
+    SG_ enable_status       :  30| 2@1+ (1,0)   [0|3]    ""   RVCController
+
 // UNKNOWN ENTRIES
 
 // UNKNOWN_1FF2E (DGN = 1FF2Eh, extended ID = 0x98FF2E75 = 2566860405)
