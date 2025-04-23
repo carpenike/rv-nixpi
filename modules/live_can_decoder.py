@@ -10,7 +10,7 @@ def extract_raw_value(data_int, start_bit, bit_length):
     return (data_int >> start_bit) & mask
 
 def decode_message(msg, msg_defs):
-    """If we know this ID, extract all its signals."""
+    """If we know this ID, extract all its signals. Return dict or None."""
     d = msg_defs.get(msg.arbitration_id)
     if not d:
         return None
@@ -18,7 +18,6 @@ def decode_message(msg, msg_defs):
     out = {}
     for sig in d["signals"]:
         val = extract_raw_value(raw, sig["start_bit"], sig["length"])
-        # apply scale & offset if present
         if "scale" in sig:
             val = val * sig["scale"]
         if "offset" in sig:
@@ -42,7 +41,6 @@ def main():
         print(f"❌ failed to load JSON file '{args.json}': {e}", file=sys.stderr)
         sys.exit(1)
 
-    # build a dict: arbitration_id → message definition
     msg_defs = { msg["id"]: msg for msg in jd["messages"] }
 
     bus = can.interface.Bus(channel=args.interface, interface="socketcan")
@@ -56,13 +54,21 @@ def main():
 
             arb = msg.arbitration_id
             raw = msg.data.hex()
-            print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
+            msg_def = msg_defs.get(arb)
+
+            if msg_def is None:
+                # completely unknown ID
+                print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
+                print(f"[{arb:08X}]  Unknown ID (no definition in JSON)")
+                continue
 
             decoded = decode_message(msg, msg_defs)
             if decoded is None:
-                print(f"[{arb:08X}]  Raw data (undecoded)")
-            else:
-                print(f"[{arb:08X}]  {decoded}")
+                # definition existed but decode_message refused
+                print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
+                print(f"[{arb:08X}]  Definition found but failed to decode")
+            # else: we know it and decoded it successfully, so stay silent
+
     except KeyboardInterrupt:
         print("\nStopping listener…")
         bus.shutdown()
