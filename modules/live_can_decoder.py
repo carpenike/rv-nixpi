@@ -34,7 +34,7 @@ try:
             decoded = db.decode_message(frame_id, msg.data)
             print(f"[{msg.arbitration_id:08X}] {decoded}")
         except Exception as e:
-            print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded) -- {str(e)}")
+            print(f"[{msg.arbitration_id:08X}] Raw data: {msg.data.hex()} (undecoded) -- ID={frame_id} Error={str(e)}")
 
 except KeyboardInterrupt:
     print("Stopping listener...")
