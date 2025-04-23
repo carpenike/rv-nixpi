@@ -231,7 +231,7 @@ BO_ 2583683479 AIR_CONDITIONER_STATUS_97: 8 RVCNode
     SG_ second_stage_dead_band    :  56|8@1+  (0.1,0) [0|25]  "°C" RVCController
 
 // ATS_STATUS from SA=0x4F (0x19FFAA4F = 2583425359)
-BO_ 2583425359 ATS_STATUS_4F: 8 RVCNode
+BO_ 2583425359 ATS_STATUS: 8 RVCNode
     SG_ instance       :  0|8@1+ (1,0)   [1|6]   ""   RVCController
     SG_ source_in_use  :  8|8@1+ (1,0)   [0|253] ""   RVCController
     SG_ mode           : 16|2@1+ (1,0)   [0|3]   ""   RVCController
