@@ -4,11 +4,460 @@
   "spec_document": "http://www.rv-c.com/sites/rv-c.com/files/RV-C%20Specification%20Full%20Layer%2011-06-23_1.pdf",
   "messages": [
     {
-      "name": "DM_RV",
+      "name": "DM_RV_9D",
       "id": 419351197,
       "extended": true,
       "length": 8,
       "source_address": "0x9D",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_95",
+      "id": 419351189,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x95",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_9F",
+      "id": 419351199,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_FC",
+      "id": 419351292,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xFC",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_9B",
+      "id": 419351195,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9B",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_97",
+      "id": 419351191,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_9A",
+      "id": 419351194,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9A",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_98",
+      "id": 419351192,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_99",
+      "id": 419351193,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_8E",
+      "id": 419351182,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8E",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351183,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_96",
+      "id": 419351190,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_4F",
+      "id": 419210063,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_AF",
+      "id": 419351215,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xAF",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "DM_RV_9C",
+      "id": 419351196,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9C",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1"  },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3"  },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5"  },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7"  },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1"    },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2"    },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3"    },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5 (always 1)" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6"    },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_96",
+      "id": 494861974,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_97",
+      "id": 494861975,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_98",
+      "id": 494861976,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
+    {
+      "name": "DM_RV_98",
+      "id": 419351192,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_99",
+      "id": 419351193,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_8E",
+      "id": 419351182,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8E",
       "description": "Active Diagnostic Message",
       "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
       "signals": [
@@ -23,22 +472,174 @@
       ]
     },
     {
-      "name": "AIR_CONDITIONER_STATUS",
-      "id": 436199830,
+      "name": "DM_RV_9E",
+      "id": 419351198,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9E",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 4" }
+      ]
+    },
+    {
+      "name": "DM_RV_96",
+      "id": 419351190,
       "extended": true,
       "length": 8,
       "source_address": "0x96",
-      "description": "Air Conditioner Status",
-      "pdf_reference": "Sec. 6.17",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
       "signals": [
-        { "name": "instance",                 "start_bit": 0,  "length": 8, "scale": 1,   "offset": 0, "unit": null },
-        { "name": "operating_mode",           "start_bit": 8,  "length": 8, "scale": 1,   "offset": 0, "unit": null },
-        { "name": "max_fan_speed",            "start_bit": 16, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
-        { "name": "max_ac_output_level",      "start_bit": 24, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
-        { "name": "fan_speed",                "start_bit": 32, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
-        { "name": "ac_output_level",          "start_bit": 40, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
-        { "name": "dead_band",                "start_bit": 48, "length": 8, "scale": 0.1, "offset": 0, "unit": "°C" },
-        { "name": "second_stage_dead_band",   "start_bit": 56, "length": 8, "scale": 0.1, "offset": 0, "unit": "°C" }
+        { "name": "operating_status",        "start_bit":  0, "length": 2, "byte_order": "little_endian" },
+        { "name": "operating_status_detail", "start_bit":  2, "length": 2, "byte_order": "little_endian" },
+        { "name": "yellow_lamp_status",      "start_bit":  4, "length": 2, "byte_order": "little_endian" },
+        { "name": "red_lamp_status",         "start_bit":  6, "length": 2, "byte_order": "little_endian" },
+        { "name": "DSA",                     "start_bit":  8, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian" }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351183,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0, "length": 2, "byte_order": "little_endian" },
+        { "name": "operating_status_detail", "start_bit":  2, "length": 2, "byte_order": "little_endian" },
+        { "name": "yellow_lamp_status",      "start_bit":  4, "length": 2, "byte_order": "little_endian" },
+        { "name": "red_lamp_status",         "start_bit":  6, "length": 2, "byte_order": "little_endian" },
+        { "name": "DSA",                     "start_bit":  8, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian" }
+      ]
+    },
+    {
+      "name": "DM_RV_4F",
+      "id": 419210063,  
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351183,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_96",
+      "id": 419351190,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_AF",
+      "id": 419351215,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xAF",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_96",
+      "id": 419351198,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "operating_status_detail", "start_bit":  2,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "yellow_lamp_status",      "start_bit":  4,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "red_lamp_status",         "start_bit":  6,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "DSA",                     "start_bit":  8,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_MSB",                 "start_bit": 16,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_ISB",                 "start_bit": 24,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351191,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "operating_status_detail", "start_bit":  2,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "yellow_lamp_status",      "start_bit":  4,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "red_lamp_status",         "start_bit":  6,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "DSA",                     "start_bit":  8,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_MSB",                 "start_bit": 16,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_ISB",                 "start_bit": 24,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
       ]
     },
     {
@@ -58,6 +659,25 @@
         { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
         { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
         { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "AIR_CONDITIONER_STATUS",
+      "id": 436199830,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Air Conditioner Status",
+      "pdf_reference": "Sec. 6.17",
+      "signals": [
+        { "name": "instance",                 "start_bit": 0,  "length": 8, "scale": 1,   "offset": 0, "unit": null },
+        { "name": "operating_mode",           "start_bit": 8,  "length": 8, "scale": 1,   "offset": 0, "unit": null },
+        { "name": "max_fan_speed",            "start_bit": 16, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "max_ac_output_level",      "start_bit": 24, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "fan_speed",                "start_bit": 32, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "ac_output_level",          "start_bit": 40, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "dead_band",                "start_bit": 48, "length": 8, "scale": 0.1, "offset": 0, "unit": "°C" },
+        { "name": "second_stage_dead_band",   "start_bit": 56, "length": 8, "scale": 0.1, "offset": 0, "unit": "°C" }
       ]
     },
     {
@@ -215,25 +835,6 @@
       ]
     },
     {
-      "name": "DM_RV_9F",
-      "id": 419351199,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x9F",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 }
-      ]
-    },
-    {
       "name": "DC_MOTOR_CONTROL_STATUS",
       "id": 435867597,
       "extended": true,
@@ -254,25 +855,6 @@
         { "name": "disable1_status",    "start_bit": 52, "length": 2 },
         { "name": "disable2_status",    "start_bit": 54, "length": 2 },
         { "name": "short_duration",     "start_bit": 56, "length": 8,  "scale": 5, "unit": "ms" }
-      ]
-    },
-    {
-      "name": "DM_RV_from_SA_95",
-      "id": 419351189,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x95",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 }
       ]
     },
     {
@@ -308,101 +890,6 @@
         { "name": "rain_intensity",  "start_bit": 32, "length": 8,  "unit": "%"    },
         { "name": "wind_speed_alarm","start_bit": 40, "length": 2 },
         { "name": "rain_alarm",      "start_bit": 42, "length": 2 }
-      ]
-    },
-    {
-      "name": "DM_RV_9B",
-      "id": 419351195,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x9B",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_97",
-      "id": 419351191,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x97",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_9A",
-      "id": 419351194,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x9A",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_98",
-      "id": 419351192,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x98",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_99",
-      "id": 419351193,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x99",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
       ]
     },
     {
@@ -506,26 +993,7 @@
         { "name": "absolute_level",  "start_bit": 24, "length": 16, "scale": 1, "offset": 0, "unit": "L"   },
         { "name": "tank_size",       "start_bit": 40, "length": 16, "scale": 1, "offset": 0, "unit": "L"   }
       ]
-    },  
-    {
-      "name": "DM_RV_FC",
-      "id": 419351292,
-      "extended": true,
-      "length": 8,
-      "source_address": "0xFC",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null }
-      ]
-    },  
+    },
     {
       "name": "AIR_CONDITIONER_STATUS_97",
       "id": 436199831,
@@ -543,44 +1011,6 @@
         { "name": "ac_output_level",         "start_bit": 40, "length": 8,  "scale": 0.5, "offset": 0, "unit": "%"  },
         { "name": "dead_band",               "start_bit": 48, "length": 8,  "scale": 0.1, "offset": 0, "unit": "°C" },
         { "name": "second_stage_dead_band",  "start_bit": 56, "length": 8,  "scale": 0.1, "offset": 0, "unit": "°C" }
-      ]
-    },
-    {
-      "name": "DM_RV_8E",
-      "id": 419351182,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x8E",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 4" }
-      ]
-    },
-    {
-      "name": "DM_RV_9E",
-      "id": 419351198,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x9E",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 4" }
       ]
     },
     {
@@ -655,156 +1085,6 @@
         { "name": "delay",            "start_bit":  32, "length": 8, "scale": 1, "offset": 0, "unit": "s"  },
         { "name": "demanded_current", "start_bit":  40, "length": 8, "scale": 1, "offset": 0, "unit": "A"  },
         { "name": "present_current",  "start_bit":  48, "length":16, "scale": 1, "offset": 0, "unit": "A"  }
-      ]
-    },
-    {
-      "name": "DM_RV_96",
-      "id": 419351190,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x96",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit":  0, "length": 2, "byte_order": "little_endian" },
-        { "name": "operating_status_detail", "start_bit":  2, "length": 2, "byte_order": "little_endian" },
-        { "name": "yellow_lamp_status",      "start_bit":  4, "length": 2, "byte_order": "little_endian" },
-        { "name": "red_lamp_status",         "start_bit":  6, "length": 2, "byte_order": "little_endian" },
-        { "name": "DSA",                     "start_bit":  8, "length": 8, "byte_order": "little_endian" },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian" },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian" },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian" }
-      ]
-    },
-    {
-      "name": "DM_RV_8F",
-      "id": 419351183,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x8F",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit":  0, "length": 2, "byte_order": "little_endian" },
-        { "name": "operating_status_detail", "start_bit":  2, "length": 2, "byte_order": "little_endian" },
-        { "name": "yellow_lamp_status",      "start_bit":  4, "length": 2, "byte_order": "little_endian" },
-        { "name": "red_lamp_status",         "start_bit":  6, "length": 2, "byte_order": "little_endian" },
-        { "name": "DSA",                     "start_bit":  8, "length": 8, "byte_order": "little_endian" },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian" },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian" },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian" }
-      ]
-    },
-    {
-      "name": "PRODUCT_ID_96",
-      "id": 494861974,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x96",
-      "description": "Product Identification Message",
-      "pdf_reference": "Sec. 3.2.8",
-      "signals": [
-        { "name": "text", "start_bit": 0, "length": 64 }
-      ]
-    },
-    {
-      "name": "PRODUCT_ID_97",
-      "id": 494861975,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x97",
-      "description": "Product Identification Message",
-      "pdf_reference": "Sec. 3.2.8",
-      "signals": [
-        { "name": "text", "start_bit": 0, "length": 64 }
-      ]
-    },
-    {
-      "name": "PRODUCT_ID_98",
-      "id": 494861976,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x98",
-      "description": "Product Identification Message",
-      "pdf_reference": "Sec. 3.2.8",
-      "signals": [
-        { "name": "text", "start_bit": 0, "length": 64 }
-      ]
-    },
-    {
-      "name": "DM_RV_4F",
-      "id": 419210063,  
-      "extended": true,
-      "length": 8,
-      "source_address": "0x4F",
-      "description": "Active Diagnostic Message (DM_RV)",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_8F",
-      "id": 419351183,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x8F",
-      "description": "Active Diagnostic Message (DM_RV)",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_96",
-      "id": 419351190,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x96",
-      "description": "Active Diagnostic Message (DM_RV)",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
-      ]
-    },
-    {
-      "name": "DM_RV_AF",
-      "id": 419351215,
-      "extended": true,
-      "length": 8,
-      "source_address": "0xAF",
-      "description": "Active Diagnostic Message (DM_RV)",
-      "pdf_reference": "Sec. 3.2.5.1",
-      "signals": [
-        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
-        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
-        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
-        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
-        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
-        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
-        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
       ]
     },
     {
@@ -1094,44 +1374,6 @@
         { "name": "fuel_valve_enable",      "start_bit": 22, "length": 2 },
         { "name": "preheat_time",           "start_bit": 24, "length": 16, "unit": "s" },
         { "name": "lockout_time",           "start_bit": 40, "length": 16, "unit": "s" }
-      ]
-    },    
-    {
-      "name": "DM_RV_96",
-      "id": 419351198,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x96",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
-      "signals": [
-        { "name": "operating_status",        "start_bit":  0,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "operating_status_detail", "start_bit":  2,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "yellow_lamp_status",      "start_bit":  4,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "red_lamp_status",         "start_bit":  6,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "DSA",                     "start_bit":  8,  "length": 8, "scale": 1, "offset": 0 },
-        { "name": "SPN_MSB",                 "start_bit": 16,  "length": 8, "scale": 1, "offset": 0 },
-        { "name": "SPN_ISB",                 "start_bit": 24,  "length": 8, "scale": 1, "offset": 0 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
-      ]
-    },
-    {
-      "name": "DM_RV_8F",
-      "id": 419351191,
-      "extended": true,
-      "length": 8,
-      "source_address": "0x8F",
-      "description": "Active Diagnostic Message",
-      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
-      "signals": [
-        { "name": "operating_status",        "start_bit":  0,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "operating_status_detail", "start_bit":  2,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "yellow_lamp_status",      "start_bit":  4,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "red_lamp_status",         "start_bit":  6,  "length": 2, "scale": 1, "offset": 0 },
-        { "name": "DSA",                     "start_bit":  8,  "length": 8, "scale": 1, "offset": 0 },
-        { "name": "SPN_MSB",                 "start_bit": 16,  "length": 8, "scale": 1, "offset": 0 },
-        { "name": "SPN_ISB",                 "start_bit": 24,  "length": 8, "scale": 1, "offset": 0 },
-        { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
       ]
     },
     {
