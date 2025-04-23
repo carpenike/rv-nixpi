@@ -17,6 +17,28 @@ BU_: RVCController RVCNode // Define default node names
 // NOTE: Default DLC is 8 bytes, common in RV-C/J1939 PGNs.
 // NOTE: Factor/offset are (1,0) unless units imply scaling (requires manual interpretation). Min/Max are defaults for type.
 
+// DM_RV (DGN = 0x1FECA) from SA=0x9D  
+BO_ 419351197 DM_RV: 8 RVCNode  
+    SG_ operating_status        :   0| 2@1+ (1,0)   [0|3]    "" RVCController  
+    SG_ operating_status_detail :   2| 2@1+ (1,0)   [0|3]    "" RVCController  
+    SG_ yellow_lamp_status      :   4| 2@1+ (1,0)   [0|3]    "" RVCController  
+    SG_ red_lamp_status         :   6| 2@1+ (1,0)   [0|3]    "" RVCController  
+    SG_ DSA                     :   8| 8@1+ (1,0)   [0|255]  "" RVCController  
+    SG_ SPN_MSB                 :  16| 8@1+ (1,0)   [0|255]  "" RVCController  
+    SG_ SPN_ISB                 :  24| 8@1+ (1,0)   [0|255]  "" RVCController  
+    SG_ SPN_LSB_and_FMI         :  32| 8@1+ (1,0)   [0|255]  "" RVCController  
+
+// AIR_CONDITIONER_STATUS (DGN = 0x1FFE1) from SA=0x96  
+BO_ 436199830 AIR_CONDITIONER_STATUS: 8 RVCNode  
+    SG_ instance                  :   0| 8@1+ (1,0)   [0|255] ""   RVCController  
+    SG_ operating_mode            :   8| 8@1+ (1,0)   [0|255] ""   RVCController  
+    SG_ max_fan_speed             :  16| 8@1+ (0.5,0) [0|100] "%"  RVCController  
+    SG_ max_ac_output_level       :  24| 8@1+ (0.5,0) [0|100] "%"  RVCController  
+    SG_ fan_speed                 :  32| 8@1+ (0.5,0) [0|100] "%"  RVCController  
+    SG_ ac_output_level           :  40| 8@1+ (0.5,0) [0|100] "%"  RVCController  
+    SG_ dead_band                 :  48| 8@1+ (0.1,0) [0|25]  "°C"  RVCController  
+    SG_ second_stage_dead_band    :  56| 8@1+ (0.1,0) [0|25]  "°C"  RVCController  
+
 // DGN 0x17F00
 BO_ 2147581696 GENERAL_RESET: 8 RVCNode
 	SG_ reboot : 0|2@1+ (1,0) [0|1] "" RVCController
@@ -198,16 +220,16 @@ BO_ 2147548874 DM_1: 8 RVCNode
 	SG_ dsa_extension : 48|8@1+ (1,0) [0|255] "" RVCController
 	SG_ reserved_b7 : 56|4@1+ (1,0) [0|15] "" RVCController // Byte 7, bits 0-3
 
-// DGN 0x1FFE1
+// AIR_CONDITIONER_STATUS (DGN = 0x1FFE1h)
 BO_ 2147614689 AIR_CONDITIONER_STATUS: 8 RVCNode
-	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
-	SG_ operating_mode : 8|8@1+ (1,0) [0|255] "" RVCController
-	SG_ max_fan_speed : 16|8@1+ (0.4,0) [0|100] "Pct" RVCController
-	SG_ max_ac_output_level : 24|8@1+ (0.4,0) [0|100] "Pct" RVCController
-	SG_ fan_speed : 32|8@1+ (0.4,0) [0|100] "Pct" RVCController
-	SG_ ac_output_level : 40|8@1+ (0.4,0) [0|100] "Pct" RVCController
-	SG_ dead_band : 48|8@1+ (1,0) [0|255] "" RVCController
-	SG_ second_stage_dead_band : 56|8@1+ (1,0) [0|255] "" RVCController
+    SG_ instance               :  0| 8@1+ (1,0)    [0|255]    ""    RVCController
+    SG_ operating_mode         :  8| 8@1+ (1,0)    [0|255]    ""    RVCController
+    SG_ max_fan_speed          : 16| 8@1+ (0.5,0)  [0|100]   "%"   RVCController
+    SG_ max_ac_output_level    : 24| 8@1+ (0.5,0)  [0|100]   "%"   RVCController
+    SG_ fan_speed              : 32| 8@1+ (0.5,0)  [0|100]   "%"   RVCController
+    SG_ ac_output_level        : 40| 8@1+ (0.5,0)  [0|100]   "%"   RVCController
+    SG_ dead_band              : 48| 8@1+ (0.1,0)  [0|25]   "°C"   RVCController
+    SG_ second_stage_dead_band : 56| 8@1+ (0.1,0)  [0|25]   "°C"   RVCController
 
 // DGN 0x1FF9C
 BO_ 2147614620 THERMOSTAT_AMBIENT_STATUS: 8 RVCNode
