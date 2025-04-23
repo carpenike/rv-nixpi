@@ -1311,6 +1311,214 @@
         { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C" }
       ]
     },
+    {
+      "name": "DC_DIMMER_COMMAND_2_95",
+      "id": 436132757,
+      "extended": true,
+      "length": 8,
+      "description": "DC Dimmer Command 2",
+      "pdf_reference": "Sec. 6.24.6",
+      "signals": [
+        { "name": "instance",        "start_bit":   0, "length": 8 },
+        { "name": "group",           "start_bit":   8, "length": 8 },
+        { "name": "desired_level",   "start_bit":  16, "length": 8, "unit": "%" },
+        { "name": "command",         "start_bit":  24, "length": 8 },
+        { "name": "delay_duration",  "start_bit":  32, "length": 8, "unit": "s" },
+        { "name": "interlock",       "start_bit":  40, "length": 2 },
+        { "name": "ramp_time",       "start_bit":  48, "length": 8, "unit": "0.1 s" },
+        { "name": "reserved",        "start_bit":  56, "length": 8 }
+      ]
+    },  
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_96",
+      "id": 436132758,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_97",
+      "id": 436132759,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_98",
+      "id": 436132760,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_99",
+      "id": 436132761,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_9A",
+      "id": 436132762,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_9B",
+      "id": 436132763,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_9C",
+      "id": 436132764,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_9D",
+      "id": 436132765,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_9E",
+      "id": 436132766,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_9F",
+      "id": 436132767,
+      "extended": true,
+      "length": 8,
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
+      ]
+    },
 
 
 
