@@ -13,7 +13,7 @@ def decode_message(msg, msg_defs):
     """If we know this ID, extract all its signals. Return dict or None."""
     d = msg_defs.get(msg.arbitration_id)
     if not d:
-        return None
+        return None  # no definition
     raw = int.from_bytes(msg.data, byteorder="little")
     out = {}
     for sig in d["signals"]:
@@ -43,6 +43,10 @@ def main():
 
     msg_defs = { msg["id"]: msg for msg in jd["messages"] }
 
+    # keep track of which IDs we've already reported
+    seen_unknown = set()
+    seen_failed  = set()
+
     bus = can.interface.Bus(channel=args.interface, interface="socketcan")
     print(f"🛰  Listening on {args.interface}, defs from '{args.json}'…")
 
@@ -57,17 +61,22 @@ def main():
             msg_def = msg_defs.get(arb)
 
             if msg_def is None:
-                # completely unknown ID
-                print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
-                print(f"[{arb:08X}]  Unknown ID (no definition in JSON)")
+                if arb not in seen_unknown:
+                    print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
+                    print(f"[{arb:08X}]  Unknown ID (no definition in JSON)")
+                    seen_unknown.add(arb)
                 continue
 
             decoded = decode_message(msg, msg_defs)
             if decoded is None:
-                # definition existed but decode_message refused
-                print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
-                print(f"[{arb:08X}]  Definition found but failed to decode")
-            # else: we know it and decoded it successfully, so stay silent
+                if arb not in seen_failed:
+                    print(f"ID: {arb:08X}  ext={msg.is_extended_id}  data={raw}")
+                    print(f"[{arb:08X}]  Definition found but failed to decode")
+                    seen_failed.add(arb)
+                continue
+
+            # decoded successfully – do nothing (or print decoded if you like)
+            # print(f"[{arb:08X}]  {decoded}")
 
     except KeyboardInterrupt:
         print("\nStopping listener…")
