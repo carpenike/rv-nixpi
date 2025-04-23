@@ -1168,7 +1168,45 @@
         { "name": "lockout_time",           "start_bit": 40, "length": 16, "unit": "s" }
       ]
     },    
-
+    {
+      "name": "DM_RV_96",
+      "id": 419351198,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "operating_status_detail", "start_bit":  2,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "yellow_lamp_status",      "start_bit":  4,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "red_lamp_status",         "start_bit":  6,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "DSA",                     "start_bit":  8,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_MSB",                 "start_bit": 16,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_ISB",                 "start_bit": 24,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351191,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit":  0,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "operating_status_detail", "start_bit":  2,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "yellow_lamp_status",      "start_bit":  4,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "red_lamp_status",         "start_bit":  6,  "length": 2, "scale": 1, "offset": 0 },
+        { "name": "DSA",                     "start_bit":  8,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_MSB",                 "start_bit": 16,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_ISB",                 "start_bit": 24,  "length": 8, "scale": 1, "offset": 0 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
+      ]
+    },
+    
 
 
 
