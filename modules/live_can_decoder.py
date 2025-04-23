@@ -16,6 +16,7 @@ db = cantools.database.load_file(args.dbc)
 bus = can.interface.Bus(channel=args.interface, interface="socketcan")
 
 print(f"Listening on {args.interface} with DBC file '{args.dbc}'...")
+print(db.get_message_by_frame_id(0x99FFAA4F))
 
 try:
     while True:
