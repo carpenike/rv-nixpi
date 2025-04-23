@@ -1,6 +1,7 @@
 {
   "version": "1.0",
   "bus": "RV-C",
+  "spec_document": "http://www.rv-c.com/sites/rv-c.com/files/RV-C%20Specification%20Full%20Layer%2011-06-23_1.pdf",
   "messages": [
     {
       "name": "DM_RV",
