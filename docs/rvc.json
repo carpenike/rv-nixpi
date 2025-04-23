@@ -1237,6 +1237,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "raw_byte_0", "start_bit":  0, "length": 8 },
         { "name": "raw_byte_1", "start_bit":  8, "length": 8 },
@@ -1328,6 +1329,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit":  0, "length": 8 },
         { "name": "byte_1", "start_bit":  8, "length": 8 },
@@ -1345,6 +1347,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit":  0, "length": 8 },
         { "name": "byte_1", "start_bit":  8, "length": 8 },
@@ -1362,6 +1365,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1379,6 +1383,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1396,6 +1401,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1413,6 +1419,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1430,6 +1437,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1447,6 +1455,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1464,6 +1473,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1481,6 +1491,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1498,6 +1509,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1515,6 +1527,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1532,6 +1545,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
@@ -1549,6 +1563,7 @@
       "extended": true,
       "length": 8,
       "description": "Undocumented",
+      "pdf_reference": "—",
       "signals": [
         { "name": "byte_0", "start_bit": 0,  "length": 8 },
         { "name": "byte_1", "start_bit": 8,  "length": 8 },
