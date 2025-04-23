@@ -1206,7 +1206,48 @@
         { "name": "SPN_LSB_and_FMI",         "start_bit": 32,  "length": 8, "scale": 1, "offset": 0 }
       ]
     },
-    
+    {
+      "name": "MFG_SPECIFIC_CLAIM_REQUEST",
+      "id": 436131407,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Manufacturer-Specific ADDRESS_CLAIM Request",
+      "pdf_reference": "Sec. 3.3.4 (Tables 3.3.4a & 3.3.4b)",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit": 0,  "length": 3 },
+        { "name": "manufacturer_code_msb", "start_bit": 8,  "length": 8 }
+      ]
+    },
+    {
+      "name": "PRODUCT_ID_99",
+      "id": 494861977,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Product Identification Message",
+      "pdf_reference": "Sec. 3.2.8",
+      "signals": [
+        { "name": "text", "start_bit": 0, "length": 64 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_18EAFF95",
+      "id": 418054037,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "raw_byte_0", "start_bit":  0, "length": 8 },
+        { "name": "raw_byte_1", "start_bit":  8, "length": 8 },
+        { "name": "raw_byte_2", "start_bit": 16, "length": 8 },
+        { "name": "raw_byte_3", "start_bit": 24, "length": 8 },
+        { "name": "raw_byte_4", "start_bit": 32, "length": 8 },
+        { "name": "raw_byte_5", "start_bit": 40, "length": 8 },
+        { "name": "raw_byte_6", "start_bit": 48, "length": 8 },
+        { "name": "raw_byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },    
 
 
 
