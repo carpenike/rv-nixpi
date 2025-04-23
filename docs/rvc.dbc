@@ -135,7 +135,84 @@ BO_ 2147614712 COMMUNICATION_STATUS_3: 8 RVCNode
 	SG_ receive_frames_dropped_count : 16|16@1+ (1,0) [0|65535] "" RVCController
 	SG_ transmit_frames_dropped_count : 32|16@1+ (1,0) [0|65535] "" RVCController
 
-// ... Rest of the messages need to be converted ...
+// DGN 0x1FEDA
+BO_ 2147614426 DC_DIMMER_STATUS_3: 8 RVCNode
+	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
+	SG_ group : 8|8@1+ (1,0) [0|255] "" RVCController
+	SG_ operating_status_brightness : 16|8@1+ (0.4,0) [0|100] "Pct" RVCController
+	SG_ lock_status : 24|2@1+ (1,0) [0|3] "" RVCController // Assuming bits 0-1 for lock_status
+	SG_ overcurrent_status : 26|2@1+ (1,0) [0|3] "" RVCController // Assuming bits 2-3 for overcurrent_status
+	SG_ override_status : 28|2@1+ (1,0) [0|3] "" RVCController // Assuming bits 4-5 for override_status
+	SG_ enable_status : 30|2@1+ (1,0) [0|3] "" RVCController // Assuming bits 6-7 for enable_status
+	SG_ delay_duration : 32|8@1+ (1,0) [0|255] "" RVCController
+	SG_ last_command : 40|8@1+ (1,0) [0|255] "" RVCController
+	SG_ interlock_status : 48|2@1+ (1,0) [0|3] "" RVCController // Assuming bits 0-1 for interlock_status
+	SG_ load_status : 50|2@1+ (1,0) [0|3] "" RVCController // Assuming bits 2-3 for load_status
+
+// DGN 0x1FEDB
+BO_ 2147614427 DC_DIMMER_COMMAND_2: 8 RVCNode
+	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
+	SG_ group : 8|8@1+ (1,0) [0|255] "" RVCController
+	SG_ desired_level : 16|8@1+ (0.4,0) [0|100] "pct" RVCController
+	SG_ command : 24|8@1+ (1,0) [0|255] "" RVCController
+	SG_ delay_duration : 32|8@1+ (1,0) [0|255] "" RVCController
+	SG_ reserved_b5 : 40|2@1+ (1,0) [0|3] "" RVCController // YAML only defines bits 0-1
+
+// DGN 0x1FFB7
+BO_ 2147614647 TANK_STATUS: 8 RVCNode
+	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
+	SG_ relative_level : 8|8@1+ (1,0) [0|255] "" RVCController
+	SG_ resolution : 16|8@1+ (1,0) [0|255] "" RVCController
+	SG_ absolute_level : 24|16@1+ (1,0) [0|65535] "Liter" RVCController
+	SG_ tank_size : 40|16@1+ (1,0) [0|65535] "Liter" RVCController
+
+// DGN 0x1FECA (DM_RV)
+BO_ 2147614410 DM_RV: 8 RVCNode
+	SG_ lamp_status_protect : 0|2@1+ (1,0) [0|3] "" RVCController // Bits 0-1
+	SG_ lamp_status_amber_warning : 2|2@1+ (1,0) [0|3] "" RVCController // Bits 2-3
+	SG_ lamp_status_red_stop : 4|2@1+ (1,0) [0|3] "" RVCController // Bits 4-5
+	SG_ lamp_status_malfunction_indicator : 6|2@1+ (1,0) [0|3] "" RVCController // Bits 6-7
+	SG_ dsa : 8|8@1+ (1,0) [0|255] "" RVCController
+	SG_ spn_msb : 16|8@1+ (1,0) [0|255] "" RVCController
+	SG_ spn_isb : 24|8@1+ (1,0) [0|255] "" RVCController
+	SG_ fmi : 32|5@1+ (1,0) [0|31] "" RVCController // Byte 4, bits 0-4
+	SG_ spn_lsb : 37|3@1+ (1,0) [0|7] "" RVCController // Byte 4, bits 5-7
+	SG_ occurrence_count : 40|7@1+ (1,0) [0|127] "" RVCController // Byte 5, bits 0-6
+	SG_ conversion_method : 47|1@1+ (1,0) [0|1] "" RVCController // Byte 5, bit 7
+	SG_ dsa_extension : 48|8@1+ (1,0) [0|255] "" RVCController
+	SG_ reserved_b7 : 56|4@1+ (1,0) [0|15] "" RVCController // Byte 7, bits 0-3
+
+// DGN 0x0FECA (DM_1 - Alias of DM_RV)
+BO_ 2147548874 DM_1: 8 RVCNode
+	SG_ lamp_status_protect : 0|2@1+ (1,0) [0|3] "" RVCController // Bits 0-1
+	SG_ lamp_status_amber_warning : 2|2@1+ (1,0) [0|3] "" RVCController // Bits 2-3
+	SG_ lamp_status_red_stop : 4|2@1+ (1,0) [0|3] "" RVCController // Bits 4-5
+	SG_ lamp_status_malfunction_indicator : 6|2@1+ (1,0) [0|3] "" RVCController // Bits 6-7
+	SG_ dsa : 8|8@1+ (1,0) [0|255] "" RVCController
+	SG_ spn_msb : 16|8@1+ (1,0) [0|255] "" RVCController
+	SG_ spn_isb : 24|8@1+ (1,0) [0|255] "" RVCController
+	SG_ fmi : 32|5@1+ (1,0) [0|31] "" RVCController // Byte 4, bits 0-4
+	SG_ spn_lsb : 37|3@1+ (1,0) [0|7] "" RVCController // Byte 4, bits 5-7
+	SG_ occurrence_count : 40|7@1+ (1,0) [0|127] "" RVCController // Byte 5, bits 0-6
+	SG_ conversion_method : 47|1@1+ (1,0) [0|1] "" RVCController // Byte 5, bit 7
+	SG_ dsa_extension : 48|8@1+ (1,0) [0|255] "" RVCController
+	SG_ reserved_b7 : 56|4@1+ (1,0) [0|15] "" RVCController // Byte 7, bits 0-3
+
+// DGN 0x1FFE1
+BO_ 2147614689 AIR_CONDITIONER_STATUS: 8 RVCNode
+	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
+	SG_ operating_mode : 8|8@1+ (1,0) [0|255] "" RVCController
+	SG_ max_fan_speed : 16|8@1+ (0.4,0) [0|100] "Pct" RVCController
+	SG_ max_ac_output_level : 24|8@1+ (0.4,0) [0|100] "Pct" RVCController
+	SG_ fan_speed : 32|8@1+ (0.4,0) [0|100] "Pct" RVCController
+	SG_ ac_output_level : 40|8@1+ (0.4,0) [0|100] "Pct" RVCController
+	SG_ dead_band : 48|8@1+ (1,0) [0|255] "" RVCController
+	SG_ second_stage_dead_band : 56|8@1+ (1,0) [0|255] "" RVCController
+
+// DGN 0x1FF9C
+BO_ 2147614620 THERMOSTAT_AMBIENT_STATUS: 8 RVCNode
+	SG_ instance : 0|8@1+ (1,0) [0|255] "" RVCController
+	SG_ ambient_temp : 8|16@1+ (0.03125,-273) [-273|1735] "Deg C" RVCController
 
 // Comments for skipped Z aliases (definitions not found in YAML)
 CM_ "Messages aliasing Z0000 (e.g., 1FFDF, 1FFD7, 1FFCA, 1FEBB) were skipped as Z0000 definition is missing.";
@@ -185,5 +262,7 @@ VAL_ 2147614407 high_voltage_limit_status 1 "limit_reached" 0 "not_reached" ;
 VAL_ 2147614407 high_voltage_disconnect_status 1 "charge_bus_disconnected" 0 "connected" ;
 VAL_ 2147614407 low_voltage_limit_status 1 "limit_reached" 0 "not_reached" ;
 VAL_ 2147614407 low_voltage_disconnect_status 1 "charge_bus_disconnected" 0 "connected" ;
+
+VAL_ 2147614689 operating_mode 1 "manual" 0 "automatic" ;
 
 // ... Rest of the value tables need to be converted ...
