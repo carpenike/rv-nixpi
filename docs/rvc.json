@@ -763,9 +763,373 @@
         { "name": "text", "start_bit": 0, "length": 64 }
       ]
     },
+    {
+      "name": "DM_RV_4F",
+      "id": 419210063,  
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_8F",
+      "id": 419351183,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8F",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_96",
+      "id": 419351190,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_AF",
+      "id": 419351215,
+      "extended": true,
+      "length": 8,
+      "source_address": "0xAF",
+      "description": "Active Diagnostic Message (DM_RV)",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "ACK_GLOBAL_8E",
+      "id": 417922958,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8E",
+      "description": "Global ACK/NAK Message",
+      "pdf_reference": "Sec. 3.2.4.4a–b",
+      "signals": [
+        { "name": "ack_code",                 "start_bit": 0,  "length": 8 },
+        { "name": "instance",                 "start_bit": 8,  "length": 8 },
+        { "name": "instance_bank",            "start_bit": 16, "length": 4 },
+        { "name": "reserved_j1939",           "start_bit": 20, "length": 4 },
+        { "name": "reserved_j1939_b",         "start_bit": 24, "length": 8 },
+        { "name": "acknowledged_source_addr", "start_bit": 32, "length": 8 },
+        { "name": "dgn_ack_lsb",              "start_bit": 40, "length": 8 },
+        { "name": "dgn_ack_isb",              "start_bit": 48, "length": 8 },
+        { "name": "dgn_ack_msb",              "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "ACK_GLOBAL_95",
+      "id": 418156565,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x95",
+      "description": "Global ACK/NAK Message",
+      "pdf_reference": "Sec. 3.2.4.4a–b",
+      "signals": [
+        { "name": "ack_code",                 "start_bit": 0,  "length": 8 },
+        { "name": "instance",                 "start_bit": 8,  "length": 8 },
+        { "name": "instance_bank",            "start_bit": 16, "length": 4 },
+        { "name": "reserved_j1939",           "start_bit": 20, "length": 4 },
+        { "name": "reserved_j1939_b",         "start_bit": 24, "length": 8 },
+        { "name": "acknowledged_source_addr", "start_bit": 32, "length": 8 },
+        { "name": "dgn_ack_lsb",              "start_bit": 40, "length": 8 },
+        { "name": "dgn_ack_isb",              "start_bit": 48, "length": 8 },
+        { "name": "dgn_ack_msb",              "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "DATE_TIME_STATUS_96",
+      "id": 495778870,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "System Date and Time Status",
+      "pdf_reference": "Sec. 6.4.2",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "DATE_TIME_STATUS_97",
+      "id": 495778871,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "System Date and Time Status",
+      "pdf_reference": "Sec. 6.4.2",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "DATE_TIME_STATUS_98",
+      "id": 495778872,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "System Date and Time Status",
+      "pdf_reference": "Sec. 6.4.2",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "DATE_TIME_STATUS_99",
+      "id": 495778873,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "System Date and Time Status",
+      "pdf_reference": "Sec. 6.4.2",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "DATE_TIME_STATUS_9A",
+      "id": 495778874,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9A",
+      "description": "System Date and Time Status",
+      "pdf_reference": "Sec. 6.4.2",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "SET_DATE_TIME_COMMAND_98",
+      "id": 502480264,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "Set System Date and Time Command",
+      "pdf_reference": "Sec. 6.4.3",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "SET_DATE_TIME_COMMAND_9A",
+      "id": 502480266,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9A",
+      "description": "Set System Date and Time Command",
+      "pdf_reference": "Sec. 6.4.3",
+      "signals": [
+        { "name": "year",        "start_bit":   0, "length": 8 },
+        { "name": "month",       "start_bit":   8, "length": 8 },
+        { "name": "day_of_month","start_bit":  16, "length": 8 },
+        { "name": "day_of_week", "start_bit":  24, "length": 8 },
+        { "name": "hour",        "start_bit":  32, "length": 8 },
+        { "name": "minute",      "start_bit":  40, "length": 8 },
+        { "name": "second",      "start_bit":  48, "length": 8 },
+        { "name": "time_zone",   "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "WATERHEATER_STATUS_99",
+      "id": 434292105,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Water Heater Status",
+      "pdf_reference": "Sec. 6.9.2",
+      "signals": [
+        { "name": "instance",                   "start_bit":   0, "length": 8 },
+        { "name": "electric_element_level",     "start_bit":   8, "length": 4 },
+        { "name": "max_electric_element_level", "start_bit":  12, "length": 4 },
+        { "name": "engine_preheat",             "start_bit":  16, "length": 4 },
+        { "name": "coolant_level_warning",      "start_bit":  20, "length": 2 },
+        { "name": "hot_water_priority",         "start_bit":  22, "length": 2 },
+        { "name": "burner_status",              "start_bit":  24, "length": 2 },
+        { "name": "burner_indicator",           "start_bit":  26, "length": 2 },
+        { "name": "electric_low_overcurrent",   "start_bit":  32, "length": 2 },
+        { "name": "electric_low_undercurrent",  "start_bit":  34, "length": 2 },
+        { "name": "electric_low_temperature",   "start_bit":  36, "length": 2 },
+        { "name": "electric_low_input_status",  "start_bit":  38, "length": 2 },
+        { "name": "electric_high_overcurrent",  "start_bit":  40, "length": 2 },
+        { "name": "electric_high_undercurrent", "start_bit":  42, "length": 2 },
+        { "name": "electric_high_temperature",  "start_bit":  44, "length": 2 },
+        { "name": "electric_high_input_status", "start_bit":  46, "length": 2 }
+      ]
+    },
+    {
+      "name": "MFG_SPECIFIC_CLAIM_REQUEST_4F",
+      "id": 434292399,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Manufacturer-Specific Address Claim Request",
+      "pdf_reference": "Sec. 3.3.4",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 3 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 8 }
+      ]
+    },
+    {
+      "name": "DC_SOURCE_STATUS_2_9D",
+      "id": 437650493,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "DC Source Status 2",
+      "pdf_reference": "Sec. 6.5.3",
+      "signals": [
+        { "name": "dc_instance",        "start_bit":   0, "length": 8 },
+        { "name": "device_priority",    "start_bit":   8, "length": 8 },
+        { "name": "source_temperature", "start_bit":  16, "length":16 },
+        { "name": "state_of_charge",    "start_bit":  32, "length": 8 },
+        { "name": "time_remaining",     "start_bit":  40, "length":16 },
+        { "name": "time_remaining_flag","start_bit":  56, "length": 2 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_96",
+      "id": 434084998,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "config_type_lsb",       "start_bit":  32, "length": 8 },
+        { "name": "config_type_mid",       "start_bit":  40, "length": 8 },
+        { "name": "config_type_msb",       "start_bit":  48, "length": 8 },
+        { "name": "config_revision",       "start_bit":  56, "length": 8 }
+      ]
+    },
+    {
+      "name": "GENERIC_CONFIGURATION_STATUS_97",
+      "id": 434084999,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Generic Configuration Status",
+      "pdf_reference": "Sec. 6.3.2",
+      "signals": [
+        { "name": "manufacturer_code_lsb", "start_bit":   0, "length": 8 },
+        { "name": "manufacturer_code_msb", "start_bit":   8, "length": 3 },
+        { "name": "function_instance",     "start_bit":  11, "length": 5 },
+        { "name": "function_code",         "start_bit":  16, "length": 8 },
+        { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
+        { "name": "config_type_lsb",       "start_bit":  32, "length": 8 },
+        { "name": "config_type_mid",       "start_bit":  40, "length": 8 },
+        { "name": "config_type_msb",       "start_bit":  48, "length": 8 },
+        { "name": "config_revision",       "start_bit":  56, "length": 8 }
+      ]
+    },
 
 
 
+
+    {
+      "name": "UNKNOWN_19FF9C75",
+      "id": 436115861,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "signals": [
+        { "name": "byte_0", "start_bit":  0, "length": 8 },
+        { "name": "byte_1", "start_bit":  8, "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
     {
       "name": "UNKNOWN_19FFF799",
       "id": 436207353,
