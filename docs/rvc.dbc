@@ -230,11 +230,11 @@ BO_ 2583683479 AIR_CONDITIONER_STATUS_97: 8 RVCNode
     SG_ dead_band                 :  48|8@1+  (0.1,0) [0|25]  "°C" RVCController
     SG_ second_stage_dead_band    :  56|8@1+  (0.1,0) [0|25]  "°C" RVCController
 
-// ATS_STATUS from SA=0x4F (0x19FFAA4F = 436185679) -- Probably the one I want to filter
-BO_ 2583669327 ATS_STATUS_4F: 8 RVCNode 
-    SG_ instance          :   0|8@1+  (1,0) [0|255] "" RVCController
-    SG_ source_in_use     :   8|8@1+  (1,0) [0|255] "" RVCController
-    SG_ mode              :  16|2@1+  (1,0) [0|3]   "" RVCController
+// ATS_STATUS from SA=0x4F (0x19FFAA4F = 436185679)
+BO_ 436185679 ATS_STATUS_4F: 8 RVCNode
+    SG_ instance        :  0|8@1+ (1,0) [0|255] "" RVCController
+    SG_ source_in_use   :  8|8@1+ (1,0) [0|255] "" RVCController
+    SG_ mode            : 16|2@1+ (1,0) [0|3]   "" RVCController
 
 // UNKNOWN ENTRIES
 
