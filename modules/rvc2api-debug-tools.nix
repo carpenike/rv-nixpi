@@ -6,24 +6,34 @@ let
     cantools
   ]);
 in {
-  options = {
-    services.rvc2api.debugTools.enable = lib.mkEnableOption "Enable RVC CANbus DBC debugging tools";
-  };
+  options.services.rvc2api.debugTools.enable =
+    lib.mkEnableOption "Enable RVC CANbus JSON debugging tools";
 
   config = lib.mkIf config.services.rvc2api.debugTools.enable {
     environment.systemPackages = [
       pythonEnv
 
-      (pkgs.writeShellScriptBin "rvc-dbc-test" ''
+      # live‐CAN tester, now JSON‐based
+      (pkgs.writeShellScriptBin "rvc-can-test" ''
         #!/usr/bin/env bash
         set -euo pipefail
 
-        INTERFACE=''${1:-can0}
-        DBC_PATH="/etc/nixos/files/rvc.dbc"
+        # Set default CAN interface if no argument is provided
+        INTERFACE="$1"
+        if [ -z "$INTERFACE" ]; then
+          INTERFACE="can0"
+        fi
+
+        # Set default JSON path if no argument is provided
+        JSON_PATH="$2"
+        if [ -z "$JSON_PATH" ]; then
+          JSON_PATH="/etc/nixos/files/rvc.json"
+        fi
+
         SCRIPT="/etc/nixos/files/live_can_decoder.py"
 
-        if [ ! -f "$DBC_PATH" ]; then
-          echo "❌ DBC file not found at $DBC_PATH"
+        if [ ! -f "$JSON_PATH" ]; then
+          echo "❌ JSON file not found at $JSON_PATH"
           exit 1
         fi
 
@@ -32,34 +42,40 @@ in {
           exit 1
         fi
 
-        echo "▶️ Running decoder on interface $INTERFACE"
-        "${pythonEnv}/bin/python" "$SCRIPT" --interface "$INTERFACE" --dbc "$DBC_PATH"
+        echo "▶️ Running decoder on interface $INTERFACE with JSON defs $JSON_PATH"
+        "${pythonEnv}/bin/python" "$SCRIPT" \
+          --interface "$INTERFACE" \
+          --json "$JSON_PATH"
       '')
 
-      (pkgs.writeShellScriptBin "rvc-dbc-validate" ''
+      # JSON syntax validator
+      (pkgs.writeShellScriptBin "rvc-json-validate" ''
         #!/usr/bin/env bash
         set -euo pipefail
 
-        # Set default DBC path if no argument is provided
-        DBC_PATH="$1"
-        if [ -z "$DBC_PATH" ]; then
-          DBC_PATH="/etc/nixos/files/rvc.dbc"
+        # Set default JSON path if no argument is provided
+        JSON_PATH="$1"
+        if [ -z "$JSON_PATH" ]; then
+          JSON_PATH="/etc/nixos/files/rvc.json"
         fi
 
-        if [ ! -f "$DBC_PATH" ]; then
-          echo "❌ DBC file not found at $DBC_PATH"
+        if [ ! -f "$JSON_PATH" ]; then
+          echo "❌ JSON file not found at $JSON_PATH"
           exit 1
         fi
 
-        echo "🔍 Validating DBC file: $DBC_PATH"
-        # Use Nix interpolation for the Python environment path
-        "${pythonEnv}/bin/cantools" dump "$DBC_PATH"
-        echo "✅ DBC file is valid."
+        echo "🔍 Validating JSON syntax in $JSON_PATH"
+        if jq empty "$JSON_PATH"; then
+          echo "✅ JSON syntax is valid."
+        else
+          echo "❌ JSON syntax error in $JSON_PATH"
+          exit 1
+        fi
       '')
     ];
 
-    # Deploy the helper script and DBC file
+    # Deploy your decoder and JSON defs into /etc/nixos/files
     environment.etc."nixos/files/live_can_decoder.py".source = ./live_can_decoder.py;
-    environment.etc."nixos/files/rvc.dbc".source = ../docs/rvc.dbc;
+    environment.etc."nixos/files/rvc.json".source          = ./docs/rvc.json;
   };
 }

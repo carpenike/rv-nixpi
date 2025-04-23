@@ -1,0 +1,520 @@
+{
+  "version": "1.0",
+  "bus": "RV-C",
+  "messages": [
+    {
+      "name": "DM_RV",
+      "id": 2566834845,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1 (Tables 3.2.5.1a & 3.2.5.1b)",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 4" }
+      ]
+    },
+    {
+      "name": "AIR_CONDITIONER_STATUS",
+      "id": 2583683478,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x96",
+      "description": "Air Conditioner Status",
+      "pdf_reference": "Sec. 6.17",
+      "signals": [
+        { "name": "instance",                 "start_bit": 0,  "length": 8, "scale": 1,   "offset": 0, "unit": null },
+        { "name": "operating_mode",           "start_bit": 8,  "length": 8, "scale": 1,   "offset": 0, "unit": null },
+        { "name": "max_fan_speed",            "start_bit": 16, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "max_ac_output_level",      "start_bit": 24, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "fan_speed",                "start_bit": 32, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "ac_output_level",          "start_bit": 40, "length": 8, "scale": 0.5, "offset": 0, "unit": "%"  },
+        { "name": "dead_band",                "start_bit": 48, "length": 8, "scale": 0.1, "offset": 0, "unit": "°C" },
+        { "name": "second_stage_dead_band",   "start_bit": 56, "length": 8, "scale": 0.1, "offset": 0, "unit": "°C" }
+      ]
+    },
+    {
+      "name": "DM_RV_9C",
+      "id": 2566834844,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9C",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_4_4F",
+      "id": 2382333263,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 4",
+      "pdf_reference": "Sec. 6.32",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3 },
+        { "name": "io_type",                  "start_bit": 3,  "length": 1 },
+        { "name": "source",                   "start_bit": 4,  "length": 3 },
+        { "name": "leg",                      "start_bit": 7,  "length": 1 },
+        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,   "unit": "Vac" },
+        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,   "unit": "Aac" },
+        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078, "unit": "Hz" },
+        { "name": "fault_open_ground",        "start_bit": 56, "length": 2 },
+        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2 },
+        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2 },
+        { "name": "fault_ground_current",     "start_bit": 62, "length": 2 }
+      ]
+    },
+    {
+      "name": "AIR_CONDITIONER_COMMAND",
+      "id": 2583683229,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "Air Conditioner Command",
+      "pdf_reference": "Sec. 6.17",
+      "signals": [
+        { "name": "instance",               "start_bit": 0,  "length": 8 },
+        { "name": "operating_mode",         "start_bit": 8,  "length": 8 },
+        { "name": "max_fan_speed",          "start_bit": 16, "length": 8, "scale": 0.4, "unit": "%" },
+        { "name": "max_ac_output_level",    "start_bit": 24, "length": 8, "scale": 0.4, "unit": "%" },
+        { "name": "fan_speed",              "start_bit": 32, "length": 8, "scale": 0.4, "unit": "%" },
+        { "name": "ac_output_level",        "start_bit": 40, "length": 8, "scale": 0.4, "unit": "%" },
+        { "name": "dead_band",              "start_bit": 48, "length": 8 },
+        { "name": "second_stage_dead_band", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "WATERHEATER_STATUS_2",
+      "id": 2583599513,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Water Heater Status",
+      "pdf_reference": "Sec. 6.9",
+      "signals": [
+        { "name": "instance",                   "start_bit": 0,  "length": 8 },
+        { "name": "electric_element_level",     "start_bit": 8,  "length": 4 },
+        { "name": "max_electric_element_level", "start_bit": 12, "length": 4 },
+        { "name": "engine_preheat",             "start_bit": 16, "length": 4 },
+        { "name": "coolant_level_warning",      "start_bit": 20, "length": 2 },
+        { "name": "hot_water_priority",         "start_bit": 22, "length": 2 },
+        { "name": "burner_status",              "start_bit": 24, "length": 2 },
+        { "name": "burner_indicator",           "start_bit": 26, "length": 2 },
+        { "name": "electric_low_overcurrent",   "start_bit": 32, "length": 2 },
+        { "name": "electric_low_undercurrent",  "start_bit": 34, "length": 2 },
+        { "name": "electric_low_temperature",   "start_bit": 36, "length": 2 },
+        { "name": "electric_low_input_status",  "start_bit": 38, "length": 2 },
+        { "name": "electric_high_overcurrent",  "start_bit": 40, "length": 2 },
+        { "name": "electric_high_undercurrent", "start_bit": 42, "length": 2 },
+        { "name": "electric_high_temperature",  "start_bit": 44, "length": 2 },
+        { "name": "electric_high_input_status", "start_bit": 46, "length": 2 }
+      ]
+    },
+    {
+      "name": "CIRCULATION_PUMP_STATUS",
+      "id": 2583599001,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Circulation Pump Status",
+      "pdf_reference": "Sec. 6.29",
+      "signals": [
+        { "name": "instance",                "start_bit": 0,  "length": 8 },
+        { "name": "output_status",           "start_bit": 8,  "length": 4 },
+        { "name": "pump_overcurrent_status", "start_bit": 16, "length": 2 },
+        { "name": "pump_undercurrent_status","start_bit": 18, "length": 2 },
+        { "name": "pump_temperature_status", "start_bit": 20, "length": 2 }
+      ]
+    },
+    {
+      "name": "DM_RV_9F",
+      "id": 2566834847,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9F",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 }
+      ]
+    },
+    {
+      "name": "DC_MOTOR_CONTROL_STATUS",
+      "id": 2583351245,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9D",
+      "description": "DC Motor Control Status",
+      "pdf_reference": "Sec. 6.27.2",
+      "signals": [
+        { "name": "instance",           "start_bit": 0,  "length": 8 },
+        { "name": "motor_duty",         "start_bit": 8,  "length": 8,  "scale": 0.4, "unit": "%" },
+        { "name": "motor_status",       "start_bit": 16, "length": 2 },
+        { "name": "forward_status",     "start_bit": 18, "length": 2 },
+        { "name": "reverse_status",     "start_bit": 20, "length": 2 },
+        { "name": "duration",           "start_bit": 32, "length": 8,  "unit": "s" },
+        { "name": "last_command",       "start_bit": 40, "length": 8 },
+        { "name": "overcurrent_status", "start_bit": 48, "length": 2 },
+        { "name": "override_status",    "start_bit": 50, "length": 2 },
+        { "name": "disable1_status",    "start_bit": 52, "length": 2 },
+        { "name": "disable2_status",    "start_bit": 54, "length": 2 },
+        { "name": "short_duration",     "start_bit": 56, "length": 8,  "scale": 5, "unit": "ms" }
+      ]
+    },
+    {
+      "name": "ATS_AC_STATUS_1_4F",
+      "id": 2382343503,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x4F",
+      "description": "Transfer Switch AC Status 1",
+      "pdf_reference": "Sec. 6.32",
+      "signals": [
+        { "name": "transfer_switch_instance", "start_bit": 0,  "length": 3 },
+        { "name": "io_type",                  "start_bit": 3,  "length": 1 },
+        { "name": "source",                   "start_bit": 4,  "length": 3 },
+        { "name": "leg",                      "start_bit": 7,  "length": 1 },
+        { "name": "rms_voltage",              "start_bit": 8,  "length": 16, "scale": 0.1,   "unit": "Vac" },
+        { "name": "rms_current",              "start_bit": 24, "length": 16, "scale": 0.1,   "unit": "Aac" },
+        { "name": "frequency",                "start_bit": 40, "length": 16, "scale": 0.0078, "unit": "Hz" },
+        { "name": "fault_open_ground",        "start_bit": 56, "length": 2 },
+        { "name": "fault_open_neutral",       "start_bit": 58, "length": 2 },
+        { "name": "fault_reverse_polarity",   "start_bit": 60, "length": 2 },
+        { "name": "fault_ground_current",     "start_bit": 62, "length": 2 }
+      ]
+    },
+    {
+      "name": "DM_RV_from_SA_95",
+      "id": 2566834837,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x95",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0 }
+      ]
+    },
+    {
+      "name": "DC_DIMMER_STATUS_3_8E",
+      "id": 2583616142,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8E",
+      "description": "DC Dimmer Status 3",
+      "pdf_reference": "Sec. 6.24",
+      "signals": [
+        { "name": "instance",         "start_bit": 0,  "length": 8 },
+        { "name": "group",            "start_bit": 8,  "length": 8 },
+        { "name": "operating_status", "start_bit": 16, "length": 8 },
+        { "name": "lock_status",      "start_bit": 24, "length": 2 },
+        { "name": "overcurrent_status","start_bit": 26,"length": 2 },
+        { "name": "override_status",  "start_bit": 28, "length": 2 },
+        { "name": "enable_status",    "start_bit": 30, "length": 2 }
+      ]
+    },
+    {
+      "name": "WEATHER_WIND_STATUS",
+      "id": 2583059206,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x8E",
+      "description": "Weather Station Wind Status",
+      "pdf_reference": "Sec. 6.33",
+      "signals": [
+        { "name": "wind_speed",      "start_bit": 0,  "length": 8,  "unit": "kph" },
+        { "name": "wind_direction",  "start_bit": 8,  "length":16,  "scale": 0.0078, "unit": "deg" },
+        { "name": "solar_intensity", "start_bit": 24, "length": 8,  "unit": "kLux" },
+        { "name": "rain_intensity",  "start_bit": 32, "length": 8,  "unit": "%"    },
+        { "name": "wind_speed_alarm","start_bit": 40, "length": 2 },
+        { "name": "rain_alarm",      "start_bit": 42, "length": 2 }
+      ]
+    },
+    {
+      "name": "DM_RV_9B",
+      "id": 2566834843,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9B",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_97",
+      "id": 2566834839,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_9A",
+      "id": 2566834842,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9A",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_98",
+      "id": 2566834840,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x98",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "DM_RV_99",
+      "id": 2566834841,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x99",
+      "description": "Active Diagnostic Message",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit": 0,  "length": 2 },
+        { "name": "operating_status_detail", "start_bit": 2,  "length": 2 },
+        { "name": "yellow_lamp_status",      "start_bit": 4,  "length": 2 },
+        { "name": "red_lamp_status",         "start_bit": 6,  "length": 2 },
+        { "name": "DSA",                     "start_bit": 8,  "length": 8 },
+        { "name": "SPN_MSB",                 "start_bit": 16, "length": 8 },
+        { "name": "SPN_ISB",                 "start_bit": 24, "length": 8 },
+        { "name": "SPN_LSB_and_FMI",         "start_bit": 32, "length": 8 }
+      ]
+    },
+    {
+      "name": "AIR_CONDITIONER_STATUS_97",
+      "id": 2583683479,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x97",
+      "description": "Air Conditioner Status",
+      "pdf_reference": "Sec. 6.17",
+      "signals": [
+        { "name": "instance",                "start_bit": 0,  "length": 8 },
+        { "name": "operating_mode",          "start_bit": 8,  "length": 8 },
+        { "name": "max_fan_speed",           "start_bit": 16, "length": 8, "scale": 0.5, "unit": "%" },
+        { "name": "max_ac_output_level",     "start_bit": 24, "length": 8, "scale": 0.5, "unit": "%" },
+        { "name": "fan_speed",               "start_bit": 32, "length": 8, "scale": 0.5, "unit": "%" },
+        { "name": "ac_output_level",         "start_bit": 40, "length": 8, "scale": 0.5, "unit": "%" },
+        { "name": "dead_band",               "start_bit": 48, "length": 8, "scale": 0.1, "unit": "°C" },
+        { "name": "second_stage_dead_band",  "start_bit": 56, "length": 8, "scale": 0.1, "unit": "°C" }
+      ]
+    },
+    {
+      "name": "ATS_STATUS_4F",
+      "id": 436185679,
+      "extended": true,
+      "length": 3,
+      "source_address": "0x4F",
+      "description": "Unknown Transfer Switch Status",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "instance",      "start_bit": 0,  "length": 8 },
+        { "name": "source_in_use", "start_bit": 8,  "length": 8 },
+        { "name": "mode",          "start_bit": 16, "length": 2 },
+        { "name": "reserved",      "start_bit": 18, "length": 6 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_1FF2E",
+      "id": 2566860405,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_1AAFD",
+      "id": 2578120093,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_1FACE",
+      "id": 2583350941,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte0", "start_bit": 0,  "length": 8 },
+        { "name": "byte1", "start_bit": 8,  "length": 8 },
+        { "name": "byte2", "start_bit": 16, "length": 8 },
+        { "name": "byte3", "start_bit": 24, "length": 8 },
+        { "name": "byte4", "start_bit": 32, "length": 8 },
+        { "name": "byte5", "start_bit": 40, "length": 8 },
+        { "name": "byte6", "start_bit": 48, "length": 8 },
+        { "name": "byte7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_15FCE",
+      "id": 2573192861,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte0", "start_bit": 0,  "length": 8 },
+        { "name": "byte1", "start_bit": 8,  "length": 8 },
+        { "name": "byte2", "start_bit": 16, "length": 8 },
+        { "name": "byte3", "start_bit": 24, "length": 8 },
+        { "name": "byte4", "start_bit": 32, "length": 8 },
+        { "name": "byte5", "start_bit": 40, "length": 8 },
+        { "name": "byte6", "start_bit": 48, "length": 8 },
+        { "name": "byte7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_1FACF",
+      "id": 2583351197,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_1D7EFE",
+      "id": 2642345629,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    },
+    {
+      "name": "UNKNOWN_19FED9",
+      "id": 2583615901,
+      "extended": true,
+      "length": 8,
+      "description": "Undocumented",
+      "pdf_reference": "—",
+      "signals": [
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
+      ]
+    }
+  ]
+}
