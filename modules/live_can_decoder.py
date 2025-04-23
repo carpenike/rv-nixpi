@@ -12,7 +12,8 @@ args = parser.parse_args()
 db = cantools.database.load_file(args.dbc)
 
 # Set up the CAN interface
-bus = can.interface.Bus(channel=args.interface, bustype="socketcan")
+# Use 'interface' instead of deprecated 'bustype'
+bus = can.interface.Bus(channel=args.interface, interface="socketcan")
 
 print(f"Listening on {args.interface} with DBC file '{args.dbc}'...")
 

@@ -1411,10 +1411,10 @@ API_VERSION: 1
       unit: Pct
     - byte: 6
       name: dead band
-      unit: uint8
+      type: uint8
     - byte: 7
       name: second stage dead band
-      unit: uint8
+      type: uint8
 
 1FFE0:
   name: AIR_CONDITIONER_COMMAND
@@ -2838,7 +2838,7 @@ API_VERSION: 1
       type: bit
       values:
         00: no fault
-        01: Burnt bulb
+        01: burnt bulb
     - byte: 5
       bit: 6-7
       name: blue fault
