@@ -202,3 +202,39 @@ BO_ 2573192861 UNKNOWN_15FCE: 8 RVCNode
     SG_ byte5  : 40| 8@1+ (1,0) [0|255] "" RVCController
     SG_ byte6  : 48| 8@1+ (1,0) [0|255] "" RVCController
     SG_ byte7  : 56| 8@1+ (1,0) [0|255] "" RVCController
+
+// UNKNOWN_1FACF (DGN = 0x1FACF) from SA=0x9D
+// Extended ID = 0x80000000 | 0x19FACF9D = 2583351197
+BO_ 2583351197 UNKNOWN_1FACF: 8 RVCNode
+    SG_ byte_0 :  0| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_1 :  8| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_2 : 16| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_3 : 24| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_4 : 32| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_5 : 40| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_6 : 48| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_7 : 56| 8@1+ (1,0) [0|255] "" RVCController
+
+// UNKNOWN_1D7EFE (DGN = 0x1D7EFE) from SA=0x9D
+// Extended ID = 0x80000000 | 0x1D7EFE9D = 2642345629
+BO_ 2642345629 UNKNOWN_1D7EFE: 8 RVCNode
+    SG_ byte_0 :  0| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_1 :  8| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_2 : 16| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_3 : 24| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_4 : 32| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_5 : 40| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_6 : 48| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_7 : 56| 8@1+ (1,0) [0|255] "" RVCController
+
+// UNKNOWN_19FED9 (DGN = 0x19FED9) from SA=0x9D
+// Extended ID = 0x80000000 | 0x19FED99D = 2583615901
+BO_ 2583615901 UNKNOWN_19FED9: 8 RVCNode
+    SG_ byte_0 :  0| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_1 :  8| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_2 : 16| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_3 : 24| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_4 : 32| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_5 : 40| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_6 : 48| 8@1+ (1,0) [0|255] "" RVCController
+    SG_ byte_7 : 56| 8@1+ (1,0) [0|255] "" RVCController
