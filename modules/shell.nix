@@ -119,34 +119,38 @@
 
   # Set the Message of the Day (MOTD)
   programs.bash.loginShellInit = ''
-    # Clear the screen
-    clear
+    # Only run this if we're in an interactive shell
+    case "$-,$TERM" in
+      *i*,xterm*|*i*,vt*|*i*,screen*|*i*,tmux*|*i*,linux)
+        # Clear the screen
+        clear
 
-    # Display system information using fastfetch (excluding uptime)
-    ${pkgs.fastfetch}/bin/fastfetch --config none --logo none \\
-      --structure 'os,host,kernel,packages,shell,term' \\
-      --color-keys primary \\
-      --color-title primary \\
-      --color-separator '#555555'
+        # Display system information using fastfetch (excluding uptime)
+        ${pkgs.fastfetch}/bin/fastfetch --config none --logo none \
+          --structure 'os,host,kernel,packages,shell,term' \
+          --color-keys primary \
+          --color-title primary \
+          --color-separator '#555555'
 
-    # Display uptime calculated directly from /proc/uptime
-    UPTIME_SEC=$(awk '{print int($1)}' /proc/uptime)
-    DAYS=$((UPTIME_SEC / 86400))
-    HOURS=$(( (UPTIME_SEC % 86400) / 3600 ))
-    MINS=$(( (UPTIME_SEC % 3600) / 60 ))
-    # Escape shell variables for Nix
-    echo "Uptime (boot): ''${DAYS}d ''${HOURS}h ''${MINS}m"
+        # Display uptime
+        UPTIME_SEC=$(awk '{print int($1)}' /proc/uptime)
+        DAYS=$((UPTIME_SEC / 86400))
+        HOURS=$(( (UPTIME_SEC % 86400) / 3600 ))
+        MINS=$(( (UPTIME_SEC % 3600) / 60 ))
+        echo "Uptime (boot): ''${DAYS}d ''${HOURS}h ''${MINS}m"
 
-    # Display disk usage for / and /boot
-    echo "" # Add a blank line for spacing
-    ${pkgs.coreutils}/bin/df -h / /boot
+        # Disk usage
+        echo "" # Add a blank line for spacing
+        ${pkgs.coreutils}/bin/df -h / /boot
 
-    # Display available updates if any
-    if [ -e /run/motd-updates ]; then
-      echo "" # Add a blank line for spacing
-      cat /run/motd-updates
-    fi
+        # Available updates
+        if [ -e /run/motd-updates ]; then
+          echo "" # Add a blank line for spacing
+          cat /run/motd-updates
+        fi
 
-    echo "" # Add a final blank line
+        echo "" # Add a final blank line
+        ;;
+    esac
   '';
 }
