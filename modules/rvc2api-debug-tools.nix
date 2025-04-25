@@ -4,6 +4,7 @@ let
   pythonEnv = pkgs.python3.withPackages (ps: with ps; [
     python-can
     cantools
+    pyperclip
   ]);
 in {
   options.services.rvc2api.debugTools.enable =
