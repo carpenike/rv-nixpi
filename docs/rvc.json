@@ -104,6 +104,31 @@
       ]
     },
     {
+      "name": "DM_RV_9F_reserved",
+      "id": 436128415,
+      "extended": true,
+      "length": 8,
+      "source_address": "0x9F",
+      "description": "Active Diagnostic Message (DM_RV) with reserved bit set",
+      "pdf_reference": "Sec. 3.2.5.1",
+      "signals": [
+        { "name": "operating_status",        "start_bit":   0, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–1" },
+        { "name": "operating_status_detail", "start_bit":   2, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 2–3" },
+        { "name": "yellow_lamp_status",      "start_bit":   4, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–5" },
+        { "name": "red_lamp_status",         "start_bit":   6, "length": 2, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 6–7" },
+        { "name": "DSA",                     "start_bit":   8, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 1" },
+        { "name": "SPN_MSB",                 "start_bit":  16, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 2" },
+        { "name": "SPN_ISB",                 "start_bit":  24, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 3" },
+        { "name": "SPN_LSB",                 "start_bit":  32, "length": 3, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 5–7 of Byte 4" },
+        { "name": "FMI",                     "start_bit":  35, "length": 5, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–4 of Byte 4" },
+        { "name": "occurrence_count",        "start_bit":  40, "length": 7, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–6 of Byte 5" },
+        { "name": "reserved1",               "start_bit":  47, "length": 1, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bit 7 of Byte 5" },
+        { "name": "DSA_extension",           "start_bit":  48, "length": 8, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b Byte 6" },
+        { "name": "bank_select",             "start_bit":  56, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 0–3 of Byte 7" },
+        { "name": "reserved2",               "start_bit":  60, "length": 4, "byte_order": "little_endian", "scale": 1, "offset": 0, "unit": null, "pdf_ref": "3.2.5.1b bits 4–7 of Byte 7" }
+      ]
+    },
+    {
       "name": "DM_RV_FC",
       "id": 419351292,
       "extended": true,
