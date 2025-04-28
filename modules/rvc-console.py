@@ -39,7 +39,8 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
     # Load Device Mapping
     device_mapping = {}
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
-    light_entity_ids = set() # Store entity_ids of devices identified as lights (Renamed from light_ha_names)
+    entity_id_lookup = {} # New lookup: entity_id -> mapped_config
+    light_entity_ids = set() # Store entity_ids of devices identified as lights
     # Use argument path
     if os.path.exists(device_mapping_path):
         try:
@@ -64,12 +65,15 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
 
                             # Ensure essential keys are present (using entity_id now)
                             if 'entity_id' in merged_config and 'friendly_name' in merged_config:
+                                entity_id = merged_config['entity_id'] # Get entity_id
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
+                                entity_id_lookup[entity_id] = merged_config # Populate new lookup
+
                                 # --- Identify Lights (using device_type now) ---
                                 # Check for a 'device_type' key set to 'light' (case-insensitive)
                                 if str(merged_config.get('device_type', '')).lower() == 'light':
-                                    light_entity_ids.add(merged_config['entity_id']) # Use entity_id
-                                    logging.debug(f"Identified '{merged_config['entity_id']}' as a light.")
+                                    light_entity_ids.add(entity_id) # Use entity_id
+                                    logging.debug(f"Identified '{entity_id}' as a light.")
                                 # --- End Identify Lights ---
                             else:
                                 # Update warning message
@@ -83,7 +87,8 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
     else:
         logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices/Lights tabs will be empty.") # Use arg path
 
-    return decoder_map, device_mapping, device_lookup, light_entity_ids # Return light entity_ids
+    # Return new lookup map as well
+    return decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup
 
 # --- Decoding Helpers ---
 def get_bits(data_bytes, start_bit, length):
@@ -880,8 +885,8 @@ if __name__ == '__main__':
                         help=f"List of CAN interfaces to monitor (default: {' '.join(DEFAULT_INTERFACES)})" )
     args = parser.parse_args()
 
-    # Load definitions using paths from args, now returns light_entity_ids
-    decoder_map, device_mapping, device_lookup, light_entity_ids = load_definitions(args.spec_file, args.mapping_file) # Use renamed variable
+    # Load definitions using paths from args, now returns light_entity_ids and entity_id_lookup
+    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup = load_definitions(args.spec_file, args.mapping_file)
 
     # Initialize global state dependent on args
     INTERFACES = args.interfaces # Set global interfaces list
@@ -894,6 +899,31 @@ if __name__ == '__main__':
          **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
     }
 
+    # --- Pre-populate light_device_states --- START
+    logging.info(f"Pre-populating state for {len(light_entity_ids)} known light devices...")
+    for entity_id in light_entity_ids:
+        config = entity_id_lookup.get(entity_id)
+        if config:
+            default_state = {
+                'entity_id': entity_id,
+                'friendly_name': config.get('friendly_name', entity_id),
+                'suggested_area': config.get('suggested_area', 'Unknown'),
+                'last_updated': 0, # Use 0 for initial/unknown update time
+                'last_interface': None,
+                'last_raw_values': {},
+                'last_decoded_data': {'state': 'Unknown'}, # Default state
+                'mapping_config': config,
+                # DGN/Instance might not be unique if mapped under multiple DGNs,
+                # so we leave them out of the default state for now.
+                # They will be filled when a real message arrives.
+                'dgn_hex': None,
+                'instance': None
+            }
+            light_device_states[entity_id] = default_state
+        else:
+            # This shouldn't happen if load_definitions worked correctly
+            logging.warning(f"Could not find configuration for light entity_id '{entity_id}' during pre-population.")
+    # --- Pre-populate light_device_states --- END
 
     # Start reader threads only if definitions loaded successfully
     if decoder_map:
