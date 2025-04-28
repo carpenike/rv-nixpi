@@ -71,13 +71,17 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
         # Use argument path
         logging.info(f"  [load_config_data] Attempting to open RVC spec: {rvc_spec_path}")
         with open(rvc_spec_path) as f:
+            logging.info(f"  [load_config_data] Successfully opened RVC spec file: {rvc_spec_path}") # ADDED LOG
             # Handle potential KeyError if 'messages' doesn't exist
+            logging.info(f"  [load_config_data] Attempting to parse JSON from: {rvc_spec_path}") # ADDED LOG
             spec_content = json.load(f)
+            logging.info(f"  [load_config_data] Successfully parsed JSON from: {rvc_spec_path}") # ADDED LOG
             specs = spec_content.get('messages', []) # Default to empty list
             if not specs:
                  logging.warning(f"No 'messages' key found or it's empty in {rvc_spec_path}")
 
         # Key by decimal ID, ensure 'id' exists and is convertible to int
+        logging.info(f"  [load_config_data] Processing {len(specs)} spec entries...") # ADDED LOG
         for entry in specs:
             if 'id' in entry:
                 try:
@@ -92,6 +96,8 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
                     logging.warning(f"Skipping spec entry due to invalid ID '{entry.get('id')}': {e}")
             else:
                 logging.warning(f"Skipping spec entry missing 'id': {entry}")
+
+        logging.info(f"  [load_config_data] Finished processing spec entries.") # ADDED LOG
 
         logging.info(f"Loaded {len(decoder_map)} RVC message specs from {rvc_spec_path}")
     except FileNotFoundError:
