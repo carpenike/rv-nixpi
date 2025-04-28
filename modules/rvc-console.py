@@ -109,85 +109,36 @@ def load_definitions(file_path):
         logging.exception(f"An unexpected error occurred loading definitions from {file_path}") # Use logging.exception
         return None
 
-def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
-    """Loads RVC spec and device mappings, identifying light devices and command info."""
-    # Load RVC Spec
-    try:
-        # Use argument path
-        with open(rvc_spec_path) as f:
-            specs = json.load(f)['messages']
-        decoder_map = {entry['id']: entry for entry in specs if 'id' in entry} # Key by decimal ID
-        logging.info(f"Loaded {len(decoder_map)} RVC message specs from {rvc_spec_path}")
-    except Exception as e:
-        # Use argument path in error message
-        logging.error(f"Error loading RVC spec ({rvc_spec_path}): {e}")
-        sys.exit(1)
-
-    # Load Device Mapping
+def load_device_mapping(mapping_path):
+    """Loads device mapping YAML and returns (device_mapping, device_lookup)."""
     device_mapping = {}
-    device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
-    entity_id_lookup = {} # New lookup: entity_id -> mapped_config
-    light_entity_ids = set() # Store entity_ids of devices identified as lights
-    light_command_info = {} # New: Store command DGN/Instance per light entity_id
-    # Use argument path
-    if os.path.exists(device_mapping_path):
+    device_lookup = {}
+    if os.path.exists(mapping_path):
         try:
-            # Use argument path
-            with open(device_mapping_path) as f:
+            with open(mapping_path) as f:
                 raw_mapping = yaml.safe_load(f)
-                # Process into a more direct lookup table
                 templates = raw_mapping.get('templates', {})
-                device_mapping = raw_mapping # Keep raw for potential future use
-
+                device_mapping = raw_mapping
                 for dgn_hex, instances in raw_mapping.items():
                     if dgn_hex == 'templates': continue
                     for instance_str, configs in instances.items():
                         for config in configs:
-                            # Apply template if specified
-                            template_name = config.pop('<<', None) # Use pop to remove merge key
+                            template_name = config.pop('<<', None)
                             if template_name and template_name in templates:
-                                # Shallow merge: config overrides template
                                 merged_config = {**templates[template_name], **config}
                             else:
                                 merged_config = config
-
-                            # Ensure essential keys are present (using entity_id now)
                             if 'entity_id' in merged_config and 'friendly_name' in merged_config:
-                                entity_id = merged_config['entity_id'] # Get entity_id
+                                entity_id = merged_config['entity_id']
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
-                                # Populate entity_id lookup only once per entity_id (first encountered wins for simplicity)
-                                if entity_id not in entity_id_lookup:
-                                    entity_id_lookup[entity_id] = merged_config
-
-                                # --- Identify Lights and Command Info (using device_type now) ---
-                                if str(merged_config.get('device_type', '')).lower() == 'light':
-                                    light_entity_ids.add(entity_id) # Use entity_id
-                                    logging.debug(f"Identified '{entity_id}' as a light.")
-                                    # Check if the DGN is the command DGN (1FEDA) and store command info
-                                    if dgn_hex.upper() == '1FEDA':
-                                        try:
-                                            instance_int = int(instance_str) # Ensure instance is int
-                                            # Store command info (overwrite if found again, assuming last is correct)
-                                            light_command_info[entity_id] = {'dgn': 0x1FEDA, 'instance': instance_int}
-                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FEDA, Instance={instance_int}")
-                                        except ValueError:
-                                            logging.warning(f"Invalid instance '{instance_str}' for light command DGN {dgn_hex} and entity {entity_id}")
-                                # --- End Identify Lights ---
                             else:
-                                # Update warning message
                                 logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'entity_id' or 'friendly_name'. Config: {config}")
-
-            logging.info(f"Loaded {len(device_lookup)} device mappings from {device_mapping_path}") # Use arg path
-            logging.info(f"Identified {len(light_entity_ids)} light devices.") # Use renamed set
-            logging.info(f"Found command info for {len(light_command_info)} lights.")
+            logging.info(f"Loaded {len(device_lookup)} device mappings from {mapping_path}")
         except Exception as e:
-            logging.warning(f"Could not load or parse device mapping ({device_mapping_path}): {e}") # Use arg path
-            # Continue without device mapping if it fails
+            logging.warning(f"Could not load or parse device mapping ({mapping_path}): {e}")
     else:
-        logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices/Lights tabs will be empty.") # Use arg path
-
-    # Return new lookup maps as well
-    return decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info
+        logging.warning(f"Device mapping file not found ({mapping_path}). Mapped Devices/Lights tabs will be empty.")
+    return device_mapping, device_lookup
 
 # --- Decoding Helpers ---
 def get_bits(data_bytes, start_bit, length):
@@ -1056,7 +1007,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='RV-C CAN Bus Monitor')
     parser.add_argument('-i', '--interfaces', nargs='+', default=DEFAULT_INTERFACES, help='CAN interface names (e.g., can0 can1)')
     parser.add_argument('-d', '--definitions', default='/etc/nixos/files/rvc.json', help='Path to the RVC definitions JSON file')
-    parser.add_argument('-m', '--mapping', default='/etc/nixos/files/device_mapping.yml', help='Path to the device mapping YAML file')
+    parser.add_argument('-m', '--mapping', default='/etc/nixos/files/device_mapping.yaml', help='Path to the device mapping YAML file')
     args = parser.parse_args()
 
     # --- Load Definitions ---
@@ -1065,8 +1016,6 @@ if __name__ == '__main__':
     if not decoder_map:
         logging.error("Exiting due to failure loading definitions.") # Use logging
         sys.exit(1)
-    # Log message from user occurs here: 15:54:37 - INFO - MainThread - Loaded 104 RVC message specs from /etc/nixos/files/rvc.json
-
     # --- Load Device Mapping ---
     logging.info(f"Attempting to load device mapping from: {args.mapping}") # Added log
     device_mapping, device_lookup = load_device_mapping(args.mapping)
