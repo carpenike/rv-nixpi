@@ -1103,7 +1103,9 @@ if __name__ == '__main__':
 
     # --- Load Definitions & Mapping ---
     logging.info(f"Attempting to load RVC spec from: {args.definitions}")
+    sys.stderr.flush() # Force flush after first log
     logging.info(f"Attempting to load device mapping from: {args.mapping}")
+    sys.stderr.flush() # Force flush after second log
     # Call the renamed function with both paths and unpack all return values
     decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_config_data(args.definitions, args.mapping)
 
