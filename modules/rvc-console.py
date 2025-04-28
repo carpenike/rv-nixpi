@@ -67,21 +67,36 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
     """Loads RVC spec and device mappings, identifying light devices and command info."""
     # Load RVC Spec
     decoder_map = {} # Initialize decoder_map
+
+    # --- Pre-check RVC Spec File --- START
+    logging.info(f"  [load_config_data] Pre-checking RVC spec file path: {rvc_spec_path}")
+    if not os.path.exists(rvc_spec_path):
+        logging.error(f"  [load_config_data] RVC spec file does NOT exist at: {rvc_spec_path}")
+        sys.exit(1)
+    else:
+        logging.info(f"  [load_config_data] RVC spec file exists.")
+        if not os.access(rvc_spec_path, os.R_OK):
+            logging.error(f"  [load_config_data] RVC spec file exists but is NOT readable: {rvc_spec_path}")
+            sys.exit(1)
+        else:
+            logging.info(f"  [load_config_data] RVC spec file exists and is readable.")
+    # --- Pre-check RVC Spec File --- END
+
     try:
         # Use argument path
-        logging.info(f"  [load_config_data] Attempting to open RVC spec: {rvc_spec_path}")
+        logging.info(f"  [load_config_data] Attempting to open RVC spec with 'open()': {rvc_spec_path}") # MOVED LOG
         with open(rvc_spec_path) as f:
-            logging.info(f"  [load_config_data] Successfully opened RVC spec file: {rvc_spec_path}") # ADDED LOG
+            logging.info(f"  [load_config_data] Successfully opened RVC spec file: {rvc_spec_path}")
             # Handle potential KeyError if 'messages' doesn't exist
-            logging.info(f"  [load_config_data] Attempting to parse JSON from: {rvc_spec_path}") # ADDED LOG
+            logging.info(f"  [load_config_data] Attempting to parse JSON from: {rvc_spec_path}")
             spec_content = json.load(f)
-            logging.info(f"  [load_config_data] Successfully parsed JSON from: {rvc_spec_path}") # ADDED LOG
+            logging.info(f"  [load_config_data] Successfully parsed JSON from: {rvc_spec_path}")
             specs = spec_content.get('messages', []) # Default to empty list
             if not specs:
                  logging.warning(f"No 'messages' key found or it's empty in {rvc_spec_path}")
 
         # Key by decimal ID, ensure 'id' exists and is convertible to int
-        logging.info(f"  [load_config_data] Processing {len(specs)} spec entries...") # ADDED LOG
+        logging.info(f"  [load_config_data] Processing {len(specs)} spec entries...")
         for entry in specs:
             if 'id' in entry:
                 try:
@@ -97,19 +112,24 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
             else:
                 logging.warning(f"Skipping spec entry missing 'id': {entry}")
 
-        logging.info(f"  [load_config_data] Finished processing spec entries.") # ADDED LOG
+        logging.info(f"  [load_config_data] Finished processing spec entries.")
 
         logging.info(f"Loaded {len(decoder_map)} RVC message specs from {rvc_spec_path}")
-    except FileNotFoundError:
-        logging.error(f"RVC spec file not found: {rvc_spec_path}")
-        sys.exit(1) # Exit if spec file is essential and not found
+    except FileNotFoundError: # Should be caught by pre-check, but keep for safety
+        logging.error(f"RVC spec file not found during open: {rvc_spec_path}")
+        sys.exit(1)
+    except PermissionError: # Explicitly catch permission errors during open
+        logging.error(f"Permission denied when trying to open RVC spec file: {rvc_spec_path}")
+        sys.exit(1)
     except json.JSONDecodeError as e:
         logging.error(f"Error decoding JSON from RVC spec ({rvc_spec_path}): {e}")
-        sys.exit(1) # Exit on JSON error
+        sys.exit(1)
     except Exception as e:
         # Use argument path in error message
-        logging.exception(f"Error loading RVC spec ({rvc_spec_path})") # Use logging.exception
-        sys.exit(1) # Exit on other critical errors
+        logging.exception(f"Error loading RVC spec ({rvc_spec_path})")
+        sys.exit(1)
+    finally:
+        logging.info(f"  [load_config_data] Exiting 'try' block for RVC spec loading.") # ADDED FINALLY LOG
 
     # Load Device Mapping
     device_mapping = {} # Raw mapping loaded from YAML
@@ -588,7 +608,7 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
         footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-        stdscr.addnstr(h - 1, 0, footer[:w - 1].ljust(w-1), w - 1)
+        stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w-1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
 
         stdscr.refresh()
