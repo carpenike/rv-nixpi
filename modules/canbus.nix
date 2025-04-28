@@ -214,6 +214,37 @@
     };
   };
 
+  # Systemd services for cangw bridging
+  systemd.services."cangw-can0-to-can1" = {
+    description = "CAN Gateway from can0 to can1";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "can0.service" "can1.service" ];
+    requires = [ "can0.service" "can1.service" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.can-utils}/bin/cangw -A -s can0 -d can1 -f 19FFAA4F~1FFFFFFF";
+      Restart = "on-failure";
+      RestartSec = "5s";
+      # Run as root
+      User = "root";
+      Group = "root";
+    };
+  };
+
+  systemd.services."cangw-can1-to-can0" = {
+    description = "CAN Gateway from can1 to can0";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "can0.service" "can1.service" ];
+    requires = [ "can0.service" "can1.service" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.can-utils}/bin/cangw -A -s can1 -d can0 -f 19FFAA4F~1FFFFFFF";
+      Restart = "on-failure";
+      RestartSec = "5s";
+      # Run as root
+      User = "root";
+      Group = "root";
+    };
+  };
+
   # Add can-utils and debugging tools.
   environment.systemPackages = with pkgs; [
     can-utils
