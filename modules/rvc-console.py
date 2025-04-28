@@ -4,8 +4,8 @@ import curses
 import time
 import sys
 import base64
-from collections import defaultdict
-import can
+from collections import defaultdict, deque # Added deque
+import can # Ensure can is imported
 import yaml # Added for device mapping
 import os # Added for file existence check
 import threading # Ensure threading is imported for Lock
@@ -19,7 +19,45 @@ DEFAULT_DEVICE_MAPPING_PATH = '/etc/nixos/files/device_mapping.yaml'
 DEFAULT_INTERFACES = ['can0', 'can1']
 
 # --- Logging Setup ---
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(threadName)s - %(message)s')
+# Keep track of log records for the UI
+MAX_LOG_RECORDS = 500 # Max logs to keep in memory for UI
+log_records = deque(maxlen=MAX_LOG_RECORDS)
+log_records_lock = threading.Lock()
+
+# Custom handler to capture logs for the UI
+class ListLogHandler(logging.Handler):
+    def __init__(self, log_list, lock):
+        super().__init__()
+        self.log_list = log_list
+        self.lock = lock
+
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            with self.lock:
+                self.log_list.append(msg) # Append formatted message
+        except Exception:
+            self.handleError(record)
+
+# Configure root logger
+log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(threadName)s - %(message)s', datefmt='%H:%M:%S')
+# Configure file handler (optional, keep if useful)
+# file_handler = logging.FileHandler('rvc-console.log')
+# file_handler.setFormatter(log_formatter)
+# logging.getLogger().addHandler(file_handler)
+
+# Configure console handler (for initial messages before curses)
+console_handler = logging.StreamHandler(sys.stderr) # Use stderr to avoid interfering with curses stdout
+console_handler.setFormatter(log_formatter)
+logging.getLogger().addHandler(console_handler)
+
+# Configure our custom list handler
+list_handler = ListLogHandler(log_records, log_records_lock)
+list_handler.setFormatter(log_formatter)
+logging.getLogger().addHandler(list_handler)
+
+# Set overall logging level
+logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
 
 # --- Load Definitions ---
 def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
@@ -167,23 +205,24 @@ device_lookup = None
 light_entity_ids = set() # Renamed from light_ha_names
 light_command_info = {} # Added: Stores DGN/Instance for commanding lights
 latest_raw_records = {} # Initialized after interfaces are known
-mapped_device_states = {} # Keyed by entity_id (Changed from ha_name)
+# mapped_device_states = {} # REMOVED
 light_device_states = {} # Keyed by entity_id for lights (Changed from ha_name)
 raw_records_lock = threading.Lock()
-mapped_states_lock = threading.Lock()
+# mapped_states_lock = threading.Lock() # REMOVED
 light_states_lock = threading.Lock() # Lock for light states
 stop_event = threading.Event()
 copy_msg = None
 copy_time = 0
 sort_labels = ['A→Z', 'Newest', 'Oldest']
-mapped_sort_labels = ['Area→Name', 'Name', 'Newest']
+# mapped_sort_labels = ['Area→Name', 'Name', 'Newest'] # REMOVED
 light_sort_labels = ['Area→Name', 'Name', 'Newest'] # Sort options for lights tab
 is_paused = False # Pause state flag
 pause_lock = threading.Lock() # Lock for pause state
 # Store the data used for the last draw, to display when paused
 last_draw_data = {
-    "mapped": [],
-    "lights": [], # Add cache for lights tab
+    # "mapped": [], # REMOVED
+    "lights": [],
+    "logs": [], # Added cache for logs
     "raw0": ([], {}), # (names, recs_copy)
     "raw1": ([], {}), # (names, recs_copy)
 }
@@ -227,45 +266,37 @@ def reader_thread(interface):
                     latest_raw_records[interface][name] = rec
                 # --- End Update Raw Records ---
 
-                # --- Update Mapped Device State (Locked) ---
+                # --- Update Light State Only (if applicable) --- START
                 dgn_hex = entry.get('dgn_hex')
                 instance_raw = raw_values.get('instance') # Get raw instance value
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
-                    # Check specific instance, then default
-                    # Lookup doesn't need lock as device_lookup is read-only after init
                     mapped_config = device_lookup.get((dgn_hex.upper(), instance_str))
                     if not mapped_config:
                          mapped_config = device_lookup.get((dgn_hex.upper(), 'default'))
 
                     if mapped_config:
-                        entity_id = mapped_config['entity_id'] # Use entity_id
-                        state_data = {
-                            'entity_id': entity_id, # Use entity_id
-                            'friendly_name': mapped_config.get('friendly_name', entity_id), # Use entity_id as fallback
-                            'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
-                            'last_updated': now,
-                            'last_interface': interface,
-                            'last_raw_values': raw_values, # Store raw values
-                            'last_decoded_data': decoded_data, # Store formatted values
-                            'mapping_config': mapped_config, # Store the mapping config itself
-                            'dgn_hex': dgn_hex,
-                            'instance': instance_str
-                        }
-
-                        # Update general mapped state (using entity_id as key)
-                        with mapped_states_lock:
-                            state_entry = mapped_device_states.get(entity_id, {})
-                            state_entry.update(state_data)
-                            mapped_device_states[entity_id] = state_entry
-
+                        entity_id = mapped_config.get('entity_id')
                         # Update light state if it's a light (using entity_id)
-                        if entity_id in light_entity_ids: # Check against light_entity_ids
+                        if entity_id and entity_id in light_entity_ids: # Check against light_entity_ids
+                            state_data = {
+                                'entity_id': entity_id,
+                                'friendly_name': mapped_config.get('friendly_name', entity_id),
+                                'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
+                                'last_updated': now,
+                                'last_interface': interface,
+                                'last_raw_values': raw_values,
+                                'last_decoded_data': decoded_data,
+                                'mapping_config': mapped_config,
+                                'dgn_hex': dgn_hex,
+                                'instance': instance_str
+                            }
                             with light_states_lock:
                                 light_state_entry = light_device_states.get(entity_id, {})
                                 light_state_entry.update(state_data)
                                 light_device_states[entity_id] = light_state_entry
+                # --- Update Light State Only --- END
 
             # --- End Update Mapped Device State ---
 
@@ -285,7 +316,7 @@ def reader_thread(interface):
 
 # --- Main UI Drawing ---
 def draw_screen(stdscr, interfaces): # Accept interfaces list
-    global copy_msg, copy_time, is_paused, last_draw_data
+    global copy_msg, copy_time, is_paused, last_draw_data, log_records, log_records_lock # Add log globals
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -302,14 +333,17 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
     stdscr.nodelay(1)
     stdscr.timeout(100)
 
-    # Dynamically generate tabs based on interfaces
-    tabs = ["Mapped Devices", "Lights"] + [f"{iface.upper()} Raw" for iface in interfaces]
-    # Simple tab keys for now, assumes max ~9 interfaces + mapped + lights
+    # Dynamically generate tabs based on interfaces - REMOVED "Mapped Devices", ADDED "Logs"
+    tabs = ["Lights", "Logs"] + [f"{iface.upper()} Raw" for iface in interfaces]
+    # Adjust tab keys
     tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][:len(tabs)]
     current_tab_index = 0
 
-    # State per tab
+    # State per tab - REMOVED "Mapped Devices", ADDED "Logs"
     tab_state = {name: {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0} for name in tabs}
+    # Logs tab doesn't need sorting state
+    if "Logs" in tab_state:
+        del tab_state["Logs"]['sort_mode']
 
     while True:
         # --- Input Handling ---
@@ -327,8 +361,9 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                 # Immediately clear cached data when unpausing to force refresh
                 if not is_paused:
                      last_draw_data = {
-                         "mapped": [],
-                         "lights": [], # Clear lights cache too
+                         # "mapped": [], # REMOVED
+                         "lights": [],
+                         "logs": [], # Clear logs cache too
                          **{f"raw{i}": ([], {}) for i in range(len(interfaces))}
                      }
 
@@ -354,28 +389,35 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         state = tab_state[active_tab_name]
 
         # Data for drawing - fetch ONLY if not paused, otherwise use cached
-        mapped_items_to_draw = []
+        # mapped_items_to_draw = [] # REMOVED
         light_items_to_draw = []
+        log_items_to_draw = [] # Added
         raw_names_to_draw = []
         raw_recs_to_draw = {}
         interface_for_raw_tab = None
 
         if not paused_now:
             # Fetch fresh data
-            if active_tab_name == "Mapped Devices":
-                with mapped_states_lock:
-                    # Make a copy to avoid holding lock during sort/draw
-                    mapped_items_to_draw = list(mapped_device_states.values())
-                last_draw_data["mapped"] = mapped_items_to_draw # Cache fresh data
-            elif active_tab_name == "Lights":
+            # if active_tab_name == "Mapped Devices": # REMOVED
+            #     with mapped_states_lock:
+            #         # Make a copy to avoid holding lock during sort/draw
+            #         mapped_items_to_draw = list(mapped_device_states.values())
+            #     last_draw_data["mapped"] = mapped_items_to_draw # Cache fresh data
+            if active_tab_name == "Lights":
                 with light_states_lock:
                     # Make a copy
                     light_items_to_draw = list(light_device_states.values())
                 last_draw_data["lights"] = light_items_to_draw # Cache fresh data
+            # --- Add Fetching for Logs Tab ---
+            elif active_tab_name == "Logs":
+                with log_records_lock:
+                    # Make a copy of the deque items (newest first for display)
+                    log_items_to_draw = list(log_records)[::-1]
+                last_draw_data["logs"] = log_items_to_draw # Cache fresh data
             elif " Raw" in active_tab_name:
                 try:
-                    # Determine interface based on tab name/index relative to "Mapped Devices" and "Lights"
-                    iface_index = current_tab_index - 2 # Adjust index for new tab
+                    # Determine interface based on tab name/index relative to "Lights" and "Logs"
+                    iface_index = current_tab_index - 2 # Adjust index for new preceding tabs
                     if 0 <= iface_index < len(interfaces):
                         interface_for_raw_tab = interfaces[iface_index]
                         with raw_records_lock:
@@ -391,10 +433,13 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                      logging.exception(f"Error fetching raw data for {active_tab_name}")
 
         else: # Use cached data if paused
-             if active_tab_name == "Mapped Devices":
-                 mapped_items_to_draw = last_draw_data["mapped"]
-             elif active_tab_name == "Lights":
+             # if active_tab_name == "Mapped Devices": # REMOVED
+             #     mapped_items_to_draw = last_draw_data["mapped"]
+             if active_tab_name == "Lights":
                  light_items_to_draw = last_draw_data["lights"]
+             # --- Add Cache Retrieval for Logs Tab ---
+             elif active_tab_name == "Logs":
+                 log_items_to_draw = last_draw_data["logs"]
              elif " Raw" in active_tab_name:
                  iface_index = current_tab_index - 2 # Adjust index
                  if 0 <= iface_index < len(interfaces):
@@ -420,15 +465,16 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         # Sort mode
         sort_label = ""
         num_sort_modes = 0
-        if active_tab_name == "Mapped Devices":
-             sort_label = mapped_sort_labels[state['sort_mode']]
-             num_sort_modes = len(mapped_sort_labels)
-        elif active_tab_name == "Lights":
+        # if active_tab_name == "Mapped Devices": # REMOVED
+        #      sort_label = mapped_sort_labels[state['sort_mode']]
+        #      num_sort_modes = len(mapped_sort_labels)
+        if active_tab_name == "Lights":
              sort_label = light_sort_labels[state['sort_mode']]
              num_sort_modes = len(light_sort_labels)
         elif " Raw" in active_tab_name:
              sort_label = sort_labels[state['sort_mode']]
              num_sort_modes = len(sort_labels)
+        # Only show sort if applicable (not for Logs)
         if sort_label: header_text += f"[S] Sort:{sort_label}  "
         # Other actions
         header_text += "[C] Copy  [P] Pause  [Q] Quit"
@@ -440,12 +486,15 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         # --- Main Content Area ---
         max_rows = h - 5 # Rows available for content list
 
-        if active_tab_name == "Mapped Devices":
-            # Pass fetched/cached data to drawing function
-            draw_mapped_devices_tab(stdscr, h, w, max_rows, state, mapped_items_to_draw)
-        elif active_tab_name == "Lights":
+        # if active_tab_name == "Mapped Devices": # REMOVED
+        #     # Pass fetched/cached data to drawing function
+        #     draw_mapped_devices_tab(stdscr, h, w, max_rows, state, mapped_items_to_draw)
+        if active_tab_name == "Lights":
             # Pass fetched/cached light data
             draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
+        # --- Add Drawing Call for Logs Tab ---
+        elif active_tab_name == "Logs":
+            draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw) # Pass log items
         elif " Raw" in active_tab_name and interface_for_raw_tab:
             # Pass fetched/cached data and interface name
             draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
@@ -462,8 +511,11 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         footer = "Arrows: Navigate | "
         if active_tab_name == "Lights":
              footer += "Enter: Control | " # Add hint for lights tab
+        elif active_tab_name == "Logs":
+             footer += "C: Copy Line | " # Add hint for logs tab
+        # Update tab names in footer hint
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
-        footer += " | S: Sort | C: Copy | P: Pause | Q: Quit"
+        footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
         stdscr.addnstr(h - 1, 0, footer[:w - 1].ljust(w-1), w - 1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
@@ -471,43 +523,26 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         stdscr.refresh()
 
 
-# Modify drawing functions to accept data
-def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items): # Accept items
-    """Draws the 'Mapped Devices' tab content."""
+# --- Drawing Functions ---
+
+# REMOVE draw_mapped_devices_tab function entirely
+# def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items):
+#    ...
+
+# --- New Drawing Function for Logs Tab ---
+def draw_logs_tab(stdscr, h, w, max_rows, state, items):
+    """Draws the 'Logs' tab content."""
     global copy_msg, copy_time
-    # Column setup
-    col_area_w = max(15, w // 6)
-    col_name_w = max(25, w // 3)
-    col_state_w = w - col_area_w - col_name_w - 3 # Remaining width for state
-    pad = 2
-    area_start = pad
-    name_start = area_start + col_area_w + 1 + pad
-    state_start = name_start + col_name_w + 1 + pad
+    pad = 1
 
-    # Titles
-    stdscr.addnstr(2, area_start, "Area".ljust(col_area_w), col_area_w, curses.A_BOLD)
-    stdscr.addnstr(2, name_start, "Friendly Name".ljust(col_name_w), col_name_w, curses.A_BOLD)
-    stdscr.addnstr(2, state_start, "State / Last Data".ljust(col_state_w), col_state_w, curses.A_BOLD)
-    stdscr.hline(3, 0, '-', w)
-    # Vertical separators
-    for y in range(2, h - 2):
-        stdscr.addch(y, area_start + col_area_w, '|')
-        stdscr.addch(y, name_start + col_name_w, '|')
-
-    # Sort the passed-in items list
-    sort_mode = state['sort_mode']
-    if sort_mode == 0: # Area -> Name
-        items.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
-    elif sort_mode == 1: # Name
-        items.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
-    elif sort_mode == 2: # Newest
-        items.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
+    # No titles needed, just list the logs
+    stdscr.hline(1, 0, '-', w) # Keep separator below header
 
     total = len(items)
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
 
-    # Adjust view window
+    # Adjust view window (Logs are newest first, so index 0 is newest)
     if total:
         selected_idx = max(0, min(selected_idx, total - 1))
         if selected_idx < v_offset:
@@ -521,49 +556,42 @@ def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items): # Accept item
 
     # --- Scroll Indicators ---
     if v_offset > 0:
-        stdscr.addstr(4, w - 1, "↑", curses.A_DIM)
+        stdscr.addstr(2, w - 1, "↑", curses.A_DIM) # Start drawing from row 2
     if v_offset + max_rows < total:
-        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM) # Use h-3 for bottom indicator line
+        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
 
-    # Draw list items
+    # Draw list items (log messages)
     for idx in range(v_offset, min(v_offset + max_rows, total)):
-        row = 4 + idx - v_offset
-        item = items[idx]
+        row = 2 + idx - v_offset # Start drawing from row 2
+        item_text = items[idx] # Items are already formatted strings
         is_selected = (idx == selected_idx)
-        attr = curses.color_pair(2) | curses.A_BOLD if is_selected else curses.color_pair(3)
-        area_attr = curses.color_pair(6) if not is_selected else attr # Different color for area
 
-        stdscr.addnstr(row, area_start, item.get('suggested_area', 'N/A').ljust(col_area_w), col_area_w, area_attr)
-        stdscr.addnstr(row, name_start, item.get('friendly_name', 'N/A').ljust(col_name_w), col_name_w, attr)
+        # Color based on log level
+        attr = curses.color_pair(3) # Default white
+        if "ERROR" in item_text:
+            attr = curses.color_pair(7) # Red
+        elif "WARNING" in item_text:
+            attr = curses.color_pair(5) # Yellow
+        elif "DEBUG" in item_text:
+            attr = curses.color_pair(6) # Magenta/Dim
 
-        # Display state - customize this based on device types
-        state_str = ", ".join(f"{k}={v}" for k, v in item.get('last_decoded_data', {}).items())
-        # Maybe add time since last update: f"{time.time() - item.get('last_updated', 0):.1f}s ago"
-        stdscr.addnstr(row, state_start, state_str.ljust(col_state_w), col_state_w, attr)
+        if is_selected:
+            attr |= curses.A_REVERSE # Highlight selected line
 
-    # --- Copy Action for Mapped Tab ---
+        stdscr.addnstr(row, pad, item_text.ljust(w - pad * 2), w - pad * 2, attr)
+
+    # --- Copy Action for Logs Tab ---
     if state.get('_copy_action', False):
         if total:
             item_to_copy = items[selected_idx]
-            # Copy relevant info: mapping config + last state
-            copy_data = {
-                "mapping": item_to_copy.get('mapping_config', {}),
-                "last_state": item_to_copy.get('last_decoded_data', {}),
-                "last_raw_values": item_to_copy.get('last_raw_values', {}),
-                "last_updated": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item_to_copy.get('last_updated'))),
-                "dgn": item_to_copy.get('dgn_hex'),
-                "instance": item_to_copy.get('instance'),
-                "entity_id": item_to_copy.get('entity_id') # Add entity_id
-            }
-            txt = json.dumps(copy_data, indent=2)
-            copy_to_clipboard(txt)
-            copy_msg = f"Mapped device '{item_to_copy.get('friendly_name')}' data copied."
+            copy_to_clipboard(item_to_copy)
+            copy_msg = f"Log line copied."
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
 
-# --- New Drawing Function for Lights Tab ---
-def draw_lights_tab(stdscr, h, w, max_rows, state, items):
+# Modify drawing functions to accept data
+def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
     """Draws the 'Lights' tab content."""
     global copy_msg, copy_time
     # Column setup (similar to mapped devices)
@@ -792,23 +820,30 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
     num_sort_modes = 0
     current_id = None # ID of the item currently selected, used for stable sort selection
 
-    if active_tab_name == "Mapped Devices":
-        items_list = last_draw_data["mapped"] # Use cached data for count/ID finding
-        total = len(items_list)
-        num_sort_modes = len(mapped_sort_labels)
-        if 0 <= state['selected_idx'] < total:
-             current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
-    elif active_tab_name == "Lights":
+    # if active_tab_name == "Mapped Devices": # REMOVED
+    #     items_list = last_draw_data["mapped"] # Use cached data for count/ID finding
+    #     total = len(items_list)
+    #     num_sort_modes = len(mapped_sort_labels)
+    #     if 0 <= state['selected_idx'] < total:
+    #          current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
+    if active_tab_name == "Lights":
         items_list = last_draw_data["lights"] # Use cached light data
         total = len(items_list)
         num_sort_modes = len(light_sort_labels)
         if 0 <= state['selected_idx'] < total:
              current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
+    # --- Add Logic for Logs Tab ---
+    elif active_tab_name == "Logs":
+        items_list = last_draw_data["logs"] # Use cached log data
+        total = len(items_list)
+        num_sort_modes = 0 # No sorting for logs
+        # ID for logs is just the index, but we don't need stable selection on sort
+        current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
     elif " Raw" in active_tab_name:
         iface_index = -1
         try: # Find interface index based on tab name
             iface_name_part = active_tab_name.split(" ")[0].lower()
-            # Adjust index based on preceding tabs ("Mapped", "Lights")
+            # Adjust index based on preceding tabs ("Lights", "Logs")
             iface_index = interfaces.index(iface_name_part)
         except (ValueError, IndexError):
              pass
@@ -836,26 +871,16 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
         state['selected_idx'] = total - 1
 
     # --- Sorting ---
-    elif c in (ord('s'), ord('S')):
+    elif c in (ord('s'), ord('S')) and num_sort_modes > 0: # Check if sorting is applicable
         # current_id was determined above using cached data
         state['sort_mode'] = (state['sort_mode'] + 1) % num_sort_modes
 
         # Re-find the selected item's index AFTER sorting (using cached data again)
-        # This is imperfect if data changed between input and now while paused,
-        # but keeps selection relatively stable without complex locking here.
-        if current_id:
+        if current_id is not None: # Check if we have a valid ID
             new_items_sorted = [] # This will be a list of IDs (entity_id or message name)
-            if active_tab_name == "Mapped Devices":
-                 items_list = last_draw_data["mapped"] # Use cached
-                 sm = state['sort_mode']
-                 # Re-sort cached data based on new mode
-                 # Make a copy before sorting to avoid modifying the cache directly
-                 items_list_copy = list(items_list)
-                 if sm == 0: items_list_copy.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
-                 elif sm == 1: items_list_copy.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
-                 elif sm == 2: items_list_copy.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
-                 new_items_sorted = [item.get('entity_id') for item in items_list_copy]
-            elif active_tab_name == "Lights":
+            # if active_tab_name == "Mapped Devices": # REMOVED
+            #      ...
+            if active_tab_name == "Lights":
                  items_list = last_draw_data["lights"] # Use cached light data
                  sm = state['sort_mode']
                  items_list_copy = list(items_list)
@@ -868,7 +893,7 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
                  iface_index = -1
                  try:
                      iface_name_part = active_tab_name.split(" ")[0].lower()
-                     # Adjust index based on preceding tabs ("Mapped", "Lights")
+                     # Adjust index based on preceding tabs ("Lights", "Logs")
                      iface_index = interfaces.index(iface_name_part)
                  except (ValueError, IndexError): pass
 
@@ -876,19 +901,18 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
                      # Use correct cache key
                      names_list, recs_dict = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
                      sm = state['sort_mode']
-                     # Re-sort cached names based on cached recs
-                     # Make a copy before sorting
                      names_list_copy = list(names_list)
                      if sm == 0: new_items_sorted = sorted(names_list_copy)
                      elif sm == 1: new_items_sorted = sorted(names_list_copy, key=lambda n: recs_dict.get(n, {}).get('last_received', 0), reverse=True)
                      else: new_items_sorted = sorted(names_list_copy, key=lambda n: recs_dict.get(n, {}).get('first_received', 0))
 
             try:
+                # Find index of the original ID in the newly sorted list of IDs
                 state['selected_idx'] = new_items_sorted.index(current_id)
-            except ValueError:
+            except (ValueError, IndexError): # Handle cases where ID might not be found (e.g., data changed rapidly)
                 state['selected_idx'] = 0 # Fallback
         else:
-             state['selected_idx'] = 0 # Fallback
+             state['selected_idx'] = 0 # Fallback if no current_id
 
         state['v_offset'] = 0 # Reset scroll on sort
 
@@ -995,10 +1019,11 @@ if __name__ == '__main__':
     INTERFACES = args.interfaces # Set global interfaces list
     latest_raw_records = {iface: {} for iface in INTERFACES}
     light_device_states = {} # Initialize light state dict (keyed by entity_id)
-    mapped_device_states = {} # Initialize mapped state dict (keyed by entity_id)
+    # mapped_device_states = {} # REMOVED
     last_draw_data = { # Initialize cache structure based on interfaces and new tabs
-         "mapped": [],
-         "lights": [], # Add lights cache
+         # "mapped": [], # REMOVED
+         "lights": [],
+         "logs": [], # Added logs cache
          **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
     }
 
@@ -1031,6 +1056,8 @@ if __name__ == '__main__':
     # Start reader threads only if definitions loaded successfully
     if decoder_map:
         logging.info("Starting CAN reader threads...")
+        # Remove the console handler now that curses is about to take over stdout/stderr
+        logging.getLogger().removeHandler(console_handler)
         threads = []
         for iface in INTERFACES: # Use interfaces from args
             thread = threading.Thread(target=reader_thread, args=(iface,), name=f"Reader-{iface}", daemon=True)
