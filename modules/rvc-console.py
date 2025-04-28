@@ -452,9 +452,12 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         c = stdscr.getch()
 
         if c != curses.ERR:
-            # ...existing code...
+            if c in (ord('q'), ord('Q')):
+                stop_event.set()
+                break
+
             # Pause Toggle
-            elif c in (ord('p'), ord('P')):
+            elif c in (ord('p'), ord('P')): # Ensure this elif is correctly indented
                 with pause_lock:
                     is_paused = not is_paused
                 # Immediately clear cached data when unpausing to force refresh
@@ -465,7 +468,22 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                          "logs": [], # <-- Restore logs cache clearing
                          **{f"raw{i}": ([], {}) for i in range(len(interfaces))}
                      }
-            # ...existing code...
+            # Tab switching # Ensure this try block is at the same level as the elif
+            try:
+                key_char = chr(c)
+                if key_char in tab_keys:
+                    current_tab_index = tab_keys.index(key_char)
+            except (ValueError, IndexError):
+                 pass # Ignore non-character/invalid keys
+
+            # Context-aware actions (pass interfaces for raw tabs) # Ensure this block is at the same level
+            active_tab_name = tabs[current_tab_index]
+            # Check if active_tab_name exists in tab_state before accessing
+            if active_tab_name in tab_state:
+                state = tab_state[active_tab_name]
+                handle_input_for_tab(c, active_tab_name, state, interfaces) # Pass interfaces
+            # else: # Handle case where tab might not have state (e.g., if Logs was still somehow selected)
+                # pass # Or log a warning
 
         # --- Data Fetching (Conditional based on Pause) ---
         # ...existing code...
