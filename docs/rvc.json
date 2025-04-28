@@ -823,7 +823,7 @@
       "length": 8,
       "source_address": "0x75",
       "description": "Set System Date and Time Command",
-      "pdf_reference": "Sec. 6.4.3 (Table 6.4.3)&#8203;:contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}",
+      "pdf_reference": "Sec. 6.4.3 (Table 6.4.3)",
       "signals": [
         { "name": "year",          "start_bit":   0, "length": 8, "scale": 1, "offset": 2000, "unit": "year" },
         { "name": "month",         "start_bit":   8, "length": 8, "scale": 1, "offset": 0,    "unit": "month" },
@@ -925,9 +925,9 @@
         { "name": "reserved_j1939",           "start_bit": 20, "length": 4 },
         { "name": "reserved_j1939_b",         "start_bit": 24, "length": 8 },
         { "name": "acknowledged_source_addr", "start_bit": 32, "length": 8 },
-        { "name": "dgn_ack_lsb",              "start_bit": 40, "length": 8 },
-        { "name": "dgn_ack_isb",              "start_bit": 48, "length": 8 },
-        { "name": "dgn_ack_msb",              "start_bit": 56, "length": 8 }
+        { "name": "dgn_ack_lsb",              "start_bit": 40, "length": 8, "byte_order": "little_endian" },
+        { "name": "dgn_ack_isb",              "start_bit": 48, "length": 8, "byte_order": "little_endian" },
+        { "name": "dgn_ack_msb",              "start_bit": 56, "length": 8, "byte_order": "little_endian" }
       ]
     },
     {
@@ -1114,9 +1114,9 @@
       "signals": [
         { "name": "dc_instance",        "start_bit":   0, "length": 8 },
         { "name": "device_priority",    "start_bit":   8, "length": 8 },
-        { "name": "source_temperature", "start_bit":  16, "length":16 },
+        { "name": "source_temperature", "start_bit":  16, "length":16, "byte_order": "little_endian" },
         { "name": "state_of_charge",    "start_bit":  32, "length": 8 },
-        { "name": "time_remaining",     "start_bit":  40, "length":16 },
+        { "name": "time_remaining",     "start_bit":  40, "length":16, "byte_order": "little_endian" },
         { "name": "time_remaining_flag","start_bit":  56, "length": 2 }
       ]
     },
@@ -1131,7 +1131,7 @@
       "signals": [
         { "name": "transfer_switch_instance",  "start_bit": 0,  "length": 8 },
         { "name": "command",                    "start_bit": 8,  "length": 8 },
-        { "name": "operation_time",             "start_bit": 16, "length": 16, "unit": "s" },
+        { "name": "operation_time",             "start_bit": 16, "length": 16, "unit": "s", "byte_order": "little_endian" },
         { "name": "fault_nak_code",             "start_bit": 32, "length": 8 },
         { "name": "requesting_source_address",  "start_bit": 40, "length": 8 }
       ]
@@ -1151,8 +1151,8 @@
         { "name": "igniter_enable",         "start_bit": 18, "length": 2 },
         { "name": "pump_enable",            "start_bit": 20, "length": 2 },
         { "name": "fuel_valve_enable",      "start_bit": 22, "length": 2 },
-        { "name": "preheat_time",           "start_bit": 24, "length": 16, "unit": "s" },
-        { "name": "lockout_time",           "start_bit": 40, "length": 16, "unit": "s" }
+        { "name": "preheat_time",           "start_bit": 24, "length": 16, "unit": "s", "byte_order": "little_endian" },
+        { "name": "lockout_time",           "start_bit": 40, "length": 16, "unit": "s", "byte_order": "little_endian" }
       ]
     },
     {
@@ -1182,7 +1182,7 @@
         { "name": "coolant_high_limit",      "start_bit": 16, "length": 6,  "scale": 1, "unit": "°C" },
         { "name": "control_mode",            "start_bit": 24, "length": 8 },
         { "name": "status_flags",            "start_bit": 32, "length": 8 },
-        { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C" }
+        { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C", "byte_order": "little_endian" }
       ]
     },
     {
@@ -1195,9 +1195,9 @@
       "pdf_reference": "Sec. 6.18.23",
       "signals": [
         { "name": "status",                  "start_bit": 0,  "length": 8 },
-        { "name": "engine_run_time",         "start_bit": 8,  "length": 32, "scale": 1, "unit": "min" },
+        { "name": "engine_run_time",         "start_bit": 8,  "length": 32, "scale": 1, "unit": "min", "byte_order": "little_endian" },
         { "name": "engine_load",             "start_bit": 40, "length": 8,  "scale": 1, "unit": "%"   },
-        { "name": "start_battery_voltage",   "start_bit": 48, "length": 16, "scale": 1, "unit": "Vdc" }
+        { "name": "start_battery_voltage",   "start_bit": 48, "length": 16, "scale": 1, "unit": "Vdc", "byte_order": "little_endian" }
       ]
     },
     {
@@ -1209,7 +1209,7 @@
       "description": "Firmware Version",
       "pdf_reference": "Sec. 6.46.3",
       "signals": [
-        { "name": "version",                 "start_bit": 0,  "length": 64 }
+        { "name": "version",                 "start_bit": 0,  "length": 64, "byte_order": "little_endian" }
       ]
     },
     {
@@ -1226,8 +1226,8 @@
         { "name": "movement_in_progress",    "start_bit": 4,  "length": 2 },
         { "name": "unsuitable_surface",      "start_bit": 6,  "length": 2 },
         { "name": "roll_mode_status",        "start_bit": 8,  "length": 4 },
-        { "name": "rate",                    "start_bit": 16, "length": 16, "scale": 0.1, "unit": "deg/s" },
-        { "name": "max_rate",                "start_bit": 32, "length": 16, "scale": 0.1, "unit": "deg/s" }
+        { "name": "rate",                    "start_bit": 16, "length": 16, "scale": 0.1, "unit": "deg/s", "byte_order": "little_endian" },
+        { "name": "max_rate",                "start_bit": 32, "length": 16, "scale": 0.1, "unit": "deg/s", "byte_order": "little_endian" }
       ]
     },
     {
@@ -1245,7 +1245,7 @@
         { "name": "coolant_high_limit",      "start_bit": 16, "length": 6,  "scale": 1, "unit": "°C" },
         { "name": "control_mode",            "start_bit": 24, "length": 8 },
         { "name": "status_flags",            "start_bit": 32, "length": 8 },
-        { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C" }
+        { "name": "ambient_temperature",     "start_bit": 40, "length": 16, "scale": 1, "unit": "°C", "byte_order": "little_endian" }
       ]
     },
     {
@@ -1544,7 +1544,7 @@
         { "name": "instance_bank",  "start_bit":  16, "length": 4 },
         { "name": "reserved",       "start_bit":  20, "length": 4 },
         { "name": "source_address", "start_bit":  32, "length": 8 },
-        { "name": "dgn_acked",      "start_bit":  40, "length": 24 }
+        { "name": "dgn_acked",      "start_bit":  40, "length": 24, "byte_order": "little_endian" }
       ]
     },
     {
@@ -1901,14 +1901,14 @@
       "description": "Undocumented",
       "pdf_reference": "—",
       "signals": [
-        { "name": "byte0", "start_bit": 0,  "length": 8 },
-        { "name": "byte1", "start_bit": 8,  "length": 8 },
-        { "name": "byte2", "start_bit": 16, "length": 8 },
-        { "name": "byte3", "start_bit": 24, "length": 8 },
-        { "name": "byte4", "start_bit": 32, "length": 8 },
-        { "name": "byte5", "start_bit": 40, "length": 8 },
-        { "name": "byte6", "start_bit": 48, "length": 8 },
-        { "name": "byte7", "start_bit": 56, "length": 8 }
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
       ]
     },
     {
@@ -1919,14 +1919,14 @@
       "description": "Undocumented",
       "pdf_reference": "—",
       "signals": [
-        { "name": "byte0", "start_bit": 0,  "length": 8 },
-        { "name": "byte1", "start_bit": 8,  "length": 8 },
-        { "name": "byte2", "start_bit": 16, "length": 8 },
-        { "name": "byte3", "start_bit": 24, "length": 8 },
-        { "name": "byte4", "start_bit": 32, "length": 8 },
-        { "name": "byte5", "start_bit": 40, "length": 8 },
-        { "name": "byte6", "start_bit": 48, "length": 8 },
-        { "name": "byte7", "start_bit": 56, "length": 8 }
+        { "name": "byte_0", "start_bit": 0,  "length": 8 },
+        { "name": "byte_1", "start_bit": 8,  "length": 8 },
+        { "name": "byte_2", "start_bit": 16, "length": 8 },
+        { "name": "byte_3", "start_bit": 24, "length": 8 },
+        { "name": "byte_4", "start_bit": 32, "length": 8 },
+        { "name": "byte_5", "start_bit": 40, "length": 8 },
+        { "name": "byte_6", "start_bit": 48, "length": 8 },
+        { "name": "byte_7", "start_bit": 56, "length": 8 }
       ]
     },
     {
