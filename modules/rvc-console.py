@@ -60,89 +60,89 @@ logging.getLogger().addHandler(list_handler)
 logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
 
 # --- Load Definitions ---
-def load_definitions(file_path):
-    """Loads RVC message definitions from a JSON file."""
-    logging.info(f"  [load_definitions] Attempting to open: {file_path}") # Added log
-    try:
-        with open(file_path, 'r') as f:
-            logging.info(f"  [load_definitions] File opened successfully: {file_path}") # Added log
-            logging.info(f"  [load_definitions] Attempting to parse JSON...") # Added log
-            data = json.load(f)
-            logging.info(f"  [load_definitions] JSON parsed successfully. Processing definitions...") # Added log
+# REMOVED the first load_definitions function
 
-        decoder_map = {}
-        # Process DGNs first
-        logging.info("  [load_definitions] Processing DGNs...") # Added log
-        dgn_count = 0
-        for dgn_hex, dgn_data in data.get('DGNs', {}).items():
-            # ... (rest of DGN processing)
-            dgn_count += 1
-        logging.info(f"  [load_definitions] Processed {dgn_count} DGNs.") # Added log
-
-        # Process Commands second
-        logging.info("  [load_definitions] Processing Commands...") # Added log
-        command_count = 0
-        for cmd_name, cmd_data in data.get('Commands', {}).items():
-            # ... (rest of Command processing)
-            command_count += 1
-        logging.info(f"  [load_definitions] Processed {command_count} Commands.") # Added log
-
-        # Process Data Entities third
-        logging.info("  [load_definitions] Processing Data Entities...") # Added log
-        entity_count = 0
-        for entity_name, entity_data in data.get('DataEntities', {}).items():
-            # ... (rest of Data Entity processing)
-            entity_count += 1
-        logging.info(f"  [load_definitions] Processed {entity_count} Data Entities.") # Added log
-
-        logging.info(f"  [load_definitions] Finished processing. Final map size: {len(decoder_map)}") # Added log
-        logging.info(f"Loaded {len(decoder_map)} RVC message specs from {file_path}")
-        return decoder_map
-
-    except FileNotFoundError:
-        logging.error(f"Definition file not found: {file_path}")
-        return None
-    except json.JSONDecodeError as e:
-        logging.error(f"Error decoding JSON from {file_path}: {e}")
-        return None
-    except Exception as e:
-        logging.exception(f"An unexpected error occurred loading definitions from {file_path}") # Use logging.exception
-        return None
-
-def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
+# Renamed function to load both spec and mapping
+def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
     """Loads RVC spec and device mappings, identifying light devices and command info."""
     # Load RVC Spec
+    decoder_map = {} # Initialize decoder_map
     try:
         # Use argument path
+        logging.info(f"  [load_config_data] Attempting to open RVC spec: {rvc_spec_path}")
         with open(rvc_spec_path) as f:
-            specs = json.load(f)['messages']
-        decoder_map = {entry['id']: entry for entry in specs if 'id' in entry} # Key by decimal ID
+            # Handle potential KeyError if 'messages' doesn't exist
+            spec_content = json.load(f)
+            specs = spec_content.get('messages', []) # Default to empty list
+            if not specs:
+                 logging.warning(f"No 'messages' key found or it's empty in {rvc_spec_path}")
+
+        # Key by decimal ID, ensure 'id' exists and is convertible to int
+        for entry in specs:
+            if 'id' in entry:
+                try:
+                    # Ensure ID is treated as integer if it's hex string
+                    spec_id_str = str(entry['id'])
+                    if spec_id_str.startswith('0x'):
+                        spec_id = int(spec_id_str, 16)
+                    else:
+                        spec_id = int(spec_id_str)
+                    decoder_map[spec_id] = entry
+                except (ValueError, TypeError) as e:
+                    logging.warning(f"Skipping spec entry due to invalid ID '{entry.get('id')}': {e}")
+            else:
+                logging.warning(f"Skipping spec entry missing 'id': {entry}")
+
         logging.info(f"Loaded {len(decoder_map)} RVC message specs from {rvc_spec_path}")
+    except FileNotFoundError:
+        logging.error(f"RVC spec file not found: {rvc_spec_path}")
+        sys.exit(1) # Exit if spec file is essential and not found
+    except json.JSONDecodeError as e:
+        logging.error(f"Error decoding JSON from RVC spec ({rvc_spec_path}): {e}")
+        sys.exit(1) # Exit on JSON error
     except Exception as e:
         # Use argument path in error message
-        logging.error(f"Error loading RVC spec ({rvc_spec_path}): {e}")
-        sys.exit(1)
+        logging.exception(f"Error loading RVC spec ({rvc_spec_path})") # Use logging.exception
+        sys.exit(1) # Exit on other critical errors
 
     # Load Device Mapping
-    device_mapping = {}
+    device_mapping = {} # Raw mapping loaded from YAML
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
     entity_id_lookup = {} # New lookup: entity_id -> mapped_config
     light_entity_ids = set() # Store entity_ids of devices identified as lights
     light_command_info = {} # New: Store command DGN/Instance per light entity_id
+
     # Use argument path
+    logging.info(f"  [load_config_data] Attempting to load device mapping: {device_mapping_path}")
     if os.path.exists(device_mapping_path):
         try:
             # Use argument path
             with open(device_mapping_path) as f:
-                raw_mapping = yaml.safe_load(f)
+                raw_mapping = yaml.safe_load(f) or {} # Ensure raw_mapping is a dict even if file is empty
                 # Process into a more direct lookup table
                 templates = raw_mapping.get('templates', {})
                 device_mapping = raw_mapping # Keep raw for potential future use
 
+                # Iterate through DGNs in the mapping (excluding templates)
                 for dgn_hex, instances in raw_mapping.items():
                     if dgn_hex == 'templates': continue
+                    # Ensure instances is a dictionary
+                    if not isinstance(instances, dict):
+                        logging.warning(f"Skipping DGN '{dgn_hex}' in mapping: expected a dictionary of instances, got {type(instances).__name__}")
+                        continue
+
                     for instance_str, configs in instances.items():
+                        # Ensure configs is a list
+                        if not isinstance(configs, list):
+                            logging.warning(f"Skipping Instance '{instance_str}' under DGN '{dgn_hex}': expected a list of configurations, got {type(configs).__name__}")
+                            continue
+
                         for config in configs:
+                            # Ensure config is a dictionary
+                            if not isinstance(config, dict):
+                                logging.warning(f"Skipping config under DGN '{dgn_hex}', Instance '{instance_str}': expected a dictionary, got {type(config).__name__}")
+                                continue
+
                             # Apply template if specified
                             template_name = config.pop('<<', None) # Use pop to remove merge key
                             if template_name and template_name in templates:
@@ -154,6 +154,7 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
                             # Ensure essential keys are present (using entity_id now)
                             if 'entity_id' in merged_config and 'friendly_name' in merged_config:
                                 entity_id = merged_config['entity_id'] # Get entity_id
+                                # Store the final merged config
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
                                 # Populate entity_id lookup only once per entity_id (first encountered wins for simplicity)
                                 if entity_id not in entity_id_lookup:
@@ -164,7 +165,8 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
                                     light_entity_ids.add(entity_id) # Use entity_id
                                     logging.debug(f"Identified '{entity_id}' as a light.")
                                     # Check if the DGN is the command DGN (1FEDA) and store command info
-                                    if dgn_hex.upper() == '1FEDA':
+                                    # Ensure dgn_hex is valid before comparing
+                                    if isinstance(dgn_hex, str) and dgn_hex.upper() == '1FEDA':
                                         try:
                                             instance_int = int(instance_str) # Ensure instance is int
                                             # Store command info (overwrite if found again, assuming last is correct)
@@ -177,16 +179,30 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
                                 # Update warning message
                                 logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'entity_id' or 'friendly_name'. Config: {config}")
 
-            logging.info(f"Loaded {len(device_lookup)} device mappings from {device_mapping_path}") # Use arg path
+            logging.info(f"Loaded {len(device_lookup)} specific device mappings from {device_mapping_path}") # Use arg path
             logging.info(f"Identified {len(light_entity_ids)} light devices.") # Use renamed set
             logging.info(f"Found command info for {len(light_command_info)} lights.")
+        except yaml.YAMLError as e:
+             logging.warning(f"Could not parse device mapping YAML ({device_mapping_path}): {e}") # Use arg path
         except Exception as e:
-            logging.warning(f"Could not load or parse device mapping ({device_mapping_path}): {e}") # Use arg path
-            # Continue without device mapping if it fails
+            logging.warning(f"Could not load or process device mapping ({device_mapping_path}): {e}") # Use arg path
+            # Continue without device mapping if it fails, but initialize relevant vars
+            device_mapping = {}
+            device_lookup = {}
+            entity_id_lookup = {}
+            light_entity_ids = set()
+            light_command_info = {}
     else:
         logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices/Lights tabs will be empty.") # Use arg path
+        # Ensure vars are initialized even if file not found
+        device_mapping = {}
+        device_lookup = {}
+        entity_id_lookup = {}
+        light_entity_ids = set()
+        light_command_info = {}
 
-    # Return new lookup maps as well
+
+    # Return all relevant loaded/processed data
     return decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info
 
 # --- Decoding Helpers ---
@@ -1055,34 +1071,27 @@ if __name__ == '__main__':
     # Argument Parsing
     parser = argparse.ArgumentParser(description='RV-C CAN Bus Monitor')
     parser.add_argument('-i', '--interfaces', nargs='+', default=DEFAULT_INTERFACES, help='CAN interface names (e.g., can0 can1)')
-    parser.add_argument('-d', '--definitions', default='/etc/nixos/files/rvc.json', help='Path to the RVC definitions JSON file')
-    parser.add_argument('-m', '--mapping', default='/etc/nixos/files/device_mapping.yml', help='Path to the device mapping YAML file')
+    parser.add_argument('-d', '--definitions', default=DEFAULT_RVC_SPEC_PATH, help='Path to the RVC definitions JSON file') # Use constant
+    parser.add_argument('-m', '--mapping', default=DEFAULT_DEVICE_MAPPING_PATH, help='Path to the device mapping YAML file') # Use constant
     args = parser.parse_args()
 
-    # --- Load Definitions ---
-    logging.info(f"Attempting to load RVC definitions from: {args.definitions}") # Added log
-    decoder_map = load_definitions(args.definitions)
-    if not decoder_map:
-        logging.error("Exiting due to failure loading definitions.") # Use logging
-        sys.exit(1)
-    # Log message from user occurs here: 15:54:37 - INFO - MainThread - Loaded 104 RVC message specs from /etc/nixos/files/rvc.json
+    # --- Load Definitions & Mapping ---
+    logging.info(f"Attempting to load RVC spec from: {args.definitions}")
+    logging.info(f"Attempting to load device mapping from: {args.mapping}")
+    # Call the renamed function with both paths and unpack all return values
+    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_config_data(args.definitions, args.mapping)
 
-    # --- Load Device Mapping ---
-    logging.info(f"Attempting to load device mapping from: {args.mapping}") # Added log
-    device_mapping, device_lookup = load_device_mapping(args.mapping)
-    if not device_mapping:
-        logging.warning("Could not load or parse device mapping file. Features requiring mapping will be limited.") # Use logging
-        device_mapping = {}
-        device_lookup = {}
-    logging.info(f"Device mapping loaded. Found {len(device_mapping)} mapped devices.") # Added log
+    # Check if decoder_map loaded successfully (load_config_data now handles sys.exit)
+    # No need for explicit check here if sys.exit is used on critical load errors
+
+    # REMOVED erroneous load_device_mapping call
 
     # Initialize global state dependent on args
     logging.info("Initializing global state...") # Added log
     INTERFACES = args.interfaces # Set global interfaces list
     latest_raw_records = {iface: {} for iface in INTERFACES}
     light_device_states = {} # Initialize light state dict (keyed by entity_id)
-    light_entity_ids = set() # Ensure this is initialized before pre-population
-    light_command_info = {} # Ensure this is initialized before pre-population
+    # light_entity_ids and light_command_info are already populated by load_config_data
     last_draw_data = { # Initialize cache structure based on interfaces and new tabs
          "lights": [],
          "logs": [], # Added logs cache
@@ -1092,37 +1101,27 @@ if __name__ == '__main__':
 
     # --- Pre-populate light_device_states --- START
     logging.info("Pre-populating light states...") # Added log
-    if device_mapping:
-        for key, config in device_mapping.items():
-            entity_id = config.get('entity_id')
-            ha_type = config.get('ha_type')
-            dgn_hex = config.get('dgn')
-            instance_str = str(config.get('instance', 'default')) # Use string for consistency
-
-            if entity_id and ha_type == 'light':
-                light_entity_ids.add(entity_id)
-                # Store command info (DGN/Instance) using entity_id as key
-                if dgn_hex:
-                    light_command_info[entity_id] = {'dgn_hex': dgn_hex, 'instance': instance_str}
-                else:
-                    logging.warning(f"Light entity '{entity_id}' in mapping lacks a DGN, cannot be controlled.")
-
-                # Add placeholder state
-                with light_states_lock:
-                    light_device_states[entity_id] = {
-                        'entity_id': entity_id,
-                        'friendly_name': config.get('friendly_name', entity_id),
-                        'suggested_area': config.get('suggested_area', 'Unknown'),
-                        'last_updated': 0, # Placeholder
-                        'last_interface': 'N/A',
-                        'last_raw_values': {},
-                        'last_decoded_data': {},
-                        'mapping_config': config,
-                        'dgn_hex': dgn_hex,
-                        'instance': instance_str,
-                        'state': 'unavailable' # Initial state
-                    }
-    logging.info(f"Pre-populated {len(light_entity_ids)} light entities.") # Added log
+    # Iterate over the entity_id_lookup created during loading
+    for entity_id, config in entity_id_lookup.items():
+        # Check if this entity was identified as a light
+        if entity_id in light_entity_ids:
+            # Add placeholder state using the config from entity_id_lookup
+            with light_states_lock:
+                light_device_states[entity_id] = {
+                    'entity_id': entity_id,
+                    'friendly_name': config.get('friendly_name', entity_id),
+                    'suggested_area': config.get('suggested_area', 'Unknown'),
+                    'last_updated': 0, # Placeholder
+                    'last_interface': 'N/A',
+                    'last_raw_values': {},
+                    'last_decoded_data': {'state': 'unavailable'}, # Initial state
+                    'mapping_config': config,
+                    # DGN/Instance might not be directly in this config if template was used,
+                    # but command info is in light_command_info. We can add them if needed for display.
+                    # 'dgn_hex': config.get('dgn'), # Example if needed
+                    # 'instance': config.get('instance'), # Example if needed
+                }
+    logging.info(f"Pre-populated {len(light_device_states)} light entities.") # Log count based on populated states
     # --- Pre-populate light_device_states --- END
 
     # Start reader threads only if definitions loaded successfully
