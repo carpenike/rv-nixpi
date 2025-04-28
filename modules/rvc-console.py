@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # --- Load Definitions ---
 def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
-    """Loads RVC spec and device mappings."""
+    """Loads RVC spec and device mappings, identifying light devices."""
     # Load RVC Spec
     try:
         # Use argument path
@@ -39,6 +39,7 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
     # Load Device Mapping
     device_mapping = {}
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
+    light_entity_ids = set() # Store entity_ids of devices identified as lights (Renamed from light_ha_names)
     # Use argument path
     if os.path.exists(device_mapping_path):
         try:
@@ -61,20 +62,28 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
                             else:
                                 merged_config = config
 
-                            # Ensure essential keys are present
-                            if 'ha_name' in merged_config and 'friendly_name' in merged_config:
+                            # Ensure essential keys are present (using entity_id now)
+                            if 'entity_id' in merged_config and 'friendly_name' in merged_config:
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
+                                # --- Identify Lights (using device_type now) ---
+                                # Check for a 'device_type' key set to 'light' (case-insensitive)
+                                if str(merged_config.get('device_type', '')).lower() == 'light':
+                                    light_entity_ids.add(merged_config['entity_id']) # Use entity_id
+                                    logging.debug(f"Identified '{merged_config['entity_id']}' as a light.")
+                                # --- End Identify Lights ---
                             else:
-                                logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'ha_name' or 'friendly_name'. Config: {config}")
+                                # Update warning message
+                                logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'entity_id' or 'friendly_name'. Config: {config}")
 
             logging.info(f"Loaded {len(device_lookup)} device mappings from {device_mapping_path}") # Use arg path
+            logging.info(f"Identified {len(light_entity_ids)} light devices.") # Use renamed set
         except Exception as e:
             logging.warning(f"Could not load or parse device mapping ({device_mapping_path}): {e}") # Use arg path
             # Continue without device mapping if it fails
     else:
-        logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices tab will be empty.") # Use arg path
+        logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices/Lights tabs will be empty.") # Use arg path
 
-    return decoder_map, device_mapping, device_lookup
+    return decoder_map, device_mapping, device_lookup, light_entity_ids # Return light entity_ids
 
 # --- Decoding Helpers ---
 def get_bits(data_bytes, start_bit, length):
@@ -112,27 +121,32 @@ def copy_to_clipboard(text):
 decoder_map = None
 device_mapping = None
 device_lookup = None
+light_entity_ids = set() # Renamed from light_ha_names
 latest_raw_records = {} # Initialized after interfaces are known
-mapped_device_states = {} # Keyed by ha_name
+mapped_device_states = {} # Keyed by entity_id (Changed from ha_name)
+light_device_states = {} # Keyed by entity_id for lights (Changed from ha_name)
 raw_records_lock = threading.Lock()
 mapped_states_lock = threading.Lock()
+light_states_lock = threading.Lock() # Lock for light states
 stop_event = threading.Event()
 copy_msg = None
 copy_time = 0
 sort_labels = ['A→Z', 'Newest', 'Oldest']
 mapped_sort_labels = ['Area→Name', 'Name', 'Newest']
+light_sort_labels = ['Area→Name', 'Name', 'Newest'] # Sort options for lights tab
 is_paused = False # Pause state flag
 pause_lock = threading.Lock() # Lock for pause state
 # Store the data used for the last draw, to display when paused
 last_draw_data = {
     "mapped": [],
+    "lights": [], # Add cache for lights tab
     "raw0": ([], {}), # (names, recs_copy)
     "raw1": ([], {}), # (names, recs_copy)
 }
 
 # --- Reader Thread ---
 def reader_thread(interface):
-    """Reads CAN messages, decodes, and updates raw records and mapped device states."""
+    """Reads CAN messages, decodes, and updates raw records, mapped device states, and light states."""
     try:
         bus = can.interface.Bus(channel=interface, interface='socketcan')
         logging.info(f"Successfully opened CAN interface {interface}")
@@ -181,22 +195,33 @@ def reader_thread(interface):
                          mapped_config = device_lookup.get((dgn_hex.upper(), 'default'))
 
                     if mapped_config:
-                        ha_name = mapped_config['ha_name']
+                        entity_id = mapped_config['entity_id'] # Use entity_id
+                        state_data = {
+                            'entity_id': entity_id, # Use entity_id
+                            'friendly_name': mapped_config.get('friendly_name', entity_id), # Use entity_id as fallback
+                            'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
+                            'last_updated': now,
+                            'last_interface': interface,
+                            'last_raw_values': raw_values, # Store raw values
+                            'last_decoded_data': decoded_data, # Store formatted values
+                            'mapping_config': mapped_config, # Store the mapping config itself
+                            'dgn_hex': dgn_hex,
+                            'instance': instance_str
+                        }
+
+                        # Update general mapped state (using entity_id as key)
                         with mapped_states_lock:
-                            state_entry = mapped_device_states.get(ha_name, {})
-                            state_entry.update({
-                                'ha_name': ha_name,
-                                'friendly_name': mapped_config.get('friendly_name', ha_name),
-                                'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
-                                'last_updated': now,
-                                'last_interface': interface,
-                                'last_raw_values': raw_values, # Store raw values
-                                'last_decoded_data': decoded_data, # Store formatted values
-                                'mapping_config': mapped_config, # Store the mapping config itself
-                                'dgn_hex': dgn_hex,
-                                'instance': instance_str
-                            })
-                            mapped_device_states[ha_name] = state_entry
+                            state_entry = mapped_device_states.get(entity_id, {})
+                            state_entry.update(state_data)
+                            mapped_device_states[entity_id] = state_entry
+
+                        # Update light state if it's a light (using entity_id)
+                        if entity_id in light_entity_ids: # Check against light_entity_ids
+                            with light_states_lock:
+                                light_state_entry = light_device_states.get(entity_id, {})
+                                light_state_entry.update(state_data)
+                                light_device_states[entity_id] = light_state_entry
+
             # --- End Update Mapped Device State ---
 
         except can.CanError as e:
@@ -226,14 +251,15 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
     curses.init_pair(4, curses.COLOR_CYAN, -1)   # Data labels / Raw IDs
     curses.init_pair(5, curses.COLOR_YELLOW, -1) # Copy message / Important values
     curses.init_pair(6, curses.COLOR_MAGENTA, -1) # Area / Secondary info
+    curses.init_pair(7, curses.COLOR_RED, -1)    # Error / Action Hint
 
     # Make getch non-blocking
     stdscr.nodelay(1)
     stdscr.timeout(100)
 
     # Dynamically generate tabs based on interfaces
-    tabs = ["Mapped Devices"] + [f"{iface.upper()} Raw" for iface in interfaces]
-    # Simple tab keys for now, assumes max ~9 interfaces + mapped
+    tabs = ["Mapped Devices", "Lights"] + [f"{iface.upper()} Raw" for iface in interfaces]
+    # Simple tab keys for now, assumes max ~9 interfaces + mapped + lights
     tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][:len(tabs)]
     current_tab_index = 0
 
@@ -255,7 +281,11 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                     is_paused = not is_paused
                 # Immediately clear cached data when unpausing to force refresh
                 if not is_paused:
-                     last_draw_data = { "mapped": [], **{f"raw{i}": ([], {}) for i in range(len(interfaces))} }
+                     last_draw_data = {
+                         "mapped": [],
+                         "lights": [], # Clear lights cache too
+                         **{f"raw{i}": ([], {}) for i in range(len(interfaces))}
+                     }
 
 
             # Tab switching
@@ -280,6 +310,7 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
 
         # Data for drawing - fetch ONLY if not paused, otherwise use cached
         mapped_items_to_draw = []
+        light_items_to_draw = []
         raw_names_to_draw = []
         raw_recs_to_draw = {}
         interface_for_raw_tab = None
@@ -291,10 +322,15 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                     # Make a copy to avoid holding lock during sort/draw
                     mapped_items_to_draw = list(mapped_device_states.values())
                 last_draw_data["mapped"] = mapped_items_to_draw # Cache fresh data
+            elif active_tab_name == "Lights":
+                with light_states_lock:
+                    # Make a copy
+                    light_items_to_draw = list(light_device_states.values())
+                last_draw_data["lights"] = light_items_to_draw # Cache fresh data
             elif " Raw" in active_tab_name:
                 try:
-                    # Determine interface based on tab name/index relative to "Mapped Devices"
-                    iface_index = current_tab_index - 1
+                    # Determine interface based on tab name/index relative to "Mapped Devices" and "Lights"
+                    iface_index = current_tab_index - 2 # Adjust index for new tab
                     if 0 <= iface_index < len(interfaces):
                         interface_for_raw_tab = interfaces[iface_index]
                         with raw_records_lock:
@@ -312,8 +348,10 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         else: # Use cached data if paused
              if active_tab_name == "Mapped Devices":
                  mapped_items_to_draw = last_draw_data["mapped"]
+             elif active_tab_name == "Lights":
+                 light_items_to_draw = last_draw_data["lights"]
              elif " Raw" in active_tab_name:
-                 iface_index = current_tab_index - 1
+                 iface_index = current_tab_index - 2 # Adjust index
                  if 0 <= iface_index < len(interfaces):
                      interface_for_raw_tab = interfaces[iface_index]
                      # Retrieve cached data
@@ -340,6 +378,9 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         if active_tab_name == "Mapped Devices":
              sort_label = mapped_sort_labels[state['sort_mode']]
              num_sort_modes = len(mapped_sort_labels)
+        elif active_tab_name == "Lights":
+             sort_label = light_sort_labels[state['sort_mode']]
+             num_sort_modes = len(light_sort_labels)
         elif " Raw" in active_tab_name:
              sort_label = sort_labels[state['sort_mode']]
              num_sort_modes = len(sort_labels)
@@ -357,18 +398,25 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         if active_tab_name == "Mapped Devices":
             # Pass fetched/cached data to drawing function
             draw_mapped_devices_tab(stdscr, h, w, max_rows, state, mapped_items_to_draw)
+        elif active_tab_name == "Lights":
+            # Pass fetched/cached light data
+            draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
         elif " Raw" in active_tab_name and interface_for_raw_tab:
             # Pass fetched/cached data and interface name
             draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
 
-        # --- Copy Notification ---
+        # --- Copy/Action Notification ---
         if copy_msg and time.time() - copy_time < 3:
-            stdscr.attron(curses.color_pair(5) | curses.A_BOLD)
+            # Use yellow for copy, red for action hint
+            msg_color = curses.color_pair(5) if "copied" in copy_msg else curses.color_pair(7)
+            stdscr.attron(msg_color | curses.A_BOLD)
             stdscr.addnstr(h - 2, 0, copy_msg[:w - 1].ljust(w - 1), w - 1)
-            stdscr.attroff(curses.color_pair(5) | curses.A_BOLD)
+            stdscr.attroff(msg_color | curses.A_BOLD)
 
         # --- Footer ---
         footer = "Arrows: Navigate | "
+        if active_tab_name == "Lights":
+             footer += "Enter: Control | " # Add hint for lights tab
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
         footer += " | S: Sort | C: Copy | P: Pause | Q: Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
@@ -459,11 +507,114 @@ def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items): # Accept item
                 "last_raw_values": item_to_copy.get('last_raw_values', {}),
                 "last_updated": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item_to_copy.get('last_updated'))),
                 "dgn": item_to_copy.get('dgn_hex'),
-                "instance": item_to_copy.get('instance')
+                "instance": item_to_copy.get('instance'),
+                "entity_id": item_to_copy.get('entity_id') # Add entity_id
             }
             txt = json.dumps(copy_data, indent=2)
             copy_to_clipboard(txt)
             copy_msg = f"Mapped device '{item_to_copy.get('friendly_name')}' data copied."
+            copy_time = time.time()
+        state['_copy_action'] = False # Reset flag
+
+
+# --- New Drawing Function for Lights Tab ---
+def draw_lights_tab(stdscr, h, w, max_rows, state, items):
+    """Draws the 'Lights' tab content."""
+    global copy_msg, copy_time
+    # Column setup (similar to mapped devices)
+    col_area_w = max(15, w // 6)
+    col_name_w = max(25, w // 3)
+    col_state_w = w - col_area_w - col_name_w - 3 # Remaining width for state
+    pad = 2
+    area_start = pad
+    name_start = area_start + col_area_w + 1 + pad
+    state_start = name_start + col_name_w + 1 + pad
+
+    # Titles
+    stdscr.addnstr(2, area_start, "Area".ljust(col_area_w), col_area_w, curses.A_BOLD)
+    stdscr.addnstr(2, name_start, "Light Name".ljust(col_name_w), col_name_w, curses.A_BOLD)
+    stdscr.addnstr(2, state_start, "Status / Control".ljust(col_state_w), col_state_w, curses.A_BOLD)
+    stdscr.hline(3, 0, '-', w)
+    # Vertical separators
+    for y in range(2, h - 2):
+        stdscr.addch(y, area_start + col_area_w, '|')
+        stdscr.addch(y, name_start + col_name_w, '|')
+
+    # Sort the passed-in items list using light_sort_labels
+    sort_mode = state['sort_mode']
+    if sort_mode == 0: # Area -> Name
+        items.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
+    elif sort_mode == 1: # Name
+        items.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
+    elif sort_mode == 2: # Newest
+        items.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
+
+    total = len(items)
+    selected_idx = state['selected_idx']
+    v_offset = state['v_offset']
+
+    # Adjust view window
+    if total:
+        selected_idx = max(0, min(selected_idx, total - 1))
+        if selected_idx < v_offset:
+            v_offset = selected_idx
+        elif selected_idx >= v_offset + max_rows:
+            v_offset = selected_idx - max_rows + 1
+        state['selected_idx'] = selected_idx
+        state['v_offset'] = v_offset
+    else:
+        state['selected_idx'] = state['v_offset'] = 0
+
+    # --- Scroll Indicators ---
+    if v_offset > 0:
+        stdscr.addstr(4, w - 1, "↑", curses.A_DIM)
+    if v_offset + max_rows < total:
+        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
+
+    # Draw list items
+    for idx in range(v_offset, min(v_offset + max_rows, total)):
+        row = 4 + idx - v_offset
+        item = items[idx]
+        is_selected = (idx == selected_idx)
+        attr = curses.color_pair(2) | curses.A_BOLD if is_selected else curses.color_pair(3)
+        area_attr = curses.color_pair(6) if not is_selected else attr # Different color for area
+
+        stdscr.addnstr(row, area_start, item.get('suggested_area', 'N/A').ljust(col_area_w), col_area_w, area_attr)
+        stdscr.addnstr(row, name_start, item.get('friendly_name', 'N/A').ljust(col_name_w), col_name_w, attr)
+
+        # Display state - Look for common light state signals (e.g., 'state', 'brightness')
+        decoded = item.get('last_decoded_data', {})
+        state_str = decoded.get('state', 'Unknown') # Default to 'state' signal if present
+        brightness = decoded.get('brightness') # Check for brightness
+        if brightness is not None:
+            state_str += f" ({brightness})"
+
+        # Add control hint if selected
+        if is_selected:
+            state_str += " [Enter to Control]"
+            state_attr = curses.color_pair(7) | curses.A_BOLD # Use red/action hint color
+        else:
+            state_attr = attr
+
+        stdscr.addnstr(row, state_start, state_str.ljust(col_state_w), col_state_w, state_attr)
+
+    # --- Copy Action for Lights Tab ---
+    if state.get('_copy_action', False):
+        if total:
+            item_to_copy = items[selected_idx]
+            # Copy relevant info (similar to mapped devices)
+            copy_data = {
+                "mapping": item_to_copy.get('mapping_config', {}),
+                "last_state": item_to_copy.get('last_decoded_data', {}),
+                "last_raw_values": item_to_copy.get('last_raw_values', {}),
+                "last_updated": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item_to_copy.get('last_updated'))),
+                "dgn": item_to_copy.get('dgn_hex'),
+                "instance": item_to_copy.get('instance'),
+                "entity_id": item_to_copy.get('entity_id') # Add entity_id
+            }
+            txt = json.dumps(copy_data, indent=2)
+            copy_to_clipboard(txt)
+            copy_msg = f"Light '{item_to_copy.get('friendly_name')}' data copied."
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
@@ -582,6 +733,7 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 # Modify handle_input to accept interfaces and pass them down if needed
 def handle_input_for_tab(c, active_tab_name, state, interfaces):
     """Handles key presses based on the active tab."""
+    global copy_msg, copy_time # Allow modification
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
@@ -600,16 +752,24 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
         total = len(items_list)
         num_sort_modes = len(mapped_sort_labels)
         if 0 <= state['selected_idx'] < total:
-             current_id = items_list[state['selected_idx']].get('ha_name')
+             current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
+    elif active_tab_name == "Lights":
+        items_list = last_draw_data["lights"] # Use cached light data
+        total = len(items_list)
+        num_sort_modes = len(light_sort_labels)
+        if 0 <= state['selected_idx'] < total:
+             current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
     elif " Raw" in active_tab_name:
         iface_index = -1
         try: # Find interface index based on tab name
             iface_name_part = active_tab_name.split(" ")[0].lower()
+            # Adjust index based on preceding tabs ("Mapped", "Lights")
             iface_index = interfaces.index(iface_name_part)
         except (ValueError, IndexError):
              pass
 
         if iface_index != -1:
+             # Use the correct key for raw data cache
              names_list, _ = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
              total = len(names_list)
              num_sort_modes = len(sort_labels)
@@ -639,7 +799,7 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
         # This is imperfect if data changed between input and now while paused,
         # but keeps selection relatively stable without complex locking here.
         if current_id:
-            new_items_sorted = [] # This will be a list of IDs (ha_name or message name)
+            new_items_sorted = [] # This will be a list of IDs (entity_id or message name)
             if active_tab_name == "Mapped Devices":
                  items_list = last_draw_data["mapped"] # Use cached
                  sm = state['sort_mode']
@@ -649,16 +809,26 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
                  if sm == 0: items_list_copy.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
                  elif sm == 1: items_list_copy.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
                  elif sm == 2: items_list_copy.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
-                 new_items_sorted = [item.get('ha_name') for item in items_list_copy]
+                 new_items_sorted = [item.get('entity_id') for item in items_list_copy]
+            elif active_tab_name == "Lights":
+                 items_list = last_draw_data["lights"] # Use cached light data
+                 sm = state['sort_mode']
+                 items_list_copy = list(items_list)
+                 if sm == 0: items_list_copy.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
+                 elif sm == 1: items_list_copy.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
+                 elif sm == 2: items_list_copy.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
+                 new_items_sorted = [item.get('entity_id') for item in items_list_copy]
 
             elif " Raw" in active_tab_name:
                  iface_index = -1
                  try:
                      iface_name_part = active_tab_name.split(" ")[0].lower()
+                     # Adjust index based on preceding tabs ("Mapped", "Lights")
                      iface_index = interfaces.index(iface_name_part)
                  except (ValueError, IndexError): pass
 
                  if iface_index != -1:
+                     # Use correct cache key
                      names_list, recs_dict = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
                      sm = state['sort_mode']
                      # Re-sort cached names based on cached recs
@@ -681,15 +851,22 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
     elif c in (ord('c'), ord('C')):
         state['_copy_action'] = True # Signal draw function to perform copy
 
-    # --- Command/Control (Placeholder) ---
-    # elif c == curses.KEY_ENTER or c == ord('\n'):
-    #     if active_tab_name == "Mapped Devices" and total:
-    #         with mapped_states_lock: # Read under lock
-    #             selected_item = list(mapped_device_states.values())[selected_idx]
-    #         # TODO: Implement command logic based on selected_item['mapping_config']
-    #         # Example: Show menu, construct CAN message, send via bus.write()
-    #         copy_msg = f"Action on '{selected_item.get('friendly_name')}' (Not Implemented)"
-    #         copy_time = time.time()
+    # --- Command/Control (Placeholder for Lights) ---
+    elif c == curses.KEY_ENTER or c == ord('\n'):
+        if active_tab_name == "Lights" and total:
+            # Use cached data to identify the selected item without needing lock
+            selected_item_data = last_draw_data["lights"][state['selected_idx']]
+            light_name = selected_item_data.get('friendly_name', 'Unknown Light')
+            # TODO: Implement actual command logic here
+            # Example: Determine command based on current state, construct CAN msg, send
+            copy_msg = f"Control action for '{light_name}' (Not Implemented)"
+            copy_time = time.time()
+        # elif active_tab_name == "Mapped Devices" and total:
+        #     # Placeholder for potential future actions on other devices
+        #     selected_item_data = last_draw_data["mapped"][state['selected_idx']]
+        #     dev_name = selected_item_data.get('friendly_name', 'Unknown Device')
+        #     copy_msg = f"Action on '{dev_name}' (Not Implemented)"
+        #     copy_time = time.time()
 
 
 # --- Entry Point ---
@@ -703,14 +880,17 @@ if __name__ == '__main__':
                         help=f"List of CAN interfaces to monitor (default: {' '.join(DEFAULT_INTERFACES)})" )
     args = parser.parse_args()
 
-    # Load definitions using paths from args
-    decoder_map, device_mapping, device_lookup = load_definitions(args.spec_file, args.mapping_file)
+    # Load definitions using paths from args, now returns light_entity_ids
+    decoder_map, device_mapping, device_lookup, light_entity_ids = load_definitions(args.spec_file, args.mapping_file) # Use renamed variable
 
     # Initialize global state dependent on args
     INTERFACES = args.interfaces # Set global interfaces list
     latest_raw_records = {iface: {} for iface in INTERFACES}
-    last_draw_data = { # Initialize cache structure based on interfaces
+    light_device_states = {} # Initialize light state dict (keyed by entity_id)
+    mapped_device_states = {} # Initialize mapped state dict (keyed by entity_id)
+    last_draw_data = { # Initialize cache structure based on interfaces and new tabs
          "mapped": [],
+         "lights": [], # Add lights cache
          **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
     }
 
