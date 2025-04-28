@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # --- Load Definitions ---
 def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
-    """Loads RVC spec and device mappings, identifying light devices."""
+    """Loads RVC spec and device mappings, identifying light devices and command info."""
     # Load RVC Spec
     try:
         # Use argument path
@@ -41,6 +41,7 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
     entity_id_lookup = {} # New lookup: entity_id -> mapped_config
     light_entity_ids = set() # Store entity_ids of devices identified as lights
+    light_command_info = {} # New: Store command DGN/Instance per light entity_id
     # Use argument path
     if os.path.exists(device_mapping_path):
         try:
@@ -67,13 +68,23 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
                             if 'entity_id' in merged_config and 'friendly_name' in merged_config:
                                 entity_id = merged_config['entity_id'] # Get entity_id
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
-                                entity_id_lookup[entity_id] = merged_config # Populate new lookup
+                                # Populate entity_id lookup only once per entity_id (first encountered wins for simplicity)
+                                if entity_id not in entity_id_lookup:
+                                    entity_id_lookup[entity_id] = merged_config
 
-                                # --- Identify Lights (using device_type now) ---
-                                # Check for a 'device_type' key set to 'light' (case-insensitive)
+                                # --- Identify Lights and Command Info (using device_type now) ---
                                 if str(merged_config.get('device_type', '')).lower() == 'light':
                                     light_entity_ids.add(entity_id) # Use entity_id
                                     logging.debug(f"Identified '{entity_id}' as a light.")
+                                    # Check if the DGN is the command DGN (1FEDA) and store command info
+                                    if dgn_hex.upper() == '1FEDA':
+                                        try:
+                                            instance_int = int(instance_str) # Ensure instance is int
+                                            # Store command info (overwrite if found again, assuming last is correct)
+                                            light_command_info[entity_id] = {'dgn': 0x1FEDA, 'instance': instance_int}
+                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FEDA, Instance={instance_int}")
+                                        except ValueError:
+                                            logging.warning(f"Invalid instance '{instance_str}' for light command DGN {dgn_hex} and entity {entity_id}")
                                 # --- End Identify Lights ---
                             else:
                                 # Update warning message
@@ -81,14 +92,15 @@ def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
 
             logging.info(f"Loaded {len(device_lookup)} device mappings from {device_mapping_path}") # Use arg path
             logging.info(f"Identified {len(light_entity_ids)} light devices.") # Use renamed set
+            logging.info(f"Found command info for {len(light_command_info)} lights.")
         except Exception as e:
             logging.warning(f"Could not load or parse device mapping ({device_mapping_path}): {e}") # Use arg path
             # Continue without device mapping if it fails
     else:
         logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices/Lights tabs will be empty.") # Use arg path
 
-    # Return new lookup map as well
-    return decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup
+    # Return new lookup maps as well
+    return decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info
 
 # --- Decoding Helpers ---
 def get_bits(data_bytes, start_bit, length):
@@ -115,6 +127,24 @@ def decode_payload(entry, data_bytes):
         decoded[sig['name']] = formatted
     return decoded, raw_values # Return both formatted and raw
 
+# --- CAN Sending Helper ---
+def send_can_command(interface, can_id, data):
+    """Sends a CAN message."""
+    try:
+        # Use context manager for bus cleanup
+        with can.interface.Bus(channel=interface, interface='socketcan', receive_own_messages=False) as bus:
+            msg = can.Message(arbitration_id=can_id, data=data, is_extended_id=True)
+            bus.send(msg)
+            logging.info(f"Sent CAN msg on {interface}: ID=0x{can_id:08X}, Data={data.hex().upper()}")
+            return True
+    except can.CanError as e:
+        logging.error(f"Error sending CAN message on {interface}: {e}")
+        return False
+    except Exception as e:
+        # Catch specific exceptions if possible, e.g., OSError if interface down
+        logging.error(f"Unexpected error sending CAN message on {interface}: {e}")
+        return False
+
 # OSC52 copy to clipboard
 def copy_to_clipboard(text):
     payload = base64.b64encode(text.encode()).decode()
@@ -127,6 +157,7 @@ decoder_map = None
 device_mapping = None
 device_lookup = None
 light_entity_ids = set() # Renamed from light_ha_names
+light_command_info = {} # Added: Stores DGN/Instance for commanding lights
 latest_raw_records = {} # Initialized after interfaces are known
 mapped_device_states = {} # Keyed by entity_id (Changed from ha_name)
 light_device_states = {} # Keyed by entity_id for lights (Changed from ha_name)
@@ -148,6 +179,7 @@ last_draw_data = {
     "raw0": ([], {}), # (names, recs_copy)
     "raw1": ([], {}), # (names, recs_copy)
 }
+INTERFACES = [] # Will be populated by args
 
 # --- Reader Thread ---
 def reader_thread(interface):
@@ -738,7 +770,7 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 # Modify handle_input to accept interfaces and pass them down if needed
 def handle_input_for_tab(c, active_tab_name, state, interfaces):
     """Handles key presses based on the active tab."""
-    global copy_msg, copy_time # Allow modification
+    global copy_msg, copy_time, light_command_info, INTERFACES # Allow modification and access globals
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
@@ -856,23 +888,86 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
     elif c in (ord('c'), ord('C')):
         state['_copy_action'] = True # Signal draw function to perform copy
 
-    # --- Command/Control (Placeholder for Lights) ---
+    # --- Command/Control (Lights Only for now) ---
     elif c == curses.KEY_ENTER or c == ord('\n'):
         if active_tab_name == "Lights" and total:
             # Use cached data to identify the selected item without needing lock
             selected_item_data = last_draw_data["lights"][state['selected_idx']]
+            entity_id = selected_item_data.get('entity_id')
             light_name = selected_item_data.get('friendly_name', 'Unknown Light')
-            # TODO: Implement actual command logic here
-            # Example: Determine command based on current state, construct CAN msg, send
-            copy_msg = f"Control action for '{light_name}' (Not Implemented)"
+
+            if not entity_id:
+                copy_msg = "Error: Could not get entity_id for selected light."
+                copy_time = time.time()
+                return # Exit if no entity_id
+
+            # Get command info from the global lookup
+            cmd_info = light_command_info.get(entity_id)
+            if not cmd_info:
+                copy_msg = f"Error: No command info found for '{light_name}' (DGN 1FEDA mapping missing?)."
+                copy_time = time.time()
+                return # Exit if no command info
+
+            instance = cmd_info['instance']
+            dgn = cmd_info['dgn'] # Should be 0x1FEDA
+
+            # Determine current state and desired command (Simple Toggle ON/OFF)
+            current_state = selected_item_data.get('last_decoded_data', {}).get('state', 'Unknown').upper()
+            command = 0 # Default to Set Level (ON)
+            brightness = 100 # Default brightness for ON (0-100%)
+            duration = 251 # Instant
+            action_desc = "Turning ON"
+
+            # Check if the light is currently considered ON
+            # Be lenient with state check (e.g., "ON", "ON (50%)", "1")
+            if current_state != 'OFF' and current_state != 'UNKNOWN' and current_state != '0':
+                command = 3 # OFF command
+                brightness = 0 # Brightness irrelevant for OFF command per spec
+                action_desc = "Turning OFF"
+
+            # Construct CAN ID (Priority 6, PGN 0x1FEDA, Source 0x63)
+            priority = 6
+            source_addr = 0x63 # 99
+            # J1939 ID construction: (Prio << 26) | (PGN << 8) | SourceAddr
+            # PGN for 1FEDA is 0x1FEDA
+            can_id = (priority << 26) | (dgn << 8) | source_addr
+
+            # Construct Data Payload (8 bytes) - RVC_LIGHT_COMMAND (1FEDA)
+            # Byte 0: Instance
+            # Byte 1: Reserved (FF)
+            # Byte 2: Level (0-100%, FE=Ignore, FF=Invalid)
+            # Byte 3: Command (0=Set Level, 3=Off)
+            # Byte 4: Duration (0-25.0s, 251=Instant, 254=Ignore, 255=Invalid)
+            # Bytes 5-7: Reserved (FF FF FF)
+            data = bytearray(8)
+            data[0] = instance & 0xFF
+            data[1] = 0xFF
+            data[2] = brightness & 0xFF
+            data[3] = command & 0xFF
+            data[4] = duration & 0xFF
+            data[5] = 0xFF
+            data[6] = 0xFF
+            data[7] = 0xFF
+
+            # Send command on the first interface
+            if INTERFACES:
+                target_interface = INTERFACES[0]
+                logging.info(f"Attempting to send command for '{light_name}' ({action_desc}) via {target_interface}")
+                if send_can_command(target_interface, can_id, bytes(data)):
+                    copy_msg = f"Sent {action_desc} command for '{light_name}'."
+                    # Optimistically update the cached state? Risky without confirmation.
+                    # Maybe clear state to 'Updating...'?
+                    # For now, just rely on the next status message received.
+                else:
+                    copy_msg = f"Error sending command for '{light_name}'."
+            else:
+                copy_msg = "Error: No CAN interfaces defined to send command."
+
             copy_time = time.time()
+
         # elif active_tab_name == "Mapped Devices" and total:
         #     # Placeholder for potential future actions on other devices
-        #     selected_item_data = last_draw_data["mapped"][state['selected_idx']]
-        #     dev_name = selected_item_data.get('friendly_name', 'Unknown Device')
-        #     copy_msg = f"Action on '{dev_name}' (Not Implemented)"
-        #     copy_time = time.time()
-
+        #     pass
 
 # --- Entry Point ---
 if __name__ == '__main__':
@@ -885,8 +980,8 @@ if __name__ == '__main__':
                         help=f"List of CAN interfaces to monitor (default: {' '.join(DEFAULT_INTERFACES)})" )
     args = parser.parse_args()
 
-    # Load definitions using paths from args, now returns light_entity_ids and entity_id_lookup
-    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup = load_definitions(args.spec_file, args.mapping_file)
+    # Load definitions using paths from args, now returns light_command_info
+    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_definitions(args.spec_file, args.mapping_file)
 
     # Initialize global state dependent on args
     INTERFACES = args.interfaces # Set global interfaces list
