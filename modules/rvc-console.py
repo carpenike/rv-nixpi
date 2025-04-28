@@ -486,11 +486,20 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                 # pass # Or log a warning
 
         # --- Data Fetching (Conditional based on Pause) ---
-        # ...existing code...
+        with pause_lock:
+            paused_now = is_paused # Read pause state under lock
+
+        active_tab_name = tabs[current_tab_index]
+        # Check if active_tab_name exists in tab_state before accessing
+        state = tab_state.get(active_tab_name) # Use .get for safety
+        if not state:
+            # Handle case where state might be missing (shouldn't happen with current logic)
+            # logging.warning(f"State not found for active tab: {active_tab_name}")
+            continue # Skip drawing cycle if state is missing
+
         # Data for drawing - fetch ONLY if not paused, otherwise use cached
         # mapped_items_to_draw = [] # REMOVED
         light_items_to_draw = []
-        # log_items_to_draw = [] # REMOVED
         log_items_to_draw = [] # <-- Restore log items list
         raw_names_to_draw = []
         raw_recs_to_draw = {}
@@ -498,41 +507,50 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
 
         if not paused_now:
             # Fetch fresh data
+            # Ensure the following block is correctly indented under 'if not paused_now:'
             if active_tab_name == "Lights":
-                # ...existing code...
-            # --- REMOVED Fetching for Logs Tab ---
+                with light_states_lock:
+                    # Make a copy
+                    light_items_to_draw = list(light_device_states.values())
+                last_draw_data["lights"] = light_items_to_draw # Cache fresh data
             # --- Restore Fetching for Logs Tab ---
-            elif active_tab_name == "Logs":
+            elif active_tab_name == "Logs": # Ensure this elif aligns with the 'if' above
                 with log_records_lock:
                     # Make a copy of the deque items (newest first for display)
                     log_items_to_draw = list(log_records)[::-1]
                 last_draw_data["logs"] = log_items_to_draw # Cache fresh data
-            elif " Raw" in active_tab_name:
+            elif " Raw" in active_tab_name: # Ensure this elif aligns with the 'if' above
                 try:
                     # Determine interface based on tab name/index relative to "Lights"
-                    # iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
                     # Restore original index calculation
                     iface_index = current_tab_index - 2
-                    # ...existing code...
+                    if 0 <= iface_index < len(interfaces):
+                        interface_for_raw_tab = interfaces[iface_index]
+                        with raw_records_lock:
+                             # Make copies
+                             raw_recs_to_draw = latest_raw_records[interface_for_raw_tab].copy()
+                        raw_names_to_draw = list(raw_recs_to_draw.keys()) # Get names from the copy
+                        # Cache fresh data (use index for key robustness)
+                        last_draw_data[f"raw{iface_index}"] = (raw_names_to_draw, raw_recs_to_draw)
+                    else: # Should not happen if tabs/keys are correct
+                         logging.warning(f"Could not determine interface for tab: {active_tab_name}")
+
                 except Exception as e:
                      logging.exception(f"Error fetching raw data for {active_tab_name}")
 
-        else: # Use cached data if paused
+        else: # Use cached data if paused - Ensure this 'else' aligns with 'if not paused_now:'
              if active_tab_name == "Lights":
                  light_items_to_draw = last_draw_data["lights"]
-             # --- REMOVED Cache Retrieval for Logs Tab ---
              # --- Restore Cache Retrieval for Logs Tab ---
              elif active_tab_name == "Logs":
                  log_items_to_draw = last_draw_data["logs"]
              elif " Raw" in active_tab_name:
-                 # iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
                  # Restore original index calculation
                  iface_index = current_tab_index - 2
                  if 0 <= iface_index < len(interfaces):
                      interface_for_raw_tab = interfaces[iface_index]
                      # Retrieve cached data
                      raw_names_to_draw, raw_recs_to_draw = last_draw_data.get(f"raw{iface_index}", ([], {}))
-
 
         # --- Drawing ---
         stdscr.erase()
