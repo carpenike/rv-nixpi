@@ -130,19 +130,27 @@ def decode_payload(entry, data_bytes):
 # --- CAN Sending Helper ---
 def send_can_command(interface, can_id, data):
     """Sends a CAN message."""
+    bus = None # Initialize bus to None
     try:
+        logging.debug(f"Attempting to create CAN bus for interface {interface}...")
         # Use context manager for bus cleanup
         with can.interface.Bus(channel=interface, interface='socketcan', receive_own_messages=False) as bus:
+            logging.debug(f"CAN bus created for {interface}. Preparing message...")
             msg = can.Message(arbitration_id=can_id, data=data, is_extended_id=True)
+            logging.debug(f"Message prepared: ID=0x{can_id:08X}, Data={data.hex().upper()}. Attempting send...")
             bus.send(msg)
+            # Add log immediately after send returns
+            logging.debug(f"bus.send() completed for {interface}.")
             logging.info(f"Sent CAN msg on {interface}: ID=0x{can_id:08X}, Data={data.hex().upper()}")
             return True
     except can.CanError as e:
-        logging.error(f"Error sending CAN message on {interface}: {e}")
+        # Log the specific CanError
+        logging.error(f"CAN Error sending message on {interface}: {type(e).__name__} - {e}")
         return False
     except Exception as e:
         # Catch specific exceptions if possible, e.g., OSError if interface down
-        logging.error(f"Unexpected error sending CAN message on {interface}: {e}")
+        # Log the specific Exception type
+        logging.error(f"Unexpected error sending CAN message on {interface}: {type(e).__name__} - {e}")
         return False
 
 # OSC52 copy to clipboard
