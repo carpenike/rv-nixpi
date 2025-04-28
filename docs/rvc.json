@@ -1295,10 +1295,10 @@
         { "name": "function_instance",     "start_bit":  11, "length": 5 },
         { "name": "function_code",         "start_bit":  16, "length": 8 },
         { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
-        { "name": "config_type_lsb",       "start_bit":  32, "length": 8 },
-        { "name": "config_type_mid",       "start_bit":  40, "length": 8 },
-        { "name": "config_type_msb",       "start_bit":  48, "length": 8 },
-        { "name": "config_revision",       "start_bit":  56, "length": 8 }
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
       ]
     },
     {
@@ -1315,10 +1315,10 @@
         { "name": "function_instance",     "start_bit":  11, "length": 5 },
         { "name": "function_code",         "start_bit":  16, "length": 8 },
         { "name": "firmware_revision",     "start_bit":  24, "length": 8 },
-        { "name": "config_type_lsb",       "start_bit":  32, "length": 8 },
-        { "name": "config_type_mid",       "start_bit":  40, "length": 8 },
-        { "name": "config_type_msb",       "start_bit":  48, "length": 8 },
-        { "name": "config_revision",       "start_bit":  56, "length": 8 }
+        { "name": "configuration_type_lsb","start_bit":  32, "length": 8 },
+        { "name": "configuration_type_mid","start_bit":  40, "length": 8 },
+        { "name": "configuration_type_msb","start_bit":  48, "length": 8 },
+        { "name": "configuration_revision","start_bit":  56, "length": 8 }
       ]
     },
     {
