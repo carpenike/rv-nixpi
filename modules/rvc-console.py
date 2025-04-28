@@ -52,9 +52,9 @@ console_handler.setFormatter(log_formatter)
 logging.getLogger().addHandler(console_handler)
 
 # Configure our custom list handler
-# list_handler = ListLogHandler(log_records, log_records_lock)
-# list_handler.setFormatter(log_formatter)
-# logging.getLogger().addHandler(list_handler)
+list_handler = ListLogHandler(log_records, log_records_lock)
+list_handler.setFormatter(log_formatter)
+# logging.getLogger().addHandler(list_handler) # <-- Keep this commented out here
 
 # Set overall logging level
 logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
@@ -313,7 +313,7 @@ pause_lock = threading.Lock() # Lock for pause state
 last_draw_data = {
     # "mapped": [], # REMOVED
     "lights": [],
-    # "logs": [], # REMOVED
+    "logs": [], # <-- Restore logs cache entry
     "raw0": ([], {}), # (names, recs_copy)
     "raw1": ([], {}), # (names, recs_copy)
 }
@@ -408,7 +408,9 @@ def reader_thread(interface):
 # --- Main UI Drawing ---
 def draw_screen(stdscr, interfaces): # Accept interfaces list
     # REMOVED log_records and log_records_lock from global declaration as they are not used when handler is disabled
-    global copy_msg, copy_time, is_paused, last_draw_data
+    # global copy_msg, copy_time, is_paused, last_draw_data
+    # Restore log_records and log_records_lock to global declaration
+    global copy_msg, copy_time, is_paused, last_draw_data, log_records, log_records_lock
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -427,26 +429,30 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
 
     # Dynamically generate tabs based on interfaces - REMOVED "Mapped Devices", ADDED "Logs"
     # REMOVED "Logs" tab as the handler is disabled
-    tabs = ["Lights"] + [f"{iface.upper()} Raw" for iface in interfaces]
+    # tabs = ["Lights"] + [f"{iface.upper()} Raw" for iface in interfaces]
+    # Restore "Logs" tab
+    tabs = ["Lights", "Logs"] + [f"{iface.upper()} Raw" for iface in interfaces]
     # Adjust tab keys
     # Adjusted tab keys for removed "Logs" tab
-    tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'][:len(tabs)]
+    # tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'][:len(tabs)]
+    # Restore original tab keys
+    tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][:len(tabs)]
     current_tab_index = 0
 
     # State per tab - REMOVED "Mapped Devices", ADDED "Logs"
     tab_state = {name: {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0} for name in tabs}
     # Logs tab doesn't need sorting state
     # REMOVED logic for "Logs" tab state
+    # Restore logic for "Logs" tab state
+    if "Logs" in tab_state:
+        del tab_state["Logs"]['sort_mode']
 
     while True:
         # --- Input Handling ---
         c = stdscr.getch()
 
         if c != curses.ERR:
-            if c in (ord('q'), ord('Q')):
-                stop_event.set()
-                break
-
+            # ...existing code...
             # Pause Toggle
             elif c in (ord('p'), ord('P')):
                 with pause_lock:
@@ -456,44 +462,18 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                      last_draw_data = {
                          # "mapped": [], # REMOVED
                          "lights": [],
-                         # "logs": [], # Clear logs cache too
+                         "logs": [], # <-- Restore logs cache clearing
                          **{f"raw{i}": ([], {}) for i in range(len(interfaces))}
                      }
-
-
-            # Tab switching
-            try:
-                key_char = chr(c)
-                if key_char in tab_keys:
-                    current_tab_index = tab_keys.index(key_char)
-            except (ValueError, IndexError):
-                 pass # Ignore non-character/invalid keys
-
-            # Context-aware actions (pass interfaces for raw tabs)
-            active_tab_name = tabs[current_tab_index]
-            # Check if active_tab_name exists in tab_state before accessing
-            if active_tab_name in tab_state:
-                state = tab_state[active_tab_name]
-                handle_input_for_tab(c, active_tab_name, state, interfaces) # Pass interfaces
-            # else: # Handle case where tab might not have state (e.g., if Logs was still somehow selected)
-                # pass # Or log a warning
+            # ...existing code...
 
         # --- Data Fetching (Conditional based on Pause) ---
-        with pause_lock:
-            paused_now = is_paused # Read pause state under lock
-
-        active_tab_name = tabs[current_tab_index]
-        # Check if active_tab_name exists in tab_state before accessing
-        state = tab_state.get(active_tab_name) # Use .get for safety
-        if not state:
-            # Handle case where state might be missing (shouldn't happen with current logic)
-            # logging.warning(f"State not found for active tab: {active_tab_name}")
-            continue # Skip drawing cycle if state is missing
-
+        # ...existing code...
         # Data for drawing - fetch ONLY if not paused, otherwise use cached
         # mapped_items_to_draw = [] # REMOVED
         light_items_to_draw = []
         # log_items_to_draw = [] # REMOVED
+        log_items_to_draw = [] # <-- Restore log items list
         raw_names_to_draw = []
         raw_recs_to_draw = {}
         interface_for_raw_tab = None
@@ -501,27 +481,21 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         if not paused_now:
             # Fetch fresh data
             if active_tab_name == "Lights":
-                with light_states_lock:
-                    # Make a copy
-                    light_items_to_draw = list(light_device_states.values())
-                last_draw_data["lights"] = light_items_to_draw # Cache fresh data
+                # ...existing code...
             # --- REMOVED Fetching for Logs Tab ---
+            # --- Restore Fetching for Logs Tab ---
+            elif active_tab_name == "Logs":
+                with log_records_lock:
+                    # Make a copy of the deque items (newest first for display)
+                    log_items_to_draw = list(log_records)[::-1]
+                last_draw_data["logs"] = log_items_to_draw # Cache fresh data
             elif " Raw" in active_tab_name:
                 try:
                     # Determine interface based on tab name/index relative to "Lights"
-                    # iface_index = current_tab_index - 2 # Adjust index for new preceding tabs
-                    iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
-                    if 0 <= iface_index < len(interfaces):
-                        interface_for_raw_tab = interfaces[iface_index]
-                        with raw_records_lock:
-                             # Make copies
-                             raw_recs_to_draw = latest_raw_records[interface_for_raw_tab].copy()
-                        raw_names_to_draw = list(raw_recs_to_draw.keys()) # Get names from the copy
-                        # Cache fresh data (use index for key robustness)
-                        last_draw_data[f"raw{iface_index}"] = (raw_names_to_draw, raw_recs_to_draw)
-                    else: # Should not happen if tabs/keys are correct
-                         logging.warning(f"Could not determine interface for tab: {active_tab_name}")
-
+                    # iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
+                    # Restore original index calculation
+                    iface_index = current_tab_index - 2
+                    # ...existing code...
                 except Exception as e:
                      logging.exception(f"Error fetching raw data for {active_tab_name}")
 
@@ -529,9 +503,13 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
              if active_tab_name == "Lights":
                  light_items_to_draw = last_draw_data["lights"]
              # --- REMOVED Cache Retrieval for Logs Tab ---
+             # --- Restore Cache Retrieval for Logs Tab ---
+             elif active_tab_name == "Logs":
+                 log_items_to_draw = last_draw_data["logs"]
              elif " Raw" in active_tab_name:
-                 # iface_index = current_tab_index - 2 # Adjust index
-                 iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
+                 # iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
+                 # Restore original index calculation
+                 iface_index = current_tab_index - 2
                  if 0 <= iface_index < len(interfaces):
                      interface_for_raw_tab = interfaces[iface_index]
                      # Retrieve cached data
@@ -556,53 +534,40 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         sort_label = ""
         num_sort_modes = 0
         if active_tab_name == "Lights":
-             sort_label = light_sort_labels[state['sort_mode']]
-             num_sort_modes = len(light_sort_labels)
+             # ...existing code...
         elif " Raw" in active_tab_name:
-             sort_label = sort_labels[state['sort_mode']]
-             num_sort_modes = len(sort_labels)
+             # ...existing code...
         # Only show sort if applicable (not for Logs)
         # Always show sort if applicable (Logs tab removed)
+        # if sort_label: header_text += f"[S] Sort:{sort_label}  "
+        # Restore original logic (don't show sort for Logs)
         if sort_label: header_text += f"[S] Sort:{sort_label}  "
-        # Other actions
-        header_text += "[C] Copy  [P] Pause  [Q] Quit"
-        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-        stdscr.addnstr(0, 0, header_text.ljust(w), w)
-        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
-        stdscr.hline(1, 0, '-', w)
+        # ... existing code ...
 
         # --- Main Content Area ---
         max_rows = h - 5 # Rows available for content list
 
         if active_tab_name == "Lights":
-            # Pass fetched/cached light data
-            draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
+            # ...existing code...
         # --- REMOVED Drawing Call for Logs Tab ---
+        # --- Restore Drawing Call for Logs Tab ---
+        elif active_tab_name == "Logs":
+            draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw) # Pass log items
         elif " Raw" in active_tab_name and interface_for_raw_tab:
-            # Pass fetched/cached data and interface name
-            draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
+            # ...existing code...
 
-        # --- Copy/Action Notification ---
-        if copy_msg and time.time() - copy_time < 3:
-            # Use yellow for copy, red for action hint
-            msg_color = curses.color_pair(5) if "copied" in copy_msg else curses.color_pair(7)
-            stdscr.attron(msg_color | curses.A_BOLD)
-            stdscr.addnstr(h - 2, 0, copy_msg[:w - 1].ljust(w - 1), w - 1)
-            stdscr.attroff(msg_color | curses.A_BOLD)
-
+        # ... existing code ...
         # --- Footer ---
         footer = "Arrows: Navigate | "
         if active_tab_name == "Lights":
              footer += "Enter: Control | " # Add hint for lights tab
         # Update tab names in footer hint
+        # Restore hint for logs tab
+        elif active_tab_name == "Logs":
+             footer += "C: Copy Line | "
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
         footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
-        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-        stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w-1)
-        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
-
-        stdscr.refresh()
-
+        # ... existing code ...
 
 # --- Drawing Functions ---
 
@@ -610,43 +575,21 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
 # def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items):
 #    ...
 
-# Modify drawing functions to accept data
-def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
-    """Draws the 'Lights' tab content."""
+# --- REMOVE Drawing Function for Logs Tab ---
+# --- Restore Drawing Function for Logs Tab ---
+def draw_logs_tab(stdscr, h, w, max_rows, state, items):
+    """Draws the 'Logs' tab content."""
     global copy_msg, copy_time
-    # Column setup (similar to mapped devices)
-    col_area_w = max(15, w // 6)
-    col_name_w = max(25, w // 3)
-    col_state_w = w - col_area_w - col_name_w - 3 # Remaining width for state
-    pad = 2
-    area_start = pad
-    name_start = area_start + col_area_w + 1 + pad
-    state_start = name_start + col_name_w + 1 + pad
+    pad = 1
 
-    # Titles
-    stdscr.addnstr(2, area_start, "Area".ljust(col_area_w), col_area_w, curses.A_BOLD)
-    stdscr.addnstr(2, name_start, "Light Name".ljust(col_name_w), col_name_w, curses.A_BOLD)
-    stdscr.addnstr(2, state_start, "Status / Control".ljust(col_state_w), col_state_w, curses.A_BOLD)
-    stdscr.hline(3, 0, '-', w)
-    # Vertical separators
-    for y in range(2, h - 2):
-        stdscr.addch(y, area_start + col_area_w, '|')
-        stdscr.addch(y, name_start + col_name_w, '|')
-
-    # Sort the passed-in items list using light_sort_labels
-    sort_mode = state['sort_mode']
-    if sort_mode == 0: # Area -> Name
-        items.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
-    elif sort_mode == 1: # Name
-        items.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
-    elif sort_mode == 2: # Newest
-        items.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
+    # No titles needed, just list the logs
+    stdscr.hline(1, 0, '-', w) # Keep separator below header
 
     total = len(items)
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
 
-    # Adjust view window
+    # Adjust view window (Logs are newest first, so index 0 is newest)
     if total:
         selected_idx = max(0, min(selected_idx, total - 1))
         if selected_idx < v_offset:
@@ -660,378 +603,106 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
 
     # --- Scroll Indicators ---
     if v_offset > 0:
-        stdscr.addstr(4, w - 1, "↑", curses.A_DIM)
+        stdscr.addstr(2, w - 1, "↑", curses.A_DIM) # Start drawing from row 2
     if v_offset + max_rows < total:
         stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
 
-    # Draw list items
+    # Draw list items (log messages)
     for idx in range(v_offset, min(v_offset + max_rows, total)):
-        row = 4 + idx - v_offset
-        item = items[idx]
+        row = 2 + idx - v_offset # Start drawing from row 2
+        item_text = items[idx] # Items are already formatted strings
         is_selected = (idx == selected_idx)
-        attr = curses.color_pair(2) | curses.A_BOLD if is_selected else curses.color_pair(3)
-        area_attr = curses.color_pair(6) if not is_selected else attr # Different color for area
 
-        stdscr.addnstr(row, area_start, item.get('suggested_area', 'N/A').ljust(col_area_w), col_area_w, area_attr)
-        stdscr.addnstr(row, name_start, item.get('friendly_name', 'N/A').ljust(col_name_w), col_name_w, attr)
+        # Color based on log level
+        attr = curses.color_pair(3) # Default white
+        if "ERROR" in item_text:
+            attr = curses.color_pair(7) # Red
+        elif "WARNING" in item_text:
+            attr = curses.color_pair(5) # Yellow
+        elif "DEBUG" in item_text:
+            attr = curses.color_pair(6) # Magenta/Dim
 
-        # Display state - Look for common light state signals (e.g., 'state', 'brightness')
-        decoded = item.get('last_decoded_data', {})
-        state_str = decoded.get('state', 'Unknown') # Default to 'state' signal if present
-        brightness = decoded.get('brightness') # Check for brightness
-        if brightness is not None:
-            state_str += f" ({brightness})"
-
-        # Add control hint if selected
         if is_selected:
-            state_str += " [Enter to Control]"
-            state_attr = curses.color_pair(7) | curses.A_BOLD # Use red/action hint color
-        else:
-            state_attr = attr
+            attr |= curses.A_REVERSE # Highlight selected line
 
-        stdscr.addnstr(row, state_start, state_str.ljust(col_state_w), col_state_w, state_attr)
+        stdscr.addnstr(row, pad, item_text.ljust(w - pad * 2), w - pad * 2, attr)
 
-    # --- Copy Action for Lights Tab ---
+    # --- Copy Action for Logs Tab ---
     if state.get('_copy_action', False):
         if total:
             item_to_copy = items[selected_idx]
-            # Copy relevant info (similar to mapped devices)
-            copy_data = {
-                "mapping": item_to_copy.get('mapping_config', {}),
-                "last_state": item_to_copy.get('last_decoded_data', {}),
-                "last_raw_values": item_to_copy.get('last_raw_values', {}),
-                "last_updated": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item_to_copy.get('last_updated'))),
-                "dgn": item_to_copy.get('dgn_hex'),
-                "instance": item_to_copy.get('instance'),
-                "entity_id": item_to_copy.get('entity_id') # Add entity_id
-            }
-            txt = json.dumps(copy_data, indent=2)
-            copy_to_clipboard(txt)
-            copy_msg = f"Light '{item_to_copy.get('friendly_name')}' data copied."
+            copy_to_clipboard(item_to_copy)
+            copy_msg = f"Log line copied."
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
-
-# Modify drawing functions to accept data
-def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # Accept names, recs
-    """Draws the content for a Raw CAN tab."""
-    global copy_msg, copy_time
-    # Column setup (similar to original)
-    left_w = max(25, w // 4)
-    mid_w = max(35, (w - left_w - 3) // 2)
-    spec_w = w - left_w - mid_w - 3
-    left_pad = 2; mid_pad = 2; spec_pad = 2
-    left_cw = left_w - left_pad * 2
-    mid_start = left_w + 1 + mid_pad
-    mid_cw = mid_w - mid_pad * 2
-    spec_start = left_w + mid_w + 2 + spec_pad
-    spec_cw = spec_w - spec_pad * 2
-
-    # Titles
-    stdscr.addnstr(2, left_pad, 'Message Name'.center(left_cw), left_cw, curses.A_BOLD)
-    stdscr.addnstr(2, mid_start, 'Raw & Decoded'.center(mid_cw), mid_cw, curses.A_BOLD)
-    stdscr.addnstr(2, spec_start, 'Spec JSON'.center(spec_cw), spec_cw, curses.A_BOLD)
-    stdscr.hline(3, 0, '-', w)
-    # Vertical separators
-    for y in range(2, h - 2):
-        stdscr.addch(y, left_w, '|')
-        stdscr.addch(y, left_w + mid_w + 1, '|')
-
-    # Sort the passed-in names list based on the passed-in recs data
-    sort_mode = state['sort_mode']
-    if sort_mode == 0: # A->Z
-        names.sort()
-    elif sort_mode == 1: # Newest
-        names.sort(key=lambda n: recs.get(n, {}).get('last_received', 0), reverse=True)
-    else: # Oldest
-        names.sort(key=lambda n: recs.get(n, {}).get('first_received', 0))
-
-    total = len(names)
-    selected_idx = state['selected_idx']
-    v_offset = state['v_offset']
-
-    # Adjust view window
-    if total:
-        selected_idx = max(0, min(selected_idx, total - 1))
-        if selected_idx < v_offset:
-            v_offset = selected_idx
-        elif selected_idx >= v_offset + max_rows:
-            v_offset = selected_idx - max_rows + 1
-        state['selected_idx'] = selected_idx
-        state['v_offset'] = v_offset
-    else:
-       state['selected_idx'] = state['v_offset'] = 0
-
-    # --- Scroll Indicators ---
-    if v_offset > 0:
-        stdscr.addstr(4, w - 1, "↑", curses.A_DIM)
-    if v_offset + max_rows < total:
-        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
-
-    # Left pane: names
-    for idx in range(v_offset, min(v_offset + max_rows, total)):
-        row = 4 + idx - v_offset
-        name = names[idx]
-        is_selected = (idx == selected_idx)
-        attr = curses.color_pair(2) | curses.A_BOLD if is_selected else curses.color_pair(3)
-        # Show time since last seen
-        rec_data = recs.get(name, {})
-        time_since = time.time() - rec_data.get('last_received', time.time())
-        time_str = f" ({time_since:.1f}s)" if time_since < 600 else "" # Show if < 10 mins
-        display_name = (name + time_str).ljust(left_cw)
-        stdscr.addnstr(row, left_pad, display_name, left_cw, attr)
-
-    # Right panes: raw/decoded + spec
-    if total:
-        rec = recs.get(names[selected_idx], {}) # Use .get for safety
-        if rec: # Only draw if record exists
-            # Raw ID & data
-            stdscr.addnstr(4, mid_start, f"ID  : {rec.get('raw_id', 'N/A')}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
-            stdscr.addnstr(5, mid_start, f"Data: {rec.get('raw_data', 'N/A')}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
-            stdscr.addnstr(6, mid_start, f"IFace:{interface}".ljust(mid_cw), mid_cw, curses.color_pair(6))
-            # Decoded signals
-            line_offset = 8
-            decoded_data = rec.get('decoded', {})
-            for i, (s, v) in enumerate(decoded_data.items()):
-                row = line_offset + i
-                if row < h - 2:
-                    stdscr.addnstr(row, mid_start, f"{s}: {v}".ljust(mid_cw), mid_cw)
-            # Full spec JSON
-            try:
-                spec_data = rec.get('spec', {})
-                spec_lines = json.dumps(spec_data, indent=2).splitlines()
-                for i, ln in enumerate(spec_lines):
-                    row = 4 + i
-                    if row < h - 2:
-                        # Highlight DGN if present
-                        spec_attr = curses.color_pair(3)
-                        if '"dgn_hex":' in ln:
-                            spec_attr = curses.color_pair(5) | curses.A_BOLD
-                        stdscr.addnstr(row, spec_start, ln.ljust(spec_cw), spec_cw, spec_attr)
-            except Exception as e:
-                 stdscr.addnstr(4, spec_start, f"Error dumping spec: {e}", spec_cw, curses.A_BOLD | curses.color_pair(5))
-
-
-    # --- Copy Action for Raw Tab ---
-    if state.get('_copy_action', False):
-        if total:
-            rec_to_copy = recs.get(names[selected_idx], {})
-            txt = json.dumps(rec_to_copy.get('spec', {}), indent=2)
-            copy_to_clipboard(txt)
-            copy_msg = f"Spec for '{names[selected_idx]}' copied."
-            copy_time = time.time()
-        state['_copy_action'] = False # Reset flag
-
+# ... existing code ...
 
 # Modify handle_input to accept interfaces and pass them down if needed
 def handle_input_for_tab(c, active_tab_name, state, interfaces):
     """Handles key presses based on the active tab."""
     # REMOVED log_records and log_records_lock from global declaration
-    global copy_msg, copy_time, light_command_info, INTERFACES
-    # Get current state vars
-    selected_idx = state['selected_idx']
-    v_offset = state['v_offset']
-    # Use get for sort_mode as it might not exist if state wasn't found (though we try to prevent that)
-    sort_mode = state.get('sort_mode', 0)
-
-    # Determine total items based on tab (using cached data for consistency if paused)
-    # NOTE: This means sorting might operate on slightly stale data if paused,
-    # but it avoids needing locks here and keeps UI responsive.
-    # The draw function uses the truly latest (or cached) data for display.
-    total = 0
-    num_sort_modes = 0
-    current_id = None # ID of the item currently selected, used for stable sort selection
-
+    # Restore log_records and log_records_lock to global declaration
+    global copy_msg, copy_time, light_command_info, INTERFACES, log_records, log_records_lock
+    # ... existing code ...
     if active_tab_name == "Lights":
-        items_list = last_draw_data["lights"] # Use cached light data
+        # ...existing code...
+    # --- REMOVED Logic for Logs Tab ---
+    # --- Restore Logic for Logs Tab ---
+    elif active_tab_name == "Logs":
+        # Use log_records_lock when accessing log_records for count
+        with log_records_lock:
+            items_list = list(log_records) # Get a temporary list under lock
         total = len(items_list)
-        num_sort_modes = len(light_sort_labels)
-        if 0 <= state['selected_idx'] < total:
-             current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
+        num_sort_modes = 0 # No sorting for logs
+        # ID for logs is just the index, but we don't need stable selection on sort
+        current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
     elif " Raw" in active_tab_name:
         iface_index = -1
         try: # Find interface index based on tab name
             iface_name_part = active_tab_name.split(" ")[0].lower()
-            # Adjust index based on preceding tabs ("Lights")
-            iface_index = current_tab_index - 1 # Adjusted index
+            # Adjust index based on preceding tabs ("Lights", "Logs")
+            # iface_index = current_tab_index - 1 # Adjusted index
+            # Restore original index calculation
+            iface_index = current_tab_index - 2
         except (ValueError, IndexError):
              pass
+        # ... existing code ...
 
-        if iface_index != -1:
-             # Use the correct key for raw data cache
-             names_list, _ = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
-             total = len(names_list)
-             num_sort_modes = len(sort_labels)
-             if 0 <= state['selected_idx'] < total:
-                 current_id = names_list[state['selected_idx']] # Name is the ID
-
-    # --- Navigation ---
-    if c == curses.KEY_DOWN and total:
-        state['selected_idx'] = min(selected_idx + 1, total - 1)
-    elif c == curses.KEY_UP and total:
-        state['selected_idx'] = max(selected_idx - 0, 0)
-    elif c == curses.KEY_NPAGE and total: # Page Down
-        state['selected_idx'] = min(selected_idx + (curses.LINES - 5), total - 1) # Adjust step size
-    elif c == curses.KEY_PPAGE and total: # Page Up
-        state['selected_idx'] = max(selected_idx - (curses.LINES - 5), 0)
-    elif c == curses.KEY_HOME:
-        state['selected_idx'] = 0
-    elif c == curses.KEY_END and total:
-        state['selected_idx'] = total - 1
-
-    # --- Sorting ---
+    # ... existing code ...
     elif c in (ord('s'), ord('S')) and num_sort_modes > 0: # Check if sorting is applicable
-        # current_id was determined above using cached data
-        state['sort_mode'] = (state['sort_mode'] + 1) % num_sort_modes
-
-        # Re-find the selected item's index AFTER sorting (using cached data again)
+        # ... existing code ...
         if current_id is not None: # Check if we have a valid ID
             new_items_sorted = [] # This will be a list of IDs (entity_id or message name)
             if active_tab_name == "Lights":
-                 items_list = last_draw_data["lights"] # Use cached light data
-                 sm = state['sort_mode']
-                 items_list_copy = list(items_list)
-                 if sm == 0: items_list_copy.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
-                 elif sm == 1: items_list_copy.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
-                 elif sm == 2: items_list_copy.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
+                 # ... existing light sorting ...
                  new_items_sorted = [item.get('entity_id') for item in items_list_copy]
 
             elif " Raw" in active_tab_name:
                  iface_index = -1
                  try:
                      iface_name_part = active_tab_name.split(" ")[0].lower()
-                     # Adjust index based on preceding tabs ("Lights")
-                     iface_index = current_tab_index - 1 # Adjusted index
+                     # Adjust index based on preceding tabs ("Lights", "Logs")
+                     # iface_index = current_tab_index - 1 # Adjusted index
+                     # Restore original index calculation
+                     iface_index = current_tab_index - 2
                  except (ValueError, IndexError): pass
+                 # ... existing raw sorting ...
 
-                 if iface_index != -1:
-                     # Use correct cache key
-                     names_list, recs_dict = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
-                     sm = state['sort_mode']
-                     names_list_copy = list(names_list)
-                     if sm == 0: new_items_sorted = sorted(names_list_copy)
-                     elif sm == 1: new_items_sorted = sorted(names_list_copy, key=lambda n: recs_dict.get(n, {}).get('last_received', 0), reverse=True)
-                     else: new_items_sorted = sorted(names_list_copy, key=lambda n: recs_dict.get(n, {}).get('first_received', 0))
-
-            try:
-                # Find index of the original ID in the newly sorted list of IDs
-                state['selected_idx'] = new_items_sorted.index(current_id)
-            except (ValueError, IndexError): # Handle cases where ID might not be found (e.g., data changed rapidly)
-                state['selected_idx'] = 0 # Fallback
-        else:
-             state['selected_idx'] = 0 # Fallback if no current_id
-
-        state['v_offset'] = 0 # Reset scroll on sort
+            # ... existing code ...
 
     # --- Copying ---
     elif c in (ord('c'), ord('C')):
         # Only trigger copy action if the tab supports it (i.e., not Logs)
-        if active_tab_name != "Logs": # Check added for safety, though Logs tab is removed
-             state['_copy_action'] = True # Signal draw function to perform copy
+        # if active_tab_name != "Logs": # Check added for safety, though Logs tab is removed
+        # Restore original logic (allow copy on Logs tab)
+        state['_copy_action'] = True # Signal draw function to perform copy
 
-    # --- Command/Control (Lights Only for now) ---
-    elif c == curses.KEY_ENTER or c == ord('\n'):
-        if active_tab_name == "Lights" and total:
-            # Use cached data to identify the selected item without needing lock
-            selected_item_data = last_draw_data["lights"][state['selected_idx']]
-            entity_id = selected_item_data.get('entity_id')
-            light_name = selected_item_data.get('friendly_name', 'Unknown Light')
-
-            if not entity_id:
-                copy_msg = "Error: Could not get entity_id for selected light."
-                copy_time = time.time()
-                return # Exit if no entity_id
-
-            # Get command info from the global lookup
-            cmd_info = light_command_info.get(entity_id)
-            if not cmd_info:
-                copy_msg = f"Error: No command info found for '{light_name}' (DGN 1FEDA mapping missing?)."
-                copy_time = time.time()
-                return # Exit if no command info
-
-            instance = cmd_info['instance']
-            dgn = cmd_info['dgn'] # Should be 0x1FEDA
-
-            # Determine current state and desired command (Simple Toggle ON/OFF)
-            current_state = selected_item_data.get('last_decoded_data', {}).get('state', 'Unknown').upper()
-            command = 0 # Default to Set Level (ON)
-            brightness = 100 # Default brightness for ON (0-100%)
-            duration = 251 # Instant
-            action_desc = "Turning ON"
-
-            # Check if the light is currently considered ON
-            # Be lenient with state check (e.g., "ON", "ON (50%)", "1")
-            if current_state != 'OFF' and current_state != 'UNKNOWN' and current_state != '0':
-                command = 3 # OFF command
-                brightness = 0 # Brightness irrelevant for OFF command per spec
-                action_desc = "Turning OFF"
-
-            # Construct CAN ID (Priority 6, PGN 0x1FEDA, Source 0x63)
-            priority = 6
-            source_addr = 0x63 # 99
-            # J1939 ID construction: (Prio << 26) | (PGN << 8) | SourceAddr
-            # PGN for 1FEDA is 0x1FEDA
-            can_id = (priority << 26) | (dgn << 8) | source_addr
-
-            # Construct Data Payload (8 bytes) - RVC_LIGHT_COMMAND (1FEDA)
-            # Byte 0: Instance
-            # Byte 1: Reserved (FF)
-            # Byte 2: Level (0-100%, FE=Ignore, FF=Invalid)
-            # Byte 3: Command (0=Set Level, 3=Off)
-            # Byte 4: Duration (0-25.0s, 251=Instant, 254=Ignore, 255=Invalid)
-            # Bytes 5-7: Reserved (FF FF FF)
-            data = bytearray(8)
-            data[0] = instance & 0xFF
-            data[1] = 0xFF
-            data[2] = brightness & 0xFF
-            data[3] = command & 0xFF
-            data[4] = duration & 0xFF
-            data[5] = 0xFF
-            data[6] = 0xFF
-            data[7] = 0xFF
-
-            # Send command on the first interface
-            if INTERFACES:
-                target_interface = INTERFACES[0]
-                logging.info(f"Attempting to send command for '{light_name}' ({action_desc}) via {target_interface}")
-                if send_can_command(target_interface, can_id, bytes(data)):
-                    copy_msg = f"Sent {action_desc} command for '{light_name}'."
-                    # Optimistically update the cached state? Risky without confirmation.
-                    # Maybe clear state to 'Updating...'?
-                    # For now, just rely on the next status message received.
-                else:
-                    copy_msg = f"Error sending command for '{light_name}'."
-            else:
-                copy_msg = "Error: No CAN interfaces defined to send command."
-
-            copy_time = time.time()
-
-        # elif active_tab_name == "Mapped Devices" and total:
-        #     # Placeholder for potential future actions on other devices
-        #     pass
+    # ... existing code ...
 
 # --- Entry Point ---
 if __name__ == '__main__':
-    # Argument Parsing
-    parser = argparse.ArgumentParser(description='RV-C CAN Bus Monitor')
-    parser.add_argument('-i', '--interfaces', nargs='+', default=DEFAULT_INTERFACES, help='CAN interface names (e.g., can0 can1)')
-    parser.add_argument('-d', '--definitions', default=DEFAULT_RVC_SPEC_PATH, help='Path to the RVC definitions JSON file') # Use constant
-    parser.add_argument('-m', '--mapping', default=DEFAULT_DEVICE_MAPPING_PATH, help='Path to the device mapping YAML file') # Use constant
-    args = parser.parse_args()
-
-    # --- Load Definitions & Mapping ---
-    logging.info(f"Attempting to load RVC spec from: {args.definitions}")
-    sys.stderr.flush() # Force flush after first log
-    logging.info(f"Attempting to load device mapping from: {args.mapping}")
-    sys.stderr.flush() # Force flush after second log
-    # Call the renamed function with both paths and unpack all return values
-    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_config_data(args.definitions, args.mapping)
-
-    # Check if decoder_map loaded successfully (load_config_data now handles sys.exit)
-    # No need for explicit check here if sys.exit is used on critical load errors
-
-    # REMOVED erroneous load_device_mapping call
-
+    # ... existing code ...
     # Initialize global state dependent on args
     logging.info("Initializing global state...") # Added log
     INTERFACES = args.interfaces # Set global interfaces list
@@ -1040,63 +711,21 @@ if __name__ == '__main__':
     # light_entity_ids and light_command_info are already populated by load_config_data
     last_draw_data = { # Initialize cache structure based on interfaces and new tabs
          "lights": [],
-         # "logs": [], # REMOVED logs cache
+         "logs": [], # <-- Ensure logs cache is initialized
          **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
     }
     logging.info("Global state initialized.") # Added log
 
-    # --- Pre-populate light_device_states --- START
-    logging.info("Pre-populating light states...") # Added log
-    # Iterate over the entity_id_lookup created during loading
-    for entity_id, config in entity_id_lookup.items():
-        # Check if this entity was identified as a light
-        if entity_id in light_entity_ids:
-            # Add placeholder state using the config from entity_id_lookup
-            with light_states_lock:
-                light_device_states[entity_id] = {
-                    'entity_id': entity_id,
-                    'friendly_name': config.get('friendly_name', entity_id),
-                    'suggested_area': config.get('suggested_area', 'Unknown'),
-                    'last_updated': 0, # Placeholder
-                    'last_interface': 'N/A',
-                    'last_raw_values': {},
-                    'last_decoded_data': {'state': 'unavailable'}, # Initial state
-                    'mapping_config': config,
-                    # DGN/Instance might not be directly in this config if template was used,
-                    # but command info is in light_command_info. We can add them if needed for display.
-                    # 'dgn_hex': config.get('dgn'), # Example if needed
-                    # 'instance': config.get('instance'), # Example if needed
-                }
-    logging.info(f"Pre-populated {len(light_device_states)} light entities.") # Log count based on populated states
-    # --- Pre-populate light_device_states --- END
-
-    # Start reader threads only if definitions loaded successfully
-    # Note: decoder_map check is implicitly true if we reached here
-    logging.info("Starting CAN reader threads...") # Log before starting threads
-    threads = []
-    for interface in INTERFACES:
-        thread = threading.Thread(target=reader_thread, args=(interface,), name=f"Reader-{interface}")
-        thread.daemon = True
-        threads.append(thread)
-        thread.start()
-        logging.info(f"Started reader thread for {interface}.") # Log after each thread start
+    # ... existing code ...
 
     # --- Start Curses UI ---
+    # Add the ListLogHandler *just before* starting curses
+    logging.info("Adding ListLogHandler before starting UI...")
+    logging.getLogger().addHandler(list_handler)
+
     logging.info("Attempting to start curses UI...") # Log before curses
     # Remove the console handler *just before* starting curses
     logging.getLogger().removeHandler(console_handler)
     try:
         curses.wrapper(draw_screen, INTERFACES) # Pass interfaces list
-    except Exception as e:
-        # Ensure console handler is back if curses fails
-        logging.getLogger().addHandler(console_handler)
-        logging.exception("Unhandled exception in curses main loop!")
-    finally:
-        # Ensure console handler is back after curses finishes or crashes
-        if console_handler not in logging.getLogger().handlers:
-             logging.getLogger().addHandler(console_handler)
-        logging.info("Requesting threads to stop...")
-        stop_event.set()
-        for t in threads:
-            t.join(timeout=1.0) # Add a timeout to prevent hanging
-        logging.info("Threads stopped. Exiting.")
+    # ... existing code ...
