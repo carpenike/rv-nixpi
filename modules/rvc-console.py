@@ -8,31 +8,42 @@ from collections import defaultdict
 import can
 import yaml # Added for device mapping
 import os # Added for file existence check
+import threading # Ensure threading is imported for Lock
+import logging # Added for logging
+import argparse # Added for command-line arguments
 
 # --- Configuration ---
-RVC_SPEC_PATH = '/etc/nixos/files/rvc.json'
-DEVICE_MAPPING_PATH = '/etc/nixos/files/device_mapping.yaml'
-INTERFACES = ['can0', 'can1']
+# Defaults, can be overridden by args
+DEFAULT_RVC_SPEC_PATH = '/etc/nixos/files/rvc.json'
+DEFAULT_DEVICE_MAPPING_PATH = '/etc/nixos/files/device_mapping.yaml'
+DEFAULT_INTERFACES = ['can0', 'can1']
+
+# --- Logging Setup ---
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(threadName)s - %(message)s')
 
 # --- Load Definitions ---
-def load_definitions():
+def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
     """Loads RVC spec and device mappings."""
     # Load RVC Spec
     try:
-        with open(RVC_SPEC_PATH) as f:
+        # Use argument path
+        with open(rvc_spec_path) as f:
             specs = json.load(f)['messages']
         decoder_map = {entry['id']: entry for entry in specs if 'id' in entry} # Key by decimal ID
-        print(f"Loaded {len(decoder_map)} RVC message specs from {RVC_SPEC_PATH}")
+        logging.info(f"Loaded {len(decoder_map)} RVC message specs from {rvc_spec_path}")
     except Exception as e:
-        print(f"Error loading RVC spec ({RVC_SPEC_PATH}): {e}", file=sys.stderr)
+        # Use argument path in error message
+        logging.error(f"Error loading RVC spec ({rvc_spec_path}): {e}")
         sys.exit(1)
 
     # Load Device Mapping
     device_mapping = {}
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
-    if os.path.exists(DEVICE_MAPPING_PATH):
+    # Use argument path
+    if os.path.exists(device_mapping_path):
         try:
-            with open(DEVICE_MAPPING_PATH) as f:
+            # Use argument path
+            with open(device_mapping_path) as f:
                 raw_mapping = yaml.safe_load(f)
                 # Process into a more direct lookup table
                 templates = raw_mapping.get('templates', {})
@@ -54,14 +65,14 @@ def load_definitions():
                             if 'ha_name' in merged_config and 'friendly_name' in merged_config:
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
                             else:
-                                print(f"Warning: Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'ha_name' or 'friendly_name'. Config: {config}", file=sys.stderr)
+                                logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'ha_name' or 'friendly_name'. Config: {config}")
 
-            print(f"Loaded {len(device_lookup)} device mappings from {DEVICE_MAPPING_PATH}")
+            logging.info(f"Loaded {len(device_lookup)} device mappings from {device_mapping_path}") # Use arg path
         except Exception as e:
-            print(f"Warning: Could not load or parse device mapping ({DEVICE_MAPPING_PATH}): {e}", file=sys.stderr)
+            logging.warning(f"Could not load or parse device mapping ({device_mapping_path}): {e}") # Use arg path
             # Continue without device mapping if it fails
     else:
-        print(f"Warning: Device mapping file not found ({DEVICE_MAPPING_PATH}). Mapped Devices tab will be empty.", file=sys.stderr)
+        logging.warning(f"Device mapping file not found ({device_mapping_path}). Mapped Devices tab will be empty.") # Use arg path
 
     return decoder_map, device_mapping, device_lookup
 
@@ -97,22 +108,36 @@ def copy_to_clipboard(text):
     sys.stdout.flush()
 
 # --- Global State ---
-decoder_map, device_mapping, device_lookup = load_definitions()
-latest_raw_records = {iface: {} for iface in INTERFACES} # Renamed from latest_records
+# Initialized after arg parsing
+decoder_map = None
+device_mapping = None
+device_lookup = None
+latest_raw_records = {} # Initialized after interfaces are known
 mapped_device_states = {} # Keyed by ha_name
+raw_records_lock = threading.Lock()
+mapped_states_lock = threading.Lock()
 stop_event = threading.Event()
 copy_msg = None
 copy_time = 0
-sort_labels = ['A→Z', 'Newest', 'Oldest'] # For raw view
-mapped_sort_labels = ['Area→Name', 'Name', 'Newest'] # For mapped view
+sort_labels = ['A→Z', 'Newest', 'Oldest']
+mapped_sort_labels = ['Area→Name', 'Name', 'Newest']
+is_paused = False # Pause state flag
+pause_lock = threading.Lock() # Lock for pause state
+# Store the data used for the last draw, to display when paused
+last_draw_data = {
+    "mapped": [],
+    "raw0": ([], {}), # (names, recs_copy)
+    "raw1": ([], {}), # (names, recs_copy)
+}
 
 # --- Reader Thread ---
 def reader_thread(interface):
     """Reads CAN messages, decodes, and updates raw records and mapped device states."""
     try:
         bus = can.interface.Bus(channel=interface, interface='socketcan')
+        logging.info(f"Successfully opened CAN interface {interface}")
     except Exception as e:
-        print(f"Error opening CAN interface {interface}: {e}", file=sys.stderr)
+        logging.error(f"Error opening CAN interface {interface}: {e}")
         return # Exit thread if CAN interface fails
 
     while not stop_event.is_set():
@@ -127,58 +152,70 @@ def reader_thread(interface):
             # --- Update Raw Records ---
             if entry and not entry.get('name', '').startswith('UNKNOWN'):
                 name = entry['name']
-                rec = latest_raw_records[interface].get(name, {})
-                rec.setdefault('first_received', now)
-                rec['last_received'] = now
-                decoded_data, raw_values = decode_payload(entry, msg.data)
-                rec.update({
-                    'raw_id': f"0x{msg.arbitration_id:08X}",
-                    'raw_data': msg.data.hex().upper(),
-                    'decoded': decoded_data,
-                    'spec': entry,
-                    'interface': interface
-                })
-                latest_raw_records[interface][name] = rec
+                # --- Update Raw Records (Locked) ---
+                with raw_records_lock:
+                    rec = latest_raw_records[interface].get(name, {})
+                    rec.setdefault('first_received', now)
+                    rec['last_received'] = now
+                    decoded_data, raw_values = decode_payload(entry, msg.data)
+                    rec.update({
+                        'raw_id': f"0x{msg.arbitration_id:08X}",
+                        'raw_data': msg.data.hex().upper(),
+                        'decoded': decoded_data,
+                        'spec': entry,
+                        'interface': interface
+                    })
+                    latest_raw_records[interface][name] = rec
+                # --- End Update Raw Records ---
 
-                # --- Update Mapped Device State ---
+                # --- Update Mapped Device State (Locked) ---
                 dgn_hex = entry.get('dgn_hex')
                 instance_raw = raw_values.get('instance') # Get raw instance value
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
                     # Check specific instance, then default
+                    # Lookup doesn't need lock as device_lookup is read-only after init
                     mapped_config = device_lookup.get((dgn_hex.upper(), instance_str))
                     if not mapped_config:
                          mapped_config = device_lookup.get((dgn_hex.upper(), 'default'))
 
                     if mapped_config:
                         ha_name = mapped_config['ha_name']
-                        state_entry = mapped_device_states.get(ha_name, {})
-                        state_entry.update({
-                            'ha_name': ha_name,
-                            'friendly_name': mapped_config.get('friendly_name', ha_name),
-                            'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
-                            'last_updated': now,
-                            'last_interface': interface,
-                            'last_raw_values': raw_values, # Store raw values
-                            'last_decoded_data': decoded_data, # Store formatted values
-                            'mapping_config': mapped_config, # Store the mapping config itself
-                            'dgn_hex': dgn_hex,
-                            'instance': instance_str
-                        })
-                        mapped_device_states[ha_name] = state_entry
+                        with mapped_states_lock:
+                            state_entry = mapped_device_states.get(ha_name, {})
+                            state_entry.update({
+                                'ha_name': ha_name,
+                                'friendly_name': mapped_config.get('friendly_name', ha_name),
+                                'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
+                                'last_updated': now,
+                                'last_interface': interface,
+                                'last_raw_values': raw_values, # Store raw values
+                                'last_decoded_data': decoded_data, # Store formatted values
+                                'mapping_config': mapped_config, # Store the mapping config itself
+                                'dgn_hex': dgn_hex,
+                                'instance': instance_str
+                            })
+                            mapped_device_states[ha_name] = state_entry
             # --- End Update Mapped Device State ---
 
         except can.CanError as e:
-            print(f"CAN Error on {interface}: {e}", file=sys.stderr)
+            logging.error(f"CAN Error on {interface}: {e}")
             time.sleep(5) # Avoid spamming errors if bus goes down
         except Exception as e:
-            print(f"Error in reader thread for {interface}: {e}", file=sys.stderr)
-            # Optionally add more robust error handling or thread restart logic
+            logging.exception(f"Unhandled error in reader thread for {interface}") # Log traceback
+            time.sleep(1) # Prevent tight loop on unexpected errors
+
+    # Cleanup
+    try:
+        bus.shutdown()
+        logging.info(f"Closed CAN interface {interface}")
+    except Exception as e:
+        logging.error(f"Error shutting down CAN interface {interface}: {e}")
 
 # --- Main UI Drawing ---
-def draw_screen(stdscr):
-    global copy_msg, copy_time
+def draw_screen(stdscr, interfaces): # Accept interfaces list
+    global copy_msg, copy_time, is_paused, last_draw_data
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -190,38 +227,125 @@ def draw_screen(stdscr):
     curses.init_pair(5, curses.COLOR_YELLOW, -1) # Copy message / Important values
     curses.init_pair(6, curses.COLOR_MAGENTA, -1) # Area / Secondary info
 
-    tabs = ["Mapped Devices", "CAN0 Raw", "CAN1 Raw"]
-    tab_keys = ['1', '9', '0'] # Keys to activate tabs
+    # Make getch non-blocking
+    stdscr.nodelay(1)
+    stdscr.timeout(100)
+
+    # Dynamically generate tabs based on interfaces
+    tabs = ["Mapped Devices"] + [f"{iface.upper()} Raw" for iface in interfaces]
+    # Simple tab keys for now, assumes max ~9 interfaces + mapped
+    tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][:len(tabs)]
     current_tab_index = 0
 
-    # State per tab (selection, offset, sort mode)
-    tab_state = {
-        "Mapped Devices": {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0},
-        "CAN0 Raw": {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0},
-        "CAN1 Raw": {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0},
-    }
+    # State per tab
+    tab_state = {name: {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0} for name in tabs}
 
     while True:
+        # --- Input Handling ---
+        c = stdscr.getch()
+
+        if c != curses.ERR:
+            if c in (ord('q'), ord('Q')):
+                stop_event.set()
+                break
+
+            # Pause Toggle
+            elif c in (ord('p'), ord('P')):
+                with pause_lock:
+                    is_paused = not is_paused
+                # Immediately clear cached data when unpausing to force refresh
+                if not is_paused:
+                     last_draw_data = { "mapped": [], **{f"raw{i}": ([], {}) for i in range(len(interfaces))} }
+
+
+            # Tab switching
+            try:
+                key_char = chr(c)
+                if key_char in tab_keys:
+                    current_tab_index = tab_keys.index(key_char)
+            except (ValueError, IndexError):
+                 pass # Ignore non-character/invalid keys
+
+            # Context-aware actions (pass interfaces for raw tabs)
+            active_tab_name = tabs[current_tab_index]
+            state = tab_state[active_tab_name]
+            handle_input_for_tab(c, active_tab_name, state, interfaces) # Pass interfaces
+
+        # --- Data Fetching (Conditional based on Pause) ---
+        with pause_lock:
+            paused_now = is_paused # Read pause state under lock
+
+        active_tab_name = tabs[current_tab_index]
+        state = tab_state[active_tab_name]
+
+        # Data for drawing - fetch ONLY if not paused, otherwise use cached
+        mapped_items_to_draw = []
+        raw_names_to_draw = []
+        raw_recs_to_draw = {}
+        interface_for_raw_tab = None
+
+        if not paused_now:
+            # Fetch fresh data
+            if active_tab_name == "Mapped Devices":
+                with mapped_states_lock:
+                    # Make a copy to avoid holding lock during sort/draw
+                    mapped_items_to_draw = list(mapped_device_states.values())
+                last_draw_data["mapped"] = mapped_items_to_draw # Cache fresh data
+            elif " Raw" in active_tab_name:
+                try:
+                    # Determine interface based on tab name/index relative to "Mapped Devices"
+                    iface_index = current_tab_index - 1
+                    if 0 <= iface_index < len(interfaces):
+                        interface_for_raw_tab = interfaces[iface_index]
+                        with raw_records_lock:
+                             # Make copies
+                             raw_recs_to_draw = latest_raw_records[interface_for_raw_tab].copy()
+                        raw_names_to_draw = list(raw_recs_to_draw.keys()) # Get names from the copy
+                        # Cache fresh data (use index for key robustness)
+                        last_draw_data[f"raw{iface_index}"] = (raw_names_to_draw, raw_recs_to_draw)
+                    else: # Should not happen if tabs/keys are correct
+                         logging.warning(f"Could not determine interface for tab: {active_tab_name}")
+
+                except Exception as e:
+                     logging.exception(f"Error fetching raw data for {active_tab_name}")
+
+        else: # Use cached data if paused
+             if active_tab_name == "Mapped Devices":
+                 mapped_items_to_draw = last_draw_data["mapped"]
+             elif " Raw" in active_tab_name:
+                 iface_index = current_tab_index - 1
+                 if 0 <= iface_index < len(interfaces):
+                     interface_for_raw_tab = interfaces[iface_index]
+                     # Retrieve cached data
+                     raw_names_to_draw, raw_recs_to_draw = last_draw_data.get(f"raw{iface_index}", ([], {}))
+
+
+        # --- Drawing ---
         stdscr.erase()
         h, w = stdscr.getmaxyx()
-        active_tab_name = tabs[current_tab_index]
-        state = tab_state[active_tab_name] # Current tab's state
 
         # --- Header ---
         header_text = ""
+        # Pause indicator
+        if paused_now:
+             header_text += "[PAUSED] "
+        # Tabs
         for i, name in enumerate(tabs):
             key = tab_keys[i]
             indicator = "*" if i == current_tab_index else " "
             header_text += f"[{key}]{indicator}{name}{indicator}  "
-
+        # Sort mode
+        sort_label = ""
+        num_sort_modes = 0
         if active_tab_name == "Mapped Devices":
              sort_label = mapped_sort_labels[state['sort_mode']]
-             header_text += f"[S] Sort:{sort_label}  "
-        elif "Raw" in active_tab_name:
+             num_sort_modes = len(mapped_sort_labels)
+        elif " Raw" in active_tab_name:
              sort_label = sort_labels[state['sort_mode']]
-             header_text += f"[S] Sort:{sort_label}  "
-
-        header_text += "[C] Copy  [Q] Quit"
+             num_sort_modes = len(sort_labels)
+        if sort_label: header_text += f"[S] Sort:{sort_label}  "
+        # Other actions
+        header_text += "[C] Copy  [P] Pause  [Q] Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
         stdscr.addnstr(0, 0, header_text.ljust(w), w)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
@@ -231,11 +355,11 @@ def draw_screen(stdscr):
         max_rows = h - 5 # Rows available for content list
 
         if active_tab_name == "Mapped Devices":
-            draw_mapped_devices_tab(stdscr, h, w, max_rows, state)
-        elif active_tab_name == "CAN0 Raw":
-            draw_raw_can_tab(stdscr, h, w, max_rows, state, INTERFACES[0])
-        elif active_tab_name == "CAN1 Raw":
-            draw_raw_can_tab(stdscr, h, w, max_rows, state, INTERFACES[1])
+            # Pass fetched/cached data to drawing function
+            draw_mapped_devices_tab(stdscr, h, w, max_rows, state, mapped_items_to_draw)
+        elif " Raw" in active_tab_name and interface_for_raw_tab:
+            # Pass fetched/cached data and interface name
+            draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
 
         # --- Copy Notification ---
         if copy_msg and time.time() - copy_time < 3:
@@ -246,40 +370,16 @@ def draw_screen(stdscr):
         # --- Footer ---
         footer = "Arrows: Navigate | "
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
-        footer += " | S: Sort | C: Copy | Q: Quit"
+        footer += " | S: Sort | C: Copy | P: Pause | Q: Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
         stdscr.addnstr(h - 1, 0, footer[:w - 1].ljust(w-1), w - 1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
 
         stdscr.refresh()
 
-        # --- Input Handling ---
-        c = stdscr.getch() # Blocking call
 
-        if c in (ord('q'), ord('Q'), ord('0') and active_tab_name != "CAN1 Raw"): # Allow 0 for CAN1 tab
-             if active_tab_name == "CAN1 Raw" and c == ord('0'):
-                 current_tab_index = tabs.index("CAN1 Raw")
-             else:
-                 stop_event.set()
-                 break # Exit main loop
-
-        # Tab switching
-        try:
-            key_char = chr(c)
-            if key_char in tab_keys:
-                current_tab_index = tab_keys.index(key_char)
-                # Reset selection when switching tabs? Optional.
-                # state['selected_idx'] = 0
-                # state['v_offset'] = 0
-                continue # Redraw immediately
-        except ValueError: # Handle non-character keys like arrows
-            pass
-
-        # Context-aware actions (Sort, Copy, Navigation)
-        handle_input_for_tab(c, active_tab_name, state)
-
-
-def draw_mapped_devices_tab(stdscr, h, w, max_rows, state):
+# Modify drawing functions to accept data
+def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items): # Accept items
     """Draws the 'Mapped Devices' tab content."""
     global copy_msg, copy_time
     # Column setup
@@ -301,8 +401,7 @@ def draw_mapped_devices_tab(stdscr, h, w, max_rows, state):
         stdscr.addch(y, area_start + col_area_w, '|')
         stdscr.addch(y, name_start + col_name_w, '|')
 
-    # Prepare sorted list of devices
-    items = list(mapped_device_states.values())
+    # Sort the passed-in items list
     sort_mode = state['sort_mode']
     if sort_mode == 0: # Area -> Name
         items.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
@@ -326,6 +425,12 @@ def draw_mapped_devices_tab(stdscr, h, w, max_rows, state):
         state['v_offset'] = v_offset
     else:
         state['selected_idx'] = state['v_offset'] = 0
+
+    # --- Scroll Indicators ---
+    if v_offset > 0:
+        stdscr.addstr(4, w - 1, "↑", curses.A_DIM)
+    if v_offset + max_rows < total:
+        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM) # Use h-3 for bottom indicator line
 
     # Draw list items
     for idx in range(v_offset, min(v_offset + max_rows, total)):
@@ -363,7 +468,8 @@ def draw_mapped_devices_tab(stdscr, h, w, max_rows, state):
         state['_copy_action'] = False # Reset flag
 
 
-def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface):
+# Modify drawing functions to accept data
+def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # Accept names, recs
     """Draws the content for a Raw CAN tab."""
     global copy_msg, copy_time
     # Column setup (similar to original)
@@ -387,16 +493,14 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface):
         stdscr.addch(y, left_w, '|')
         stdscr.addch(y, left_w + mid_w + 1, '|')
 
-    # Prepare sorted list
-    recs = latest_raw_records[interface]
-    names = []
+    # Sort the passed-in names list based on the passed-in recs data
     sort_mode = state['sort_mode']
     if sort_mode == 0: # A->Z
-        names = sorted(recs.keys())
+        names.sort()
     elif sort_mode == 1: # Newest
-        names = sorted(recs.keys(), key=lambda n: recs[n]['last_received'], reverse=True)
+        names.sort(key=lambda n: recs.get(n, {}).get('last_received', 0), reverse=True)
     else: # Oldest
-        names = sorted(recs.keys(), key=lambda n: recs[n]['first_received'])
+        names.sort(key=lambda n: recs.get(n, {}).get('first_received', 0))
 
     total = len(names)
     selected_idx = state['selected_idx']
@@ -414,6 +518,12 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface):
     else:
        state['selected_idx'] = state['v_offset'] = 0
 
+    # --- Scroll Indicators ---
+    if v_offset > 0:
+        stdscr.addstr(4, w - 1, "↑", curses.A_DIM)
+    if v_offset + max_rows < total:
+        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
+
     # Left pane: names
     for idx in range(v_offset, min(v_offset + max_rows, total)):
         row = 4 + idx - v_offset
@@ -421,66 +531,90 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface):
         is_selected = (idx == selected_idx)
         attr = curses.color_pair(2) | curses.A_BOLD if is_selected else curses.color_pair(3)
         # Show time since last seen
-        time_since = time.time() - recs[name]['last_received']
+        rec_data = recs.get(name, {})
+        time_since = time.time() - rec_data.get('last_received', time.time())
         time_str = f" ({time_since:.1f}s)" if time_since < 600 else "" # Show if < 10 mins
         display_name = (name + time_str).ljust(left_cw)
         stdscr.addnstr(row, left_pad, display_name, left_cw, attr)
 
     # Right panes: raw/decoded + spec
     if total:
-        rec = recs[names[selected_idx]]
-        # Raw ID & data
-        stdscr.addnstr(4, mid_start, f"ID  : {rec['raw_id']}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
-        stdscr.addnstr(5, mid_start, f"Data: {rec['raw_data']}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
-        stdscr.addnstr(6, mid_start, f"IFace:{interface}".ljust(mid_cw), mid_cw, curses.color_pair(6))
-        # Decoded signals
-        line_offset = 8
-        for i, (s, v) in enumerate(rec['decoded'].items()):
-            row = line_offset + i
-            if row < h - 2:
-                stdscr.addnstr(row, mid_start, f"{s}: {v}".ljust(mid_cw), mid_cw)
-        # Full spec JSON
-        try:
-            spec_lines = json.dumps(rec['spec'], indent=2).splitlines()
-            for i, ln in enumerate(spec_lines):
-                row = 4 + i
+        rec = recs.get(names[selected_idx], {}) # Use .get for safety
+        if rec: # Only draw if record exists
+            # Raw ID & data
+            stdscr.addnstr(4, mid_start, f"ID  : {rec.get('raw_id', 'N/A')}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
+            stdscr.addnstr(5, mid_start, f"Data: {rec.get('raw_data', 'N/A')}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
+            stdscr.addnstr(6, mid_start, f"IFace:{interface}".ljust(mid_cw), mid_cw, curses.color_pair(6))
+            # Decoded signals
+            line_offset = 8
+            decoded_data = rec.get('decoded', {})
+            for i, (s, v) in enumerate(decoded_data.items()):
+                row = line_offset + i
                 if row < h - 2:
-                    # Highlight DGN if present
-                    spec_attr = curses.color_pair(3)
-                    if '"dgn_hex":' in ln:
-                        spec_attr = curses.color_pair(5) | curses.A_BOLD
-                    stdscr.addnstr(row, spec_start, ln.ljust(spec_cw), spec_cw, spec_attr)
-        except Exception as e:
-             stdscr.addnstr(4, spec_start, f"Error dumping spec: {e}", spec_cw, curses.A_BOLD | curses.color_pair(5))
+                    stdscr.addnstr(row, mid_start, f"{s}: {v}".ljust(mid_cw), mid_cw)
+            # Full spec JSON
+            try:
+                spec_data = rec.get('spec', {})
+                spec_lines = json.dumps(spec_data, indent=2).splitlines()
+                for i, ln in enumerate(spec_lines):
+                    row = 4 + i
+                    if row < h - 2:
+                        # Highlight DGN if present
+                        spec_attr = curses.color_pair(3)
+                        if '"dgn_hex":' in ln:
+                            spec_attr = curses.color_pair(5) | curses.A_BOLD
+                        stdscr.addnstr(row, spec_start, ln.ljust(spec_cw), spec_cw, spec_attr)
+            except Exception as e:
+                 stdscr.addnstr(4, spec_start, f"Error dumping spec: {e}", spec_cw, curses.A_BOLD | curses.color_pair(5))
 
 
     # --- Copy Action for Raw Tab ---
     if state.get('_copy_action', False):
         if total:
-            txt = json.dumps(recs[names[selected_idx]]['spec'], indent=2)
+            rec_to_copy = recs.get(names[selected_idx], {})
+            txt = json.dumps(rec_to_copy.get('spec', {}), indent=2)
             copy_to_clipboard(txt)
             copy_msg = f"Spec for '{names[selected_idx]}' copied."
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
 
-def handle_input_for_tab(c, active_tab_name, state):
+# Modify handle_input to accept interfaces and pass them down if needed
+def handle_input_for_tab(c, active_tab_name, state, interfaces):
     """Handles key presses based on the active tab."""
+    # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
     sort_mode = state['sort_mode']
 
-    # Determine total items based on tab
+    # Determine total items based on tab (using cached data for consistency if paused)
+    # NOTE: This means sorting might operate on slightly stale data if paused,
+    # but it avoids needing locks here and keeps UI responsive.
+    # The draw function uses the truly latest (or cached) data for display.
     total = 0
+    num_sort_modes = 0
+    current_id = None # ID of the item currently selected, used for stable sort selection
+
     if active_tab_name == "Mapped Devices":
-        total = len(mapped_device_states)
+        items_list = last_draw_data["mapped"] # Use cached data for count/ID finding
+        total = len(items_list)
         num_sort_modes = len(mapped_sort_labels)
-    elif active_tab_name == "CAN0 Raw":
-        total = len(latest_raw_records[INTERFACES[0]])
-        num_sort_modes = len(sort_labels)
-    elif active_tab_name == "CAN1 Raw":
-        total = len(latest_raw_records[INTERFACES[1]])
-        num_sort_modes = len(sort_labels)
+        if 0 <= state['selected_idx'] < total:
+             current_id = items_list[state['selected_idx']].get('ha_name')
+    elif " Raw" in active_tab_name:
+        iface_index = -1
+        try: # Find interface index based on tab name
+            iface_name_part = active_tab_name.split(" ")[0].lower()
+            iface_index = interfaces.index(iface_name_part)
+        except (ValueError, IndexError):
+             pass
+
+        if iface_index != -1:
+             names_list, _ = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
+             total = len(names_list)
+             num_sort_modes = len(sort_labels)
+             if 0 <= state['selected_idx'] < total:
+                 current_id = names_list[state['selected_idx']] # Name is the ID
 
     # --- Navigation ---
     if c == curses.KEY_DOWN and total:
@@ -498,45 +632,48 @@ def handle_input_for_tab(c, active_tab_name, state):
 
     # --- Sorting ---
     elif c in (ord('s'), ord('S')):
-        # Need to get the currently selected item's identifier BEFORE sorting
-        current_id = None
-        items = []
-        if active_tab_name == "Mapped Devices":
-            items = list(mapped_device_states.values())
-            if 0 <= selected_idx < len(items): current_id = items[selected_idx].get('ha_name')
-        elif "Raw" in active_tab_name:
-            iface = INTERFACES[0] if active_tab_name == "CAN0 Raw" else INTERFACES[1]
-            items = list(latest_raw_records[iface].keys())
-            if 0 <= selected_idx < len(items): current_id = items[selected_idx] # Name is the ID here
+        # current_id was determined above using cached data
+        state['sort_mode'] = (state['sort_mode'] + 1) % num_sort_modes
 
-        state['sort_mode'] = (sort_mode + 1) % num_sort_modes
-
-        # Re-find the selected item's index AFTER sorting
+        # Re-find the selected item's index AFTER sorting (using cached data again)
+        # This is imperfect if data changed between input and now while paused,
+        # but keeps selection relatively stable without complex locking here.
         if current_id:
-            new_items = []
+            new_items_sorted = [] # This will be a list of IDs (ha_name or message name)
             if active_tab_name == "Mapped Devices":
-                 new_items_list = list(mapped_device_states.values())
-                 # Re-sort based on new mode to find index
+                 items_list = last_draw_data["mapped"] # Use cached
                  sm = state['sort_mode']
-                 if sm == 0: new_items_list.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
-                 elif sm == 1: new_items_list.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
-                 elif sm == 2: new_items_list.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
-                 new_items = [item.get('ha_name') for item in new_items_list]
+                 # Re-sort cached data based on new mode
+                 # Make a copy before sorting to avoid modifying the cache directly
+                 items_list_copy = list(items_list)
+                 if sm == 0: items_list_copy.sort(key=lambda x: (x.get('suggested_area', 'zzz').lower(), x.get('friendly_name', 'zzz').lower()))
+                 elif sm == 1: items_list_copy.sort(key=lambda x: x.get('friendly_name', 'zzz').lower())
+                 elif sm == 2: items_list_copy.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
+                 new_items_sorted = [item.get('ha_name') for item in items_list_copy]
 
-            elif "Raw" in active_tab_name:
-                 iface = INTERFACES[0] if active_tab_name == "CAN0 Raw" else INTERFACES[1]
-                 recs = latest_raw_records[iface]
-                 sm = state['sort_mode']
-                 if sm == 0: new_items = sorted(recs.keys())
-                 elif sm == 1: new_items = sorted(recs.keys(), key=lambda n: recs[n]['last_received'], reverse=True)
-                 else: new_items = sorted(recs.keys(), key=lambda n: recs[n]['first_received'])
+            elif " Raw" in active_tab_name:
+                 iface_index = -1
+                 try:
+                     iface_name_part = active_tab_name.split(" ")[0].lower()
+                     iface_index = interfaces.index(iface_name_part)
+                 except (ValueError, IndexError): pass
+
+                 if iface_index != -1:
+                     names_list, recs_dict = last_draw_data.get(f"raw{iface_index}", ([], {})) # Use cached
+                     sm = state['sort_mode']
+                     # Re-sort cached names based on cached recs
+                     # Make a copy before sorting
+                     names_list_copy = list(names_list)
+                     if sm == 0: new_items_sorted = sorted(names_list_copy)
+                     elif sm == 1: new_items_sorted = sorted(names_list_copy, key=lambda n: recs_dict.get(n, {}).get('last_received', 0), reverse=True)
+                     else: new_items_sorted = sorted(names_list_copy, key=lambda n: recs_dict.get(n, {}).get('first_received', 0))
 
             try:
-                state['selected_idx'] = new_items.index(current_id)
+                state['selected_idx'] = new_items_sorted.index(current_id)
             except ValueError:
-                state['selected_idx'] = 0 # Fallback if not found
+                state['selected_idx'] = 0 # Fallback
         else:
-             state['selected_idx'] = 0 # Fallback if no item was selected
+             state['selected_idx'] = 0 # Fallback
 
         state['v_offset'] = 0 # Reset scroll on sort
 
@@ -547,7 +684,8 @@ def handle_input_for_tab(c, active_tab_name, state):
     # --- Command/Control (Placeholder) ---
     # elif c == curses.KEY_ENTER or c == ord('\n'):
     #     if active_tab_name == "Mapped Devices" and total:
-    #         selected_item = list(mapped_device_states.values())[selected_idx]
+    #         with mapped_states_lock: # Read under lock
+    #             selected_item = list(mapped_device_states.values())[selected_idx]
     #         # TODO: Implement command logic based on selected_item['mapping_config']
     #         # Example: Show menu, construct CAN message, send via bus.write()
     #         copy_msg = f"Action on '{selected_item.get('friendly_name')}' (Not Implemented)"
@@ -556,12 +694,33 @@ def handle_input_for_tab(c, active_tab_name, state):
 
 # --- Entry Point ---
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="RV-C CAN bus monitor console.")
+    parser.add_argument('--spec-file', default=DEFAULT_RVC_SPEC_PATH,
+                        help=f"Path to the RVC JSON specification file (default: {DEFAULT_RVC_SPEC_PATH})")
+    parser.add_argument('--mapping-file', default=DEFAULT_DEVICE_MAPPING_PATH,
+                        help=f"Path to the YAML device mapping file (default: {DEFAULT_DEVICE_MAPPING_PATH})")
+    parser.add_argument('--interfaces', nargs='+', default=DEFAULT_INTERFACES,
+                        help=f"List of CAN interfaces to monitor (default: {' '.join(DEFAULT_INTERFACES)})" )
+    args = parser.parse_args()
+
+    # Load definitions using paths from args
+    decoder_map, device_mapping, device_lookup = load_definitions(args.spec_file, args.mapping_file)
+
+    # Initialize global state dependent on args
+    INTERFACES = args.interfaces # Set global interfaces list
+    latest_raw_records = {iface: {} for iface in INTERFACES}
+    last_draw_data = { # Initialize cache structure based on interfaces
+         "mapped": [],
+         **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
+    }
+
+
     # Start reader threads only if definitions loaded successfully
     if decoder_map:
-        print("Starting CAN reader threads...")
+        logging.info("Starting CAN reader threads...")
         threads = []
-        for iface in INTERFACES:
-            thread = threading.Thread(target=reader_thread, args=(iface,), daemon=True)
+        for iface in INTERFACES: # Use interfaces from args
+            thread = threading.Thread(target=reader_thread, args=(iface,), name=f"Reader-{iface}", daemon=True)
             thread.start()
             threads.append(thread)
 
@@ -569,19 +728,32 @@ if __name__ == '__main__':
         time.sleep(0.5)
 
         # Check if threads are alive before starting curses
-        if any(t.is_alive() for t in threads):
-             print("Starting UI...")
-             curses.wrapper(draw_screen)
-             print("UI exited. Waiting for threads to stop...")
+        alive_threads = [t for t in threads if t.is_alive()]
+        # Pass interfaces to draw_screen
+        if alive_threads:
+             logging.info(f"Starting UI with {len(alive_threads)} active reader thread(s)...")
+             try:
+                 # Pass interfaces list to the curses wrapper function
+                 curses.wrapper(draw_screen, INTERFACES)
+             except curses.error as e:
+                 logging.error(f"Curses error: {e}")
+             except Exception as e:
+                 logging.exception("Unhandled error in main UI loop")
+             finally:
+                 logging.info("UI exited. Setting stop event...")
+                 stop_event.set()
         else:
-             print("No reader threads started successfully. Exiting.", file=sys.stderr)
+             logging.error("No reader threads started successfully. Exiting.")
              stop_event.set() # Ensure any potentially stuck threads are signalled
 
         # Wait for threads to finish after stop_event is set
-        for t in threads:
+        logging.info("Waiting for reader threads to stop...")
+        for t in threads: # Iterate original list in case some failed early
              if t.is_alive():
                  t.join(timeout=2) # Wait max 2 seconds per thread
-        print("All threads stopped.")
+                 if t.is_alive():
+                     logging.warning(f"Thread {t.name} did not stop gracefully.")
+        logging.info("All threads stopped.")
 
     else:
-        print("Could not load RVC specifications. Exiting.", file=sys.stderr)
+        logging.error("Could not load RVC specifications. Exiting.")
