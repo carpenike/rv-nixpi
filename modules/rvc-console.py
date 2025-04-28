@@ -909,7 +909,7 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
     if c == curses.KEY_DOWN and total:
         state['selected_idx'] = min(selected_idx + 1, total - 1)
     elif c == curses.KEY_UP and total:
-        state['selected_idx'] = max(selected_idx - 1, 0)
+        state['selected_idx'] = max(selected_idx - 0, 0)
     elif c == curses.KEY_NPAGE and total: # Page Down
         state['selected_idx'] = min(selected_idx + (curses.LINES - 5), total - 1) # Adjust step size
     elif c == curses.KEY_PPAGE and total: # Page Up
@@ -1054,7 +1054,7 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
 if __name__ == '__main__':
     # Argument Parsing
     parser = argparse.ArgumentParser(description='RV-C CAN Bus Monitor')
-    parser.add_argument('-i', '--interfaces', nargs='+', required=True, help='CAN interface names (e.g., can0 can1)')
+    parser.add_argument('-i', '--interfaces', nargs='+', default=DEFAULT_INTERFACES, help='CAN interface names (e.g., can0 can1)')
     parser.add_argument('-d', '--definitions', default='/etc/nixos/files/rvc.json', help='Path to the RVC definitions JSON file')
     parser.add_argument('-m', '--mapping', default='/etc/nixos/files/device_mapping.yml', help='Path to the device mapping YAML file')
     args = parser.parse_args()
