@@ -23,8 +23,8 @@ in
   config = lib.mkMerge [
     # --- Shared Config Deployment (rvc-config.nix content) ---
     (lib.mkIf (config.services.rvc.console.enable || config.services.rvc.debugTools.enable) {
-      environment.etc."nixos/files/rvc.json".source = ../docs/rvc.json;
-      environment.etc."nixos/files/device_mapping.yaml".source = ../docs/device_mapping.yml;
+      environment.etc."nixos/files/rvc.json".source = ../config/rvc/rvc.json;
+      environment.etc."nixos/files/device_mapping.yaml".source = ../config/rvc/device_mapping.yml;
     })
 
     # --- Console Configuration (rvc-console.nix content) ---
