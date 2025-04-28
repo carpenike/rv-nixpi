@@ -1,347 +1,485 @@
 ---
-## This configuration file matches a 2021 Entegra Aspire 44R. Use the template section to define parameters that should apply across all of the devices, and then update the sections below to match the devices in your coach.
+## This configuration file maps RV-C Data Group Numbers (DGNs) and Instance IDs
+## to unique entity IDs, human-readable names, and suggested areas.
+## It's designed to provide metadata for a WebSocket API serving RV-C device states,
+## allowing various clients (including Home Assistant) to integrate.
+## Based on a 2021 Entegra Aspire 44R, adapt for your specific coach.
+##
+## Structure:
+## - Top Level: DGN (hexadecimal string, e.g., "1FEDA")
+##   - Second Level: Instance ID (string, e.g., "25", or "default")
+##     - Third Level: A list containing one configuration dictionary per device.
+##
+## Fields:
+##   - entity_id: A unique, machine-readable identifier (lowercase, underscores). REQUIRED.
+##   - friendly_name: A human-readable name for display. REQUIRED.
+##   - suggested_area: The suggested location/area of the device. OPTIONAL.
+##   - device_type: A general classification (e.g., 'light', 'lock', 'sensor', 'switch'). REQUIRED.
+##   - capabilities: A list of actions or states the device supports (e.g., ['on_off', 'brightness']). REQUIRED.
+##   - (Other fields): Can be added for specific device types or future use by the WebSocket service.
+##
+## Use the 'default' instance if a specific instance isn't found or isn't relevant.
+## YAML anchors (&) and aliases (*) can be used for templating common fields.
 
-## The first field is the DGN number. Check the logs from the script to determine which DGNs are being reported by your coach. The second field is the instance number. This is the number that is used to differentiate between multiple devices of the same type.
-## The third field is the friendly name. This is the name that will be displayed in Home Assistant. The fourth field is the Home Assistant name. This is the name that will be used in the MQTT topics.
-## The fifth field is the state topic. This is the MQTT topic that will be used to report the state of the device. The sixth field is the value template. This is the template that will be used to extract the state from the MQTT message.
-## The seventh field is the device class. This is the class that will be used in Home Assistant. The eighth field is the device type. This is the type that will be used in Home Assistant.
-
-# Template section for reusable parameters across the devices
+# Template section for reusable parameters
 templates:
-  dimmable_light_template: &dimmable_light_template
-    state_topic: "homeassistant/light/{{ ha_name }}/state"
-    command_topic: "homeassistant/light/{{ ha_name }}/set"
-    value_template: "{{ value_json.state }}"
-    device_class: light
-    dimmable: true  # Explicitly mark as dimmable
-    brightness_state_topic: "homeassistant/light/{{ ha_name }}/state"
-    brightness_command_topic: "homeassistant/light/{{ ha_name }}/brightness/set"
-    brightness_value_template: "{{ value_json.brightness }}"
-    brightness_command_template: "{{ value }}"
-    payload_on: "ON"
-    payload_off: "OFF"
-    state_value_template: "{{ value_json.state }}"
+  # Template for a simple on/off light
+  switchable_light: &switchable_light
+    device_type: light
+    capabilities: [on_off]
 
-  switchable_light_template: &switchable_light_template
-    state_topic: "homeassistant/light/{{ ha_name }}/state"
-    command_topic: "homeassistant/light/{{ ha_name }}/set"
-    value_template: "{{ value_json.state }}"
-    device_class: light
-    dimmable: false  # Explicitly mark as non-dimmable
-    payload_on: "ON"
-    payload_off: "OFF"
-    state_value_template: "{{ value_json.state }}"
+  # Template for a dimmable light
+  dimmable_light: &dimmable_light
+    device_type: light
+    capabilities: [on_off, brightness]
 
-# Interior Lights
+  # Template for a lock
+  lock: &lock
+    device_type: lock
+    capabilities: [lock_unlock]
+
+# Interior Lights (DGN 1FEDA likely corresponds to RVC_LIGHT_COMMAND)
 1FEDA:
   25:
-    - ha_name: bedroom_ceiling_light
+    - entity_id: bedroom_ceiling_light # Renamed from ha_name
       friendly_name: Bedroom Ceiling Light
       suggested_area: Bedroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light # Use new template
   27:
-    - ha_name: bedroom_accent_light
+    - entity_id: bedroom_accent_light # Renamed
       friendly_name: Bedroom Accent Light
       suggested_area: Bedroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   28:
-    - ha_name: bedroom_vanity_light
+    - entity_id: bedroom_vanity_light # Renamed
       friendly_name: Bedroom Vanity Light
       suggested_area: Bedroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   29:
-    - ha_name: bedroom_reading_light
+    - entity_id: bedroom_reading_light # Renamed
       friendly_name: Bedroom Reading Light
       suggested_area: Bedroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   30:
-    - ha_name: master_bath_ceiling_light
+    - entity_id: master_bath_ceiling_light # Renamed
       friendly_name: Master Bathroom Ceiling Light
       suggested_area: Master Bathroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   31:
-    - ha_name:  master_bath_lav_light
+    - entity_id: master_bath_lav_light # Renamed
       friendly_name: Master Bathroom Lavatory Light
       suggested_area: Master Bathroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   32:
-    - ha_name:  master_bath_accent_light
+    - entity_id: master_bath_accent_light # Renamed
       friendly_name: Master Bathroom Accent Light
       suggested_area: Master Bathroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   33:
-    - ha_name:  mid_bath_ceiling_light
+    - entity_id: mid_bath_ceiling_light # Renamed
       friendly_name: Mid Bathroom Ceiling Light
       suggested_area: Mid Bathroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   34:
-    - ha_name:  mid_bath_accent_light
+    - entity_id: mid_bath_accent_light # Renamed
       friendly_name: Mid Bathroom Accent Light
       suggested_area: Mid Bathroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   35:
-    - ha_name:  entrance_ceiling_light
+    - entity_id: entrance_ceiling_light # Renamed
       friendly_name: Entrance Ceiling Light
       suggested_area: Entrance
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   37:
-    - ha_name:  main_ceiling_light
+    - entity_id: main_ceiling_light # Renamed
       friendly_name: Main Ceiling Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   38:
-    - ha_name:  bedroom_courtesy_light
+    - entity_id: bedroom_courtesy_light # Renamed
       friendly_name: Bedroom Courtesy Light
       suggested_area: Master Bedroom
-      <<: *dimmable_light_template
+      <<: *dimmable_light # Assuming dimmable, adjust if not
   39:
-    - ha_name:  main_ceiling_accent_light
+    - entity_id: main_ceiling_accent_light # Renamed
       friendly_name: Main Ceiling Accent Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   41:
-    - ha_name:  main_driver_side_ceiling_light
+    - entity_id: main_driver_side_ceiling_light # Renamed
       friendly_name: Main Driver Side Ceiling Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   42:
-    - ha_name:  main_passenger_side_ceiling_light
+    - entity_id: main_passenger_side_ceiling_light # Renamed
       friendly_name: Main Passenger Side Ceiling Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   43:
-    - ha_name:  main_driver_side_slide_light
+    - entity_id: main_driver_side_slide_light # Renamed
       friendly_name: Main Driver Side Slide Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   45:
-    - ha_name:  main_dinette_light
+    - entity_id: main_dinette_light # Renamed
       friendly_name: Main Dinette Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   46:
-    - ha_name:  main_sink_light
+    - entity_id: main_sink_light # Renamed
       friendly_name: Main Sink Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
   47:
-    - ha_name:  main_midship_light
+    - entity_id: main_midship_light # Renamed
       friendly_name: Main Midship Light
       suggested_area: Main Living Area
-      <<: *dimmable_light_template
+      <<: *dimmable_light
 
-# Exterior Lights
+# Exterior Lights (Also likely DGN 1FEDA)
   51:
-    - ha_name:  exterior_driver_side_awning_light
+    - entity_id: exterior_driver_side_awning_light # Renamed
       friendly_name: Exterior Driver Side Awning Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light # Use new template
   52:
-    - ha_name:  exterior_passenger_side_awning_light
+    - entity_id: exterior_passenger_side_awning_light # Renamed
       friendly_name: Exterior Passenger Side Awning Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light
   53:
-    - ha_name:  basement_cargo_light
+    - entity_id: basement_cargo_light # Renamed
       friendly_name: Basement Cargo Light
       suggested_area: Basement
-      <<: *switchable_light_template
+      <<: *switchable_light
   54:
-    - ha_name:  exterior_under_slide_light
+    - entity_id: exterior_under_slide_light # Renamed
       friendly_name: Exterior Under Slide Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light
   57:
-    - ha_name:  exterior_driver_side_security_light
+    - entity_id: exterior_driver_side_security_light # Renamed
       friendly_name: Exterior Driver Side Security Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light
   58:
-    - ha_name:  exterior_passenger_side_security_light
+    - entity_id: exterior_passenger_side_security_light # Renamed
       friendly_name: Exterior Passenger Side Security Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light
   59:
-    - ha_name:  exterior_motion_light
+    - entity_id: exterior_motion_light # Renamed
       friendly_name: Exterior Motion Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light
   60:
-    - ha_name:  exterior_porch_light
+    - entity_id: exterior_porch_light # Renamed
       friendly_name: Exterior Porch Light
       suggested_area: Exterior
-      <<: *switchable_light_template
+      <<: *switchable_light
 
-# Door Locks
-
-1FEDB:
-  default:
-    - ha_name: "entrance_door_lock"
-      friendly_name: "Entrance Door Lock"
+# Light Status (DGN 1FED9 likely corresponds to RVC_LIGHT_STATUS)
+# Mirrors the command entries to map status messages back to the same entities
+1FED9:
+  25:
+    - entity_id: bedroom_ceiling_light
+      friendly_name: Bedroom Ceiling Light
+      suggested_area: Bedroom
+      <<: *dimmable_light
+  27:
+    - entity_id: bedroom_accent_light
+      friendly_name: Bedroom Accent Light
+      suggested_area: Bedroom
+      <<: *dimmable_light
+  28:
+    - entity_id: bedroom_vanity_light
+      friendly_name: Bedroom Vanity Light
+      suggested_area: Bedroom
+      <<: *dimmable_light
+  29:
+    - entity_id: bedroom_reading_light
+      friendly_name: Bedroom Reading Light
+      suggested_area: Bedroom
+      <<: *dimmable_light
+  30:
+    - entity_id: master_bath_ceiling_light
+      friendly_name: Master Bathroom Ceiling Light
+      suggested_area: Master Bathroom
+      <<: *dimmable_light
+  31:
+    - entity_id: master_bath_lav_light
+      friendly_name: Master Bathroom Lavatory Light
+      suggested_area: Master Bathroom
+      <<: *dimmable_light
+  32:
+    - entity_id: master_bath_accent_light
+      friendly_name: Master Bathroom Accent Light
+      suggested_area: Master Bathroom
+      <<: *dimmable_light
+  33:
+    - entity_id: mid_bath_ceiling_light
+      friendly_name: Mid Bathroom Ceiling Light
+      suggested_area: Mid Bathroom
+      <<: *dimmable_light
+  34:
+    - entity_id: mid_bath_accent_light
+      friendly_name: Mid Bathroom Accent Light
+      suggested_area: Mid Bathroom
+      <<: *dimmable_light
+  35:
+    - entity_id: entrance_ceiling_light
+      friendly_name: Entrance Ceiling Light
       suggested_area: Entrance
-      device_class: "lock"
-      command_topic: "homeassistant/lock/entrance_door_lock/set"
-      payload_lock: "LOCK_14"
-      payload_unlock: "UNLOCK_17"
+      <<: *dimmable_light
+  37:
+    - entity_id: main_ceiling_light
+      friendly_name: Main Ceiling Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  38:
+    - entity_id: bedroom_courtesy_light
+      friendly_name: Bedroom Courtesy Light
+      suggested_area: Master Bedroom
+      <<: *dimmable_light # Assuming dimmable, adjust if not
+  39:
+    - entity_id: main_ceiling_accent_light
+      friendly_name: Main Ceiling Accent Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  41:
+    - entity_id: main_driver_side_ceiling_light
+      friendly_name: Main Driver Side Ceiling Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  42:
+    - entity_id: main_passenger_side_ceiling_light
+      friendly_name: Main Passenger Side Ceiling Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  43:
+    - entity_id: main_driver_side_slide_light
+      friendly_name: Main Driver Side Slide Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  45:
+    - entity_id: main_dinette_light
+      friendly_name: Main Dinette Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  46:
+    - entity_id: main_sink_light
+      friendly_name: Main Sink Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  47:
+    - entity_id: main_midship_light
+      friendly_name: Main Midship Light
+      suggested_area: Main Living Area
+      <<: *dimmable_light
+  51:
+    - entity_id: exterior_driver_side_awning_light
+      friendly_name: Exterior Driver Side Awning Light
+      suggested_area: Exterior
+      <<: *switchable_light
+  52:
+    - entity_id: exterior_passenger_side_awning_light
+      friendly_name: Exterior Passenger Side Awning Light
+      suggested_area: Exterior
+      <<: *switchable_light
+  53:
+    - entity_id: basement_cargo_light
+      friendly_name: Basement Cargo Light
+      suggested_area: Basement
+      <<: *switchable_light
+  54:
+    - entity_id: exterior_under_slide_light
+      friendly_name: Exterior Under Slide Light
+      suggested_area: Exterior
+      <<: *switchable_light
+  57:
+    - entity_id: exterior_driver_side_security_light
+      friendly_name: Exterior Driver Side Security Light
+      suggested_area: Exterior
+      <<: *switchable_light
+  58:
+    - entity_id: exterior_passenger_side_security_light
+      friendly_name: Exterior Passenger Side Security Light
+      suggested_area: Exterior
+      <<: *switchable_light
+  59:
+    - entity_id: exterior_motion_light
+      friendly_name: Exterior Motion Light
+      suggested_area: Exterior
+      <<: *switchable_light
+  60:
+    - entity_id: exterior_porch_light
+      friendly_name: Exterior Porch Light
+      suggested_area: Exterior
+      <<: *switchable_light
 
+# Door Locks (DGN 1FEDB likely corresponds to RVC_LOCK_COMMAND)
+1FEDB:
+  default: # Assuming only one entrance door lock
+    - entity_id: entrance_door_lock # Renamed
+      friendly_name: Entrance Door Lock
+      suggested_area: Entrance
+      <<: *lock # Use new template
+
+# Lock Status (DGN 1FEDC likely corresponds to RVC_LOCK_STATUS)
+# Mirrors the command entry to map status messages back to the same entity
+1FEDC:
+  default: # Assuming only one entrance door lock status
+    - entity_id: entrance_door_lock
+      friendly_name: Entrance Door Lock
+      suggested_area: Entrance
+      <<: *lock # Use the same lock template
+
+# --- Commented out devices ---
+# Review and uncomment/update these if needed for your coach,
+# assigning appropriate entity_id, device_type, and capabilities.
+
+# Example: Tank Sensor (Hypothetical DGN/Instance)
+# 1FFAB:
+#   1: # Fresh water tank instance 1
+#     - entity_id: fresh_water_tank
+#       friendly_name: Fresh Water Tank
+#       suggested_area: Wet Bay
+#       device_type: sensor
+#       capabilities: [level] # Indicates it reports a level
+#       unit_of_measurement: "%" # Optional hint for clients
+
+# Example: Generator Status (Hypothetical DGN/Instance)
+# 1FFDC:
+#   default:
+#     - entity_id: generator_status
+#       friendly_name: Generator Status
+#       suggested_area: Generator
+#       device_type: sensor # Or maybe 'binary_sensor' if just on/off
+#       capabilities: [running_state, hours] # Example capabilities
+
+# (Keep the rest of the previously commented out DGNs below for reference)
 # 17F00:
 #   default:
-#     - ha_name: "general_reset"
+#     - entity_id: "general_reset" # Renamed
 #       friendly_name: "General Reset"
-#       state_topic: "homeassistant/switch/general_reset/state"
-#       value_template: "{{ value_json.reset_status }}"
-#       device_class: switch
-#       device_type: switch
+#       device_type: switch # Example
+#       capabilities: [on_off] # Example
 
 # 1FED8:
 #   default:
-#     - ha_name: "configuration_status"
+#     - entity_id: "configuration_status" # Renamed
 #       friendly_name: "Configuration Status"
-#       state_topic: "homeassistant/sensor/configuration_status/state"
-#       value_template: "{{ value_json.config_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [status_text] # Example
 
 # 1FFDF:
 #   default:
-#     - ha_name: "generator_ac_status_1"
+#     - entity_id: "generator_ac_status_1" # Renamed
 #       friendly_name: "Generator AC Status 1"
-#       state_topic: "homeassistant/sensor/generator_ac_status_1/state"
-#       value_template: "{{ value_json.instance }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [voltage, current, frequency] # Example
 
 # 1FFDE:
 #   default:
-#     - ha_name: "generator_ac_status_2"
+#     - entity_id: "generator_ac_status_2" # Renamed
 #       friendly_name: "Generator AC Status 2"
-#       state_topic: "homeassistant/sensor/generator_ac_status_2/state"
-#       value_template: "{{ value_json.instance }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [voltage, current, frequency] # Example
 
 # 1FFDD:
 #   default:
-#     - ha_name: "generator_ac_status_3"
+#     - entity_id: "generator_ac_status_3" # Renamed
 #       friendly_name: "Generator AC Status 3"
-#       state_topic: "homeassistant/sensor/generator_ac_status_3/state"
-#       value_template: "{{ value_json.instance }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [voltage, current, frequency] # Example
 
 # 1FF94:
 #   default:
-#     - ha_name: "generator_ac_status_4"
+#     - entity_id: "generator_ac_status_4" # Renamed
 #       friendly_name: "Generator AC Status 4"
-#       state_topic: "homeassistant/sensor/generator_ac_status_4/state"
-#       value_template: "{{ value_json.instance }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [voltage, current, frequency] # Example
 
 # 1FEC6:
 #   default:
-#     - ha_name: "generator_dc_status_1"
+#     - entity_id: "generator_dc_status_1" # Renamed
 #       friendly_name: "Generator DC Status 1"
-#       state_topic: "homeassistant/sensor/generator_dc_status_1/state"
-#       value_template: "{{ value_json.charge_voltage }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [voltage, current] # Example
 
 # 1FEC5:
 #   default:
-#     - ha_name: "generator_dc_configuration_status"
+#     - entity_id: "generator_dc_configuration_status" # Renamed
 #       friendly_name: "Generator DC Configuration Status"
-#       state_topic: "homeassistant/sensor/generator_dc_configuration_status/state"
-#       value_template: "{{ value_json.configuration_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [status_text] # Example
 
 # 1FEC4:
 #   default:
-#     - ha_name: "generator_dc_command"
+#     - entity_id: "generator_dc_command" # Renamed
 #       friendly_name: "Generator DC Command"
-#       state_topic: "homeassistant/sensor/generator_dc_command/state"
-#       value_template: "{{ value_json.command_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example - or maybe 'switch' if controllable?
+#       capabilities: [command_status] # Example
 
 # 1FEC3:
 #   default:
-#     - ha_name: "generator_dc_configuration_command"
+#     - entity_id: "generator_dc_configuration_command" # Renamed
 #       friendly_name: "Generator DC Configuration Command"
-#       state_topic: "homeassistant/sensor/generator_dc_configuration_command/state"
-#       value_template: "{{ value_json.configuration_command_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [command_status] # Example
 
 # 1FEC2:
 #   default:
-#     - ha_name: "generator_dc_equalization_status"
+#     - entity_id: "generator_dc_equalization_status" # Renamed
 #       friendly_name: "Generator DC Equalization Status"
-#       state_topic: "homeassistant/sensor/generator_dc_equalization_status/state"
-#       value_template: "{{ value_json.equalization_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [status_text] # Example
 
 # 1FEC1:
 #   default:
-#     - ha_name: "generator_dc_equalization_configuration_status"
+#     - entity_id: "generator_dc_equalization_configuration_status" # Renamed
 #       friendly_name: "Generator DC Equalization Configuration Status"
-#       state_topic: "homeassistant/sensor/generator_dc_equalization_configuration_status/state"
-#       value_template: "{{ value_json.equalization_configuration_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [status_text] # Example
 
 # 1FEC0:
 #   default:
-#     - ha_name: "generator_dc_equalization_configuration_command"
+#     - entity_id: "generator_dc_equalization_configuration_command" # Renamed
 #       friendly_name: "Generator DC Equalization Configuration Command"
-#       state_topic: "homeassistant/sensor/generator_dc_equalization_configuration_command/state"
-#       value_template: "{{ value_json.equalization_configuration_command_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [command_status] # Example
 
 # 1FFDC:
 #   default:
-#     - ha_name: "generator_status_1"
+#     - entity_id: "generator_status_1" # Renamed
 #       friendly_name: "Generator Status 1"
-#       state_topic: "homeassistant/sensor/generator_status_1/state"
-#       value_template: "{{ value_json.status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [status_text] # Example
 
 # 1FFDB:
 #   default:
-#     - ha_name: "generator_status_2"
+#     - entity_id: "generator_status_2" # Renamed
 #       friendly_name: "Generator Status 2"
-#       state_topic: "homeassistant/sensor/generator_status_2/state"
-#       value_template: "{{ value_json.temperature_shutdown_switch }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [temperature_shutdown_status] # Example
 
 # 1FFDA:
 #   default:
-#     - ha_name: "generator_command"
+#     - entity_id: "generator_command" # Renamed
 #       friendly_name: "Generator Command"
-#       state_topic: "homeassistant/sensor/generator_command/state"
-#       value_template: "{{ value_json.command }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example - or 'switch' if controllable?
+#       capabilities: [command_status] # Example
 
 # 1FFD9:
 #   default:
-#     - ha_name: "generator_start_config_status"
+#     - entity_id: "generator_start_config_status" # Renamed
 #       friendly_name: "Generator Start Config Status"
-#       state_topic: "homeassistant/sensor/generator_start_config_status/state"
-#       value_template: "{{ value_json.start_config_status }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [status_text] # Example
 
 # 1FFD8:
 #   default:
-#     - ha_name: "generator_start_config_command"
+#     - entity_id: "generator_start_config_command" # Renamed
 #       friendly_name: "Generator Start Config Command"
-#       state_topic: "homeassistant/sensor/generator_start_config_command/state"
-#       value_template: "{{ value_json.start_config_command }}"
-#       device_class: sensor
-#       device_type: sensor
+#       device_type: sensor # Example
+#       capabilities: [command_status] # Example
