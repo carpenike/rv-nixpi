@@ -52,9 +52,9 @@ console_handler.setFormatter(log_formatter)
 logging.getLogger().addHandler(console_handler)
 
 # Configure our custom list handler
-list_handler = ListLogHandler(log_records, log_records_lock)
-list_handler.setFormatter(log_formatter)
-logging.getLogger().addHandler(list_handler)
+# list_handler = ListLogHandler(log_records, log_records_lock)
+# list_handler.setFormatter(log_formatter)
+# logging.getLogger().addHandler(list_handler)
 
 # Set overall logging level
 logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
@@ -313,7 +313,7 @@ pause_lock = threading.Lock() # Lock for pause state
 last_draw_data = {
     # "mapped": [], # REMOVED
     "lights": [],
-    "logs": [], # Added cache for logs
+    # "logs": [], # REMOVED
     "raw0": ([], {}), # (names, recs_copy)
     "raw1": ([], {}), # (names, recs_copy)
 }
@@ -407,7 +407,8 @@ def reader_thread(interface):
 
 # --- Main UI Drawing ---
 def draw_screen(stdscr, interfaces): # Accept interfaces list
-    global copy_msg, copy_time, is_paused, last_draw_data, log_records, log_records_lock # Add log globals
+    # REMOVED log_records and log_records_lock from global declaration as they are not used when handler is disabled
+    global copy_msg, copy_time, is_paused, last_draw_data
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -425,16 +426,17 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
     stdscr.timeout(100)
 
     # Dynamically generate tabs based on interfaces - REMOVED "Mapped Devices", ADDED "Logs"
-    tabs = ["Lights", "Logs"] + [f"{iface.upper()} Raw" for iface in interfaces]
+    # REMOVED "Logs" tab as the handler is disabled
+    tabs = ["Lights"] + [f"{iface.upper()} Raw" for iface in interfaces]
     # Adjust tab keys
-    tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'][:len(tabs)]
+    # Adjusted tab keys for removed "Logs" tab
+    tab_keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'][:len(tabs)]
     current_tab_index = 0
 
     # State per tab - REMOVED "Mapped Devices", ADDED "Logs"
     tab_state = {name: {'selected_idx': 0, 'v_offset': 0, 'sort_mode': 0} for name in tabs}
     # Logs tab doesn't need sorting state
-    if "Logs" in tab_state:
-        del tab_state["Logs"]['sort_mode']
+    # REMOVED logic for "Logs" tab state
 
     while True:
         # --- Input Handling ---
@@ -454,7 +456,7 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                      last_draw_data = {
                          # "mapped": [], # REMOVED
                          "lights": [],
-                         "logs": [], # Clear logs cache too
+                         # "logs": [], # Clear logs cache too
                          **{f"raw{i}": ([], {}) for i in range(len(interfaces))}
                      }
 
@@ -469,46 +471,46 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
 
             # Context-aware actions (pass interfaces for raw tabs)
             active_tab_name = tabs[current_tab_index]
-            state = tab_state[active_tab_name]
-            handle_input_for_tab(c, active_tab_name, state, interfaces) # Pass interfaces
+            # Check if active_tab_name exists in tab_state before accessing
+            if active_tab_name in tab_state:
+                state = tab_state[active_tab_name]
+                handle_input_for_tab(c, active_tab_name, state, interfaces) # Pass interfaces
+            # else: # Handle case where tab might not have state (e.g., if Logs was still somehow selected)
+                # pass # Or log a warning
 
         # --- Data Fetching (Conditional based on Pause) ---
         with pause_lock:
             paused_now = is_paused # Read pause state under lock
 
         active_tab_name = tabs[current_tab_index]
-        state = tab_state[active_tab_name]
+        # Check if active_tab_name exists in tab_state before accessing
+        state = tab_state.get(active_tab_name) # Use .get for safety
+        if not state:
+            # Handle case where state might be missing (shouldn't happen with current logic)
+            # logging.warning(f"State not found for active tab: {active_tab_name}")
+            continue # Skip drawing cycle if state is missing
 
         # Data for drawing - fetch ONLY if not paused, otherwise use cached
         # mapped_items_to_draw = [] # REMOVED
         light_items_to_draw = []
-        log_items_to_draw = [] # Added
+        # log_items_to_draw = [] # REMOVED
         raw_names_to_draw = []
         raw_recs_to_draw = {}
         interface_for_raw_tab = None
 
         if not paused_now:
             # Fetch fresh data
-            # if active_tab_name == "Mapped Devices": # REMOVED
-            #     with mapped_states_lock:
-            #         # Make a copy to avoid holding lock during sort/draw
-            #         mapped_items_to_draw = list(mapped_device_states.values())
-            #     last_draw_data["mapped"] = mapped_items_to_draw # Cache fresh data
             if active_tab_name == "Lights":
                 with light_states_lock:
                     # Make a copy
                     light_items_to_draw = list(light_device_states.values())
                 last_draw_data["lights"] = light_items_to_draw # Cache fresh data
-            # --- Add Fetching for Logs Tab ---
-            elif active_tab_name == "Logs":
-                with log_records_lock:
-                    # Make a copy of the deque items (newest first for display)
-                    log_items_to_draw = list(log_records)[::-1]
-                last_draw_data["logs"] = log_items_to_draw # Cache fresh data
+            # --- REMOVED Fetching for Logs Tab ---
             elif " Raw" in active_tab_name:
                 try:
-                    # Determine interface based on tab name/index relative to "Lights" and "Logs"
-                    iface_index = current_tab_index - 2 # Adjust index for new preceding tabs
+                    # Determine interface based on tab name/index relative to "Lights"
+                    # iface_index = current_tab_index - 2 # Adjust index for new preceding tabs
+                    iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
                     if 0 <= iface_index < len(interfaces):
                         interface_for_raw_tab = interfaces[iface_index]
                         with raw_records_lock:
@@ -524,15 +526,12 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
                      logging.exception(f"Error fetching raw data for {active_tab_name}")
 
         else: # Use cached data if paused
-             # if active_tab_name == "Mapped Devices": # REMOVED
-             #     mapped_items_to_draw = last_draw_data["mapped"]
              if active_tab_name == "Lights":
                  light_items_to_draw = last_draw_data["lights"]
-             # --- Add Cache Retrieval for Logs Tab ---
-             elif active_tab_name == "Logs":
-                 log_items_to_draw = last_draw_data["logs"]
+             # --- REMOVED Cache Retrieval for Logs Tab ---
              elif " Raw" in active_tab_name:
-                 iface_index = current_tab_index - 2 # Adjust index
+                 # iface_index = current_tab_index - 2 # Adjust index
+                 iface_index = current_tab_index - 1 # Adjusted index for removed "Logs" tab
                  if 0 <= iface_index < len(interfaces):
                      interface_for_raw_tab = interfaces[iface_index]
                      # Retrieve cached data
@@ -556,9 +555,6 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         # Sort mode
         sort_label = ""
         num_sort_modes = 0
-        # if active_tab_name == "Mapped Devices": # REMOVED
-        #      sort_label = mapped_sort_labels[state['sort_mode']]
-        #      num_sort_modes = len(mapped_sort_labels)
         if active_tab_name == "Lights":
              sort_label = light_sort_labels[state['sort_mode']]
              num_sort_modes = len(light_sort_labels)
@@ -566,6 +562,7 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
              sort_label = sort_labels[state['sort_mode']]
              num_sort_modes = len(sort_labels)
         # Only show sort if applicable (not for Logs)
+        # Always show sort if applicable (Logs tab removed)
         if sort_label: header_text += f"[S] Sort:{sort_label}  "
         # Other actions
         header_text += "[C] Copy  [P] Pause  [Q] Quit"
@@ -577,15 +574,10 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         # --- Main Content Area ---
         max_rows = h - 5 # Rows available for content list
 
-        # if active_tab_name == "Mapped Devices": # REMOVED
-        #     # Pass fetched/cached data to drawing function
-        #     draw_mapped_devices_tab(stdscr, h, w, max_rows, state, mapped_items_to_draw)
         if active_tab_name == "Lights":
             # Pass fetched/cached light data
             draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
-        # --- Add Drawing Call for Logs Tab ---
-        elif active_tab_name == "Logs":
-            draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw) # Pass log items
+        # --- REMOVED Drawing Call for Logs Tab ---
         elif " Raw" in active_tab_name and interface_for_raw_tab:
             # Pass fetched/cached data and interface name
             draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
@@ -602,8 +594,6 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         footer = "Arrows: Navigate | "
         if active_tab_name == "Lights":
              footer += "Enter: Control | " # Add hint for lights tab
-        elif active_tab_name == "Logs":
-             footer += "C: Copy Line | " # Add hint for logs tab
         # Update tab names in footer hint
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
         footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
@@ -619,67 +609,6 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
 # REMOVE draw_mapped_devices_tab function entirely
 # def draw_mapped_devices_tab(stdscr, h, w, max_rows, state, items):
 #    ...
-
-# --- New Drawing Function for Logs Tab ---
-def draw_logs_tab(stdscr, h, w, max_rows, state, items):
-    """Draws the 'Logs' tab content."""
-    global copy_msg, copy_time
-    pad = 1
-
-    # No titles needed, just list the logs
-    stdscr.hline(1, 0, '-', w) # Keep separator below header
-
-    total = len(items)
-    selected_idx = state['selected_idx']
-    v_offset = state['v_offset']
-
-    # Adjust view window (Logs are newest first, so index 0 is newest)
-    if total:
-        selected_idx = max(0, min(selected_idx, total - 1))
-        if selected_idx < v_offset:
-            v_offset = selected_idx
-        elif selected_idx >= v_offset + max_rows:
-            v_offset = selected_idx - max_rows + 1
-        state['selected_idx'] = selected_idx
-        state['v_offset'] = v_offset
-    else:
-        state['selected_idx'] = state['v_offset'] = 0
-
-    # --- Scroll Indicators ---
-    if v_offset > 0:
-        stdscr.addstr(2, w - 1, "↑", curses.A_DIM) # Start drawing from row 2
-    if v_offset + max_rows < total:
-        stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
-
-    # Draw list items (log messages)
-    for idx in range(v_offset, min(v_offset + max_rows, total)):
-        row = 2 + idx - v_offset # Start drawing from row 2
-        item_text = items[idx] # Items are already formatted strings
-        is_selected = (idx == selected_idx)
-
-        # Color based on log level
-        attr = curses.color_pair(3) # Default white
-        if "ERROR" in item_text:
-            attr = curses.color_pair(7) # Red
-        elif "WARNING" in item_text:
-            attr = curses.color_pair(5) # Yellow
-        elif "DEBUG" in item_text:
-            attr = curses.color_pair(6) # Magenta/Dim
-
-        if is_selected:
-            attr |= curses.A_REVERSE # Highlight selected line
-
-        stdscr.addnstr(row, pad, item_text.ljust(w - pad * 2), w - pad * 2, attr)
-
-    # --- Copy Action for Logs Tab ---
-    if state.get('_copy_action', False):
-        if total:
-            item_to_copy = items[selected_idx]
-            copy_to_clipboard(item_to_copy)
-            copy_msg = f"Log line copied."
-            copy_time = time.time()
-        state['_copy_action'] = False # Reset flag
-
 
 # Modify drawing functions to accept data
 def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
@@ -897,11 +826,13 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 # Modify handle_input to accept interfaces and pass them down if needed
 def handle_input_for_tab(c, active_tab_name, state, interfaces):
     """Handles key presses based on the active tab."""
-    global copy_msg, copy_time, light_command_info, INTERFACES # Allow modification and access globals
+    # REMOVED log_records and log_records_lock from global declaration
+    global copy_msg, copy_time, light_command_info, INTERFACES
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
-    sort_mode = state['sort_mode']
+    # Use get for sort_mode as it might not exist if state wasn't found (though we try to prevent that)
+    sort_mode = state.get('sort_mode', 0)
 
     # Determine total items based on tab (using cached data for consistency if paused)
     # NOTE: This means sorting might operate on slightly stale data if paused,
@@ -911,31 +842,18 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
     num_sort_modes = 0
     current_id = None # ID of the item currently selected, used for stable sort selection
 
-    # if active_tab_name == "Mapped Devices": # REMOVED
-    #     items_list = last_draw_data["mapped"] # Use cached data for count/ID finding
-    #     total = len(items_list)
-    #     num_sort_modes = len(mapped_sort_labels)
-    #     if 0 <= state['selected_idx'] < total:
-    #          current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
     if active_tab_name == "Lights":
         items_list = last_draw_data["lights"] # Use cached light data
         total = len(items_list)
         num_sort_modes = len(light_sort_labels)
         if 0 <= state['selected_idx'] < total:
              current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
-    # --- Add Logic for Logs Tab ---
-    elif active_tab_name == "Logs":
-        items_list = last_draw_data["logs"] # Use cached log data
-        total = len(items_list)
-        num_sort_modes = 0 # No sorting for logs
-        # ID for logs is just the index, but we don't need stable selection on sort
-        current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
     elif " Raw" in active_tab_name:
         iface_index = -1
         try: # Find interface index based on tab name
             iface_name_part = active_tab_name.split(" ")[0].lower()
-            # Adjust index based on preceding tabs ("Lights", "Logs")
-            iface_index = interfaces.index(iface_name_part)
+            # Adjust index based on preceding tabs ("Lights")
+            iface_index = current_tab_index - 1 # Adjusted index
         except (ValueError, IndexError):
              pass
 
@@ -969,8 +887,6 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
         # Re-find the selected item's index AFTER sorting (using cached data again)
         if current_id is not None: # Check if we have a valid ID
             new_items_sorted = [] # This will be a list of IDs (entity_id or message name)
-            # if active_tab_name == "Mapped Devices": # REMOVED
-            #      ...
             if active_tab_name == "Lights":
                  items_list = last_draw_data["lights"] # Use cached light data
                  sm = state['sort_mode']
@@ -984,8 +900,8 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
                  iface_index = -1
                  try:
                      iface_name_part = active_tab_name.split(" ")[0].lower()
-                     # Adjust index based on preceding tabs ("Lights", "Logs")
-                     iface_index = interfaces.index(iface_name_part)
+                     # Adjust index based on preceding tabs ("Lights")
+                     iface_index = current_tab_index - 1 # Adjusted index
                  except (ValueError, IndexError): pass
 
                  if iface_index != -1:
@@ -1009,7 +925,9 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
 
     # --- Copying ---
     elif c in (ord('c'), ord('C')):
-        state['_copy_action'] = True # Signal draw function to perform copy
+        # Only trigger copy action if the tab supports it (i.e., not Logs)
+        if active_tab_name != "Logs": # Check added for safety, though Logs tab is removed
+             state['_copy_action'] = True # Signal draw function to perform copy
 
     # --- Command/Control (Lights Only for now) ---
     elif c == curses.KEY_ENTER or c == ord('\n'):
@@ -1122,7 +1040,7 @@ if __name__ == '__main__':
     # light_entity_ids and light_command_info are already populated by load_config_data
     last_draw_data = { # Initialize cache structure based on interfaces and new tabs
          "lights": [],
-         "logs": [], # Added logs cache
+         # "logs": [], # REMOVED logs cache
          **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
     }
     logging.info("Global state initialized.") # Added log
