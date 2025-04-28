@@ -60,6 +60,55 @@ logging.getLogger().addHandler(list_handler)
 logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
 
 # --- Load Definitions ---
+def load_definitions(file_path):
+    """Loads RVC message definitions from a JSON file."""
+    logging.info(f"  [load_definitions] Attempting to open: {file_path}") # Added log
+    try:
+        with open(file_path, 'r') as f:
+            logging.info(f"  [load_definitions] File opened successfully: {file_path}") # Added log
+            logging.info(f"  [load_definitions] Attempting to parse JSON...") # Added log
+            data = json.load(f)
+            logging.info(f"  [load_definitions] JSON parsed successfully. Processing definitions...") # Added log
+
+        decoder_map = {}
+        # Process DGNs first
+        logging.info("  [load_definitions] Processing DGNs...") # Added log
+        dgn_count = 0
+        for dgn_hex, dgn_data in data.get('DGNs', {}).items():
+            # ... (rest of DGN processing)
+            dgn_count += 1
+        logging.info(f"  [load_definitions] Processed {dgn_count} DGNs.") # Added log
+
+        # Process Commands second
+        logging.info("  [load_definitions] Processing Commands...") # Added log
+        command_count = 0
+        for cmd_name, cmd_data in data.get('Commands', {}).items():
+            # ... (rest of Command processing)
+            command_count += 1
+        logging.info(f"  [load_definitions] Processed {command_count} Commands.") # Added log
+
+        # Process Data Entities third
+        logging.info("  [load_definitions] Processing Data Entities...") # Added log
+        entity_count = 0
+        for entity_name, entity_data in data.get('DataEntities', {}).items():
+            # ... (rest of Data Entity processing)
+            entity_count += 1
+        logging.info(f"  [load_definitions] Processed {entity_count} Data Entities.") # Added log
+
+        logging.info(f"  [load_definitions] Finished processing. Final map size: {len(decoder_map)}") # Added log
+        logging.info(f"Loaded {len(decoder_map)} RVC message specs from {file_path}")
+        return decoder_map
+
+    except FileNotFoundError:
+        logging.error(f"Definition file not found: {file_path}")
+        return None
+    except json.JSONDecodeError as e:
+        logging.error(f"Error decoding JSON from {file_path}: {e}")
+        return None
+    except Exception as e:
+        logging.exception(f"An unexpected error occurred loading definitions from {file_path}") # Use logging.exception
+        return None
+
 def load_definitions(rvc_spec_path, device_mapping_path): # Accept paths as args
     """Loads RVC spec and device mappings, identifying light devices and command info."""
     # Load RVC Spec
