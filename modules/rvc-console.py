@@ -1003,97 +1003,106 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces):
 
 # --- Entry Point ---
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="RV-C CAN bus monitor console.")
-    parser.add_argument('--spec-file', default=DEFAULT_RVC_SPEC_PATH,
-                        help=f"Path to the RVC JSON specification file (default: {DEFAULT_RVC_SPEC_PATH})")
-    parser.add_argument('--mapping-file', default=DEFAULT_DEVICE_MAPPING_PATH,
-                        help=f"Path to the YAML device mapping file (default: {DEFAULT_DEVICE_MAPPING_PATH})")
-    parser.add_argument('--interfaces', nargs='+', default=DEFAULT_INTERFACES,
-                        help=f"List of CAN interfaces to monitor (default: {' '.join(DEFAULT_INTERFACES)})" )
+    # Argument Parsing
+    parser = argparse.ArgumentParser(description='RV-C CAN Bus Monitor')
+    parser.add_argument('-i', '--interfaces', nargs='+', required=True, help='CAN interface names (e.g., can0 can1)')
+    parser.add_argument('-d', '--definitions', default='/etc/nixos/files/rvc.json', help='Path to the RVC definitions JSON file')
+    parser.add_argument('-m', '--mapping', default='/etc/nixos/files/device_mapping.yml', help='Path to the device mapping YAML file')
     args = parser.parse_args()
 
-    # Load definitions using paths from args, now returns light_command_info
-    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_definitions(args.spec_file, args.mapping_file)
+    # --- Load Definitions ---
+    logging.info(f"Attempting to load RVC definitions from: {args.definitions}") # Added log
+    decoder_map = load_definitions(args.definitions)
+    if not decoder_map:
+        logging.error("Exiting due to failure loading definitions.") # Use logging
+        sys.exit(1)
+    # Log message from user occurs here: 15:54:37 - INFO - MainThread - Loaded 104 RVC message specs from /etc/nixos/files/rvc.json
+
+    # --- Load Device Mapping ---
+    logging.info(f"Attempting to load device mapping from: {args.mapping}") # Added log
+    device_mapping, device_lookup = load_device_mapping(args.mapping)
+    if not device_mapping:
+        logging.warning("Could not load or parse device mapping file. Features requiring mapping will be limited.") # Use logging
+        device_mapping = {}
+        device_lookup = {}
+    logging.info(f"Device mapping loaded. Found {len(device_mapping)} mapped devices.") # Added log
 
     # Initialize global state dependent on args
+    logging.info("Initializing global state...") # Added log
     INTERFACES = args.interfaces # Set global interfaces list
     latest_raw_records = {iface: {} for iface in INTERFACES}
     light_device_states = {} # Initialize light state dict (keyed by entity_id)
-    # mapped_device_states = {} # REMOVED
+    light_entity_ids = set() # Ensure this is initialized before pre-population
+    light_command_info = {} # Ensure this is initialized before pre-population
     last_draw_data = { # Initialize cache structure based on interfaces and new tabs
-         # "mapped": [], # REMOVED
          "lights": [],
          "logs": [], # Added logs cache
          **{f"raw{i}": ([], {}) for i in range(len(INTERFACES))}
     }
+    logging.info("Global state initialized.") # Added log
 
     # --- Pre-populate light_device_states --- START
-    logging.info(f"Pre-populating state for {len(light_entity_ids)} known light devices...")
-    for entity_id in light_entity_ids:
-        config = entity_id_lookup.get(entity_id)
-        if config:
-            default_state = {
-                'entity_id': entity_id,
-                'friendly_name': config.get('friendly_name', entity_id),
-                'suggested_area': config.get('suggested_area', 'Unknown'),
-                'last_updated': 0, # Use 0 for initial/unknown update time
-                'last_interface': None,
-                'last_raw_values': {},
-                'last_decoded_data': {'state': 'Unknown'}, # Default state
-                'mapping_config': config,
-                # DGN/Instance might not be unique if mapped under multiple DGNs,
-                # so we leave them out of the default state for now.
-                # They will be filled when a real message arrives.
-                'dgn_hex': None,
-                'instance': None
-            }
-            light_device_states[entity_id] = default_state
-        else:
-            # This shouldn't happen if load_definitions worked correctly
-            logging.warning(f"Could not find configuration for light entity_id '{entity_id}' during pre-population.")
+    logging.info("Pre-populating light states...") # Added log
+    if device_mapping:
+        for key, config in device_mapping.items():
+            entity_id = config.get('entity_id')
+            ha_type = config.get('ha_type')
+            dgn_hex = config.get('dgn')
+            instance_str = str(config.get('instance', 'default')) # Use string for consistency
+
+            if entity_id and ha_type == 'light':
+                light_entity_ids.add(entity_id)
+                # Store command info (DGN/Instance) using entity_id as key
+                if dgn_hex:
+                    light_command_info[entity_id] = {'dgn_hex': dgn_hex, 'instance': instance_str}
+                else:
+                    logging.warning(f"Light entity '{entity_id}' in mapping lacks a DGN, cannot be controlled.")
+
+                # Add placeholder state
+                with light_states_lock:
+                    light_device_states[entity_id] = {
+                        'entity_id': entity_id,
+                        'friendly_name': config.get('friendly_name', entity_id),
+                        'suggested_area': config.get('suggested_area', 'Unknown'),
+                        'last_updated': 0, # Placeholder
+                        'last_interface': 'N/A',
+                        'last_raw_values': {},
+                        'last_decoded_data': {},
+                        'mapping_config': config,
+                        'dgn_hex': dgn_hex,
+                        'instance': instance_str,
+                        'state': 'unavailable' # Initial state
+                    }
+    logging.info(f"Pre-populated {len(light_entity_ids)} light entities.") # Added log
     # --- Pre-populate light_device_states --- END
 
     # Start reader threads only if definitions loaded successfully
-    if decoder_map:
-        logging.info("Starting CAN reader threads...")
-        # Remove the console handler now that curses is about to take over stdout/stderr
-        logging.getLogger().removeHandler(console_handler)
-        threads = []
-        for iface in INTERFACES: # Use interfaces from args
-            thread = threading.Thread(target=reader_thread, args=(iface,), name=f"Reader-{iface}", daemon=True)
-            thread.start()
-            threads.append(thread)
+    # Note: decoder_map check is implicitly true if we reached here
+    logging.info("Starting CAN reader threads...") # Log before starting threads
+    threads = []
+    for interface in INTERFACES:
+        thread = threading.Thread(target=reader_thread, args=(interface,), name=f"Reader-{interface}")
+        thread.daemon = True
+        threads.append(thread)
+        thread.start()
+        logging.info(f"Started reader thread for {interface}.") # Log after each thread start
 
-        # Give threads a moment to start and potentially fail on CAN init
-        time.sleep(0.5)
-
-        # Check if threads are alive before starting curses
-        alive_threads = [t for t in threads if t.is_alive()]
-        # Pass interfaces to draw_screen
-        if alive_threads:
-             logging.info(f"Starting UI with {len(alive_threads)} active reader thread(s)...")
-             try:
-                 # Pass interfaces list to the curses wrapper function
-                 curses.wrapper(draw_screen, INTERFACES)
-             except curses.error as e:
-                 logging.error(f"Curses error: {e}")
-             except Exception as e:
-                 logging.exception("Unhandled error in main UI loop")
-             finally:
-                 logging.info("UI exited. Setting stop event...")
-                 stop_event.set()
-        else:
-             logging.error("No reader threads started successfully. Exiting.")
-             stop_event.set() # Ensure any potentially stuck threads are signalled
-
-        # Wait for threads to finish after stop_event is set
-        logging.info("Waiting for reader threads to stop...")
-        for t in threads: # Iterate original list in case some failed early
-             if t.is_alive():
-                 t.join(timeout=2) # Wait max 2 seconds per thread
-                 if t.is_alive():
-                     logging.warning(f"Thread {t.name} did not stop gracefully.")
-        logging.info("All threads stopped.")
-
-    else:
-        logging.error("Could not load RVC specifications. Exiting.")
+    # --- Start Curses UI ---
+    logging.info("Attempting to start curses UI...") # Log before curses
+    # Remove the console handler *just before* starting curses
+    logging.getLogger().removeHandler(console_handler)
+    try:
+        curses.wrapper(draw_screen, INTERFACES) # Pass interfaces list
+    except Exception as e:
+        # Ensure console handler is back if curses fails
+        logging.getLogger().addHandler(console_handler)
+        logging.exception("Unhandled exception in curses main loop!")
+    finally:
+        # Ensure console handler is back after curses finishes or crashes
+        if console_handler not in logging.getLogger().handlers:
+             logging.getLogger().addHandler(console_handler)
+        logging.info("Requesting threads to stop...")
+        stop_event.set()
+        for t in threads:
+            t.join(timeout=1.0) # Add a timeout to prevent hanging
+        logging.info("Threads stopped. Exiting.")
