@@ -11,5 +11,5 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  services.rvc2api.debugTools.enable = true;
+  # services.rvc2api.debugTools.enable = true; # Removed: Option moved to flake.nix
 }

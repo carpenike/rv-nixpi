@@ -57,7 +57,10 @@
       ./modules/ssh.nix
       ./modules/sudo.nix
       ./modules/systemPackages.nix
-      ./modules/rvc2api-debug-tools.nix
+      # ./modules/rvc-config.nix # Removed: Handled by rvc.nix
+      # ./modules/rvc-debug-tools.nix # Removed: Handled by rvc.nix
+      # ./modules/rvc-console.nix # Removed: Handled by rvc.nix
+      ./modules/rvc.nix # Added: Parent module for RVC features
       # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; })
     ];
 
@@ -70,7 +73,14 @@
 
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       system = system;
-      modules = commonModules;
+      modules = commonModules ++ [
+        # <<< Add your settings here >>>
+        {
+          services.rvc.console.enable = true;    # Enable the console app
+          services.rvc.debugTools.enable = true; # Enable the debug tools
+          # Add other system-specific settings here if needed
+        }
+      ];
     };
 
     devShells.${system}.default = import ./devshell.nix {

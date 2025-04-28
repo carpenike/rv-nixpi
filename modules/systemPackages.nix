@@ -13,6 +13,8 @@
     pkgs.libraspberrypi
     pkgs.htop
     pkgs.gawk # Needed for check-config-match
+    # pkgs.python3Packages.python-can # Removed: Handled by rvc.nix module
+    # pkgs.python3Packages.pyyaml     # Removed: Handled by rvc.nix module
 
     (pkgs.writeShellScriptBin "update-nix" ''
       #!/usr/bin/env bash
@@ -95,26 +97,26 @@
       fi
     '')
 
-    (pkgs.writeShellScriptBin "rvc-dbc-test" ''
-      #!/usr/bin/env bash
-      set -euo pipefail
-
-      INTERFACE=''${1:-can0}
-      DBC_PATH="/etc/nixos/files/generated_rvc.dbc"
-      SCRIPT="/etc/nixos/files/live_can_decoder.py"
-
-      if [ ! -f "$DBC_PATH" ]; then
-        echo "❌ DBC file not found at $DBC_PATH"
-        exit 1
-      fi
-
-      if [ ! -f "$SCRIPT" ]; then
-        echo "❌ Python script not found at $SCRIPT"
-        exit 1
-      fi
-
-      echo "▶️ Running decoder on interface $INTERFACE"
-      python3 "$SCRIPT" --interface "$INTERFACE" --dbc "$DBC_PATH"
-    '')
+    # (pkgs.writeShellScriptBin "rvc-dbc-test" ''
+    #   #!/usr/bin/env bash
+    #   set -euo pipefail
+    #
+    #   INTERFACE=''${1:-can0}
+    #   DBC_PATH="/etc/nixos/files/generated_rvc.dbc"
+    #   SCRIPT="/etc/nixos/files/live_can_decoder.py"
+    #
+    #   if [ ! -f "$DBC_PATH" ]; then
+    #     echo "❌ DBC file not found at $DBC_PATH"
+    #     exit 1
+    #   fi
+    #
+    #   if [ ! -f "$SCRIPT" ]; then
+    #     echo "❌ Python script not found at $SCRIPT"
+    #     exit 1
+    #   fi
+    #
+    #   echo "▶️ Running decoder on interface $INTERFACE"
+    #   python3 "$SCRIPT" --interface "$INTERFACE" --dbc "$DBC_PATH"
+    # '')
   ];
 }
