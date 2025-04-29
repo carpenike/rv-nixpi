@@ -658,6 +658,9 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
         stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w - 1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
 
+        # --- Add explicit redraw command ---
+        stdscr.redrawwin() 
+        # --- End add explicit redraw command ---
         stdscr.refresh()
 
 
