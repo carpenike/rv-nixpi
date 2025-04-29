@@ -142,7 +142,9 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
 
                     decoder_map[dec_id] = entry
                     # Add DGN hex string for easier lookup later
-                    entry['dgn_hex'] = f"{(dec_id >> 8) & 0x1FFFF:X}" # Extract DGN (17 bits for PF+PS/DA)
+                    # entry['dgn_hex'] = f"{(dec_id >> 8) & 0x1FFFF:X}" # Extract DGN (17 bits for PF+PS/DA
+                    # Add DGN hex string for easier lookup later (include Data-Page bit)
+                    entry['dgn_hex'] = f"{(dec_id >> 8) & 0x3FFFF:X}"  # Extract full 18-bit PGN (DP+PF+PS)
                 except (ValueError, TypeError) as e:
                     # Log warning if ID is invalid or has an unexpected type
                     logging.warning(f"Skipping spec entry with invalid or unexpected 'id' {entry.get('id')}: {e}")
@@ -437,6 +439,11 @@ def reader_thread(interface):
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
+                    # DEBUG: show what PGN/instance we got and what keys we have available
+                    logging.debug(
+                        f"[reader:{interface}] Got PGN={dgn_hex.upper()}, "
+                        f"inst={instance_str}; looking for keys={list(status_lookup.keys())}"
+                    )
                     # --- Use status_lookup instead of device_lookup --- START
                     lookup_key = (dgn_hex.upper(), instance_str)
                     mapped_config = status_lookup.get(lookup_key)
