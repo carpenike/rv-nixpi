@@ -985,10 +985,9 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 
 
 # Modify handle_input to use active_buses
-def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index):
-    """Handles key presses based on the active tab."""
-    # Add active_buses and lock to globals
-    global copy_msg, copy_time, light_command_info, INTERFACES, active_buses, active_buses_lock
+def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): # Added interfaces and current_tab_index
+    global copy_msg, copy_time, light_states # Ensure globals are declared if modified
+
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
@@ -1000,24 +999,24 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
     num_sort_modes = 0
     current_id = None # ID of the item currently selected, used for stable sort selection
 
-    if active_tab_name == "Lights":
+    if tab_name == "Lights":
         items_list = last_draw_data["lights"] # Use cached light data
         total = len(items_list)
         num_sort_modes = len(light_sort_labels)
         if 0 <= state['selected_idx'] < total:
              current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
     # --- Restore Logic for Logs Tab ---
-    elif active_tab_name == "Logs":
+    elif tab_name == "Logs":
         # Use cached log data to get the count
         items_list = last_draw_data["logs"] # Get cached log list
         total = len(items_list)
         num_sort_modes = 0 # No sorting for logs
         # ID for logs is just the index, but we don't need stable selection on sort
         current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
-    elif " Raw" in active_tab_name:
+    elif " Raw" in tab_name:
         iface_index = -1
         try: # Find interface index based on tab name
-            iface_name_part = active_tab_name.split(" ")[0].lower()
+            iface_name_part = tab_name.split(" ")[0].lower()
             # Restore original index calculation
             iface_index = current_tab_index - 2
         except (ValueError, IndexError):
@@ -1033,28 +1032,28 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
 
     # --- Input Handling Logic (Up/Down/Sort/Copy/Enter) ---
     # --- Navigation ---
-    if c == curses.KEY_DOWN and total:
+    if key == curses.KEY_DOWN and total:
         state['selected_idx'] = min(selected_idx + 1, total - 1)
-    elif c == curses.KEY_UP and total:
+    elif key == curses.KEY_UP and total:
         state['selected_idx'] = max(selected_idx - 1, 0) # Corrected decrement
-    elif c == curses.KEY_NPAGE and total: # Page Down
+    elif key == curses.KEY_NPAGE and total: # Page Down
         state['selected_idx'] = min(selected_idx + (curses.LINES - 5), total - 1) # Adjust step size
-    elif c == curses.KEY_PPAGE and total: # Page Up
+    elif key == curses.KEY_PPAGE and total: # Page Up
         state['selected_idx'] = max(selected_idx - (curses.LINES - 5), 0)
-    elif c == curses.KEY_HOME:
+    elif key == curses.KEY_HOME:
         state['selected_idx'] = 0
-    elif c == curses.KEY_END and total:
+    elif key == curses.KEY_END and total:
         state['selected_idx'] = total - 1
 
     # --- Sorting ---
-    elif c in (ord('s'), ord('S')) and num_sort_modes > 0: # Check if sorting is applicable
+    elif key in (ord('s'), ord('S')) and num_sort_modes > 0: # Check if sorting is applicable
         # current_id was determined above using cached data
         state['sort_mode'] = (state['sort_mode'] + 1) % num_sort_modes
 
         # Re-find the selected item's index AFTER sorting (using cached data again)
         if current_id is not None: # Check if we have a valid ID
             new_items_sorted = [] # This will be a list of IDs (entity_id or message name)
-            if active_tab_name == "Lights":
+            if tab_name == "Lights":
                 items_list = last_draw_data["lights"] # Use cached light data
                 sm = state['sort_mode']
                 items_list_copy = list(items_list)
@@ -1063,10 +1062,10 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
                 elif sm == 2: items_list_copy.sort(key=lambda x: x.get('last_updated', 0), reverse=True)
                 new_items_sorted = [item.get('entity_id') for item in items_list_copy]
 
-            elif " Raw" in active_tab_name:
+            elif " Raw" in tab_name:
                 iface_index = -1
                 try:
-                    iface_name_part = active_tab_name.split(" ")[0].lower()
+                    iface_name_part = tab_name.split(" ")[0].lower()
                     # Restore original index calculation
                     iface_index = current_tab_index - 2
                 except (ValueError, IndexError): pass
@@ -1091,13 +1090,13 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
         state['v_offset'] = 0 # Reset scroll on sort
 
     # --- Copying ---
-    elif c in (ord('c'), ord('C')):
+    elif key in (ord('c'), ord('C')):
         # Restore original logic (allow copy on Logs tab)
         state['_copy_action'] = True # Signal draw function to perform copy
 
     # --- Command/Control (Lights Only for now) ---
-    elif c == curses.KEY_ENTER or c == ord('\n'):
-        if active_tab_name == "Lights" and total:
+    elif key == curses.KEY_ENTER or key == ord('\n'):
+        if tab_name == "Lights" and total:
             # Use cached data to identify the selected item without needing lock
             selected_item_data = last_draw_data["lights"][state['selected_idx']]
             entity_id = selected_item_data.get('entity_id')
@@ -1200,9 +1199,119 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
                 copy_msg = f"Error sending command for '{light_name}': {e}"
                 copy_time = time.time()
 
-        # ... other elif conditions ...
+    elif key == ord('l'):
+        if tab_name == 'Lights':
+            selected_index = state.get('selected_light_index', 0)
+            # Ensure light_states is accessed safely, it might be updated by the reader thread
+            with light_states_lock:
+                current_light_keys = list(light_states.keys())
 
-# ... rest of the function ...
+            if 0 <= selected_index < len(current_light_keys):
+                light_id = current_light_keys[selected_index] # This is the entity_id
+
+                # Get light info safely
+                with light_states_lock:
+                    light_info = light_states.get(light_id)
+                    if light_info:
+                        current_state = light_info.get('state', 0) # Default to OFF if state missing
+                        instance_str = light_info.get('instance')
+                        dgn_hex = light_info.get('dgn_hex') # Should be '1FEDA' for lights
+                        target_interface_name = light_info.get('last_interface') # Interface where light was last seen
+                    else:
+                        light_info = None # Ensure light_info is None if not found
+
+                if not light_info:
+                    state['message'] = f"Error: Could not find info for light {light_id}."
+                    logging.error(f"State info missing for selected light {light_id}")
+                    return # Exit handler
+
+                if not instance_str or not dgn_hex or not target_interface_name:
+                    state['message'] = f"Error: Missing instance, DGN, or interface for light {light_id}."
+                    logging.error(f"Command info missing for light {light_id}: instance={instance_str}, dgn={dgn_hex}, interface={target_interface_name}")
+                    return # Exit handler
+
+                try:
+                    instance = int(instance_str)
+                    dgn = int(dgn_hex, 16) # Convert DGN hex string to integer
+                except ValueError:
+                    state['message'] = f"Error: Invalid instance ({instance_str}) or DGN ({dgn_hex}) for light {light_id}."
+                    logging.error(f"Invalid instance/DGN for light {light_id}: instance={instance_str}, dgn={dgn_hex}")
+                    return # Exit handler
+
+                # --- Get Target Bus ---
+                with active_buses_lock:
+                    target_bus = active_buses.get(target_interface_name)
+
+                if not target_bus:
+                    state['message'] = f"Error: CAN interface '{target_interface_name}' not active."
+                    logging.error(f"CAN interface '{target_interface_name}' not found in active_buses for sending command.")
+                    return # Exit handler
+
+
+                # Toggle state: 0 -> 1, 1 -> 0
+                new_state = 1 - current_state
+
+                # --- Construct CAN ID (PDU2 for 0x1FEDA) ---
+                priority = 6
+                sa = 0xF9 # Diagnostic Tool address (TODO: make configurable?)
+                # DGN: 0x1FEDA (Light Command) -> PF=FE, PS=DA
+                if (dgn >> 8) >= 0xF0: # Check if PF is 240 or higher (PDU2)
+                    can_id = (priority << 26) | ((dgn >> 8) << 16) | ((dgn & 0xFF) << 8) | sa # PDU2 format (uses PS)
+                else: # PDU1 format (uses DA) - Should not happen for 0x1FEDA but handle defensively
+                    logging.warning(f"Unexpected PDU1 DGN {dgn_hex} used for light command for {light_id}. Using broadcast DA.")
+                    da = 0xFF # Default broadcast DA for PDU1
+                    can_id = (priority << 26) | ((dgn >> 8) << 16) | (da << 8) | sa # PDU1 format (uses DA)
+
+
+                # --- Construct Data Payload ---
+                # Data: [Instance, Reserved (0xFF), Brightness (0-100), Command (0=OFF, 1=ON), Duration (0=Instant), Reserved (0xFF), Reserved (0xFF), Reserved (0xFF)]
+                command = new_state # 0 for OFF, 1 for ON
+                brightness = 100 if new_state == 1 else 0 # Full brightness if ON, 0 if OFF
+                duration = 0 # Instantaneous
+
+                data = bytes([
+                    instance & 0xFF,
+                    0xFF, # Reserved
+                    brightness & 0xFF,
+                    command & 0xFF,
+                    duration & 0xFF,
+                    0xFF, # Reserved
+                    0xFF, # Reserved
+                    0xFF  # Reserved
+                ])
+
+                # --- Send Command ---
+                action_desc = "ON" if new_state == 1 else "OFF"
+                logging.info(f"Attempting to toggle light '{light_id}' ({action_desc}) on {target_interface_name}")
+                logging.debug(f"  CAN ID: 0x{can_id:08X}")
+                logging.debug(f"  Data  : {data.hex().upper()}")
+
+                global copy_msg, copy_time # Declare globals to modify them
+                if send_can_command(target_bus, can_id, data):
+                    # Optimistically update state in the UI immediately
+                    with light_states_lock:
+                         # Check if light still exists before updating
+                         if light_id in light_states:
+                            light_states[light_id]['state'] = new_state
+                            light_states[light_id]['last_updated'] = time.time() # Update timestamp
+                    state['message'] = f"Command sent to toggle light {light_id} {action_desc}."
+                    copy_msg = state['message']
+                    copy_time = time.time()
+
+                else:
+                    # State was not updated if send failed
+                    state['message'] = f"Error sending toggle command for light {light_id}."
+                    copy_msg = state['message']
+                    copy_time = time.time()
+
+                # No need for the old placeholder message logic below
+                # state['message'] = f"Toggled light {light_id} to {'ON' if new_state == 1 else 'OFF'}. (Command not sent yet)" # REMOVE/REPLACE THIS
+
+            else:
+                state['message'] = "No light selected or invalid index."
+        else:
+            state['message'] = "'l' key only works in the Lights tab."
+
 
 # --- Entry Point ---
 if __name__ == '__main__':
