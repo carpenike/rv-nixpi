@@ -1134,7 +1134,7 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
         # Use cached log data to get the count
         items_list = last_draw_data["logs"] # Get cached log list
         num_sort_modes = 0 # No sorting for logs
-        # total = len(items_list)
+        total = len(items_list)
         # # ID for logs is just the index, but we don't need stable selection on sort
         # current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
         # # how many rows of logs we can show (same as in draw_screen)
