@@ -1,5 +1,6 @@
 import json
 import threading
+import textwrap
 import curses
 import time
 import sys
@@ -16,6 +17,7 @@ import queue # Import the queue module
 # --- Configuration ---
 # Defaults, can be overridden by args
 log_filter = ""
+log_wrap = False
 DEFAULT_RVC_SPEC_PATH = '/etc/nixos/files/rvc.json'
 DEFAULT_DEVICE_MAPPING_PATH = '/etc/nixos/files/device_mapping.yaml'
 DEFAULT_INTERFACES = ['can0', 'can1']
@@ -505,7 +507,7 @@ def reader_thread(interface):
 # --- Main UI Drawing ---
 # Modify draw_screen to accept list_handler
 def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces list and handler
-    global copy_msg, copy_time, is_paused, last_draw_data, log_filter
+    global copy_msg, copy_time, is_paused, last_draw_data, log_filter, log_wrap
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -521,6 +523,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
     # Make getch non-blocking
     stdscr.nodelay(1)
     stdscr.timeout(100)
+    stdscr.keypad(True)
 
     # --- Add the ListLogHandler HERE --- # MOVED FROM MAIN
     logging.info("Adding ListLogHandler inside draw_screen...")
@@ -551,7 +554,10 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             if c in (ord('q'), ord('Q')):
                 stop_event.set()
                 break
-            elif c == ord('/'):  # enter log‐filter mode
+            elif c == ord('/'):  # enter log-filter mode
+                # temporarily switch off non-blocking so we can finish typing
+                stdscr.nodelay(False)
+                stdscr.timeout(-1)
                 curses.echo()
                 h, w = stdscr.getmaxyx()
                 stdscr.move(h-2, 0)
@@ -560,24 +566,44 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                 stdscr.refresh()
                 s = stdscr.getstr(h-2, 8, w-8).decode('utf-8')
                 curses.noecho()
+                # restore non-blocking input
+                stdscr.nodelay(True)
+                stdscr.timeout(100)
+                stdscr.keypad(True)
                 log_filter = s
                 displayed_log_records.clear()
                 last_draw_data["logs"] = []
                 copy_msg = f"Log filter set to '{log_filter}'"
                 copy_time = time.time()
+                continue           # skip the rest of this loop so we don’t immediately redraw
 
             # Pause Toggle
-            elif c in (ord('p'), ord('P')): # Ensure this elif is correctly indented
+            elif c in (ord('p'), ord('P')):
+                # Toggle pause/unpause exactly once
                 with pause_lock:
                     is_paused = not is_paused
-                # Immediately clear cached data when unpausing to force refresh
                 if not is_paused:
+                    # On unpause, clear logs buffer & reset scroll
+                    displayed_log_records.clear()
                     last_draw_data = {
-                        # "mapped": [], # REMOVED
                         "lights": [],
-                        "logs": [], # <-- Restore logs cache clearing
+                        "logs": [],
                         **{f"raw{i}": ([], {}) for i in range(len(interfaces))}
                     }
+                    tab_state["Logs"]['selected_idx'] = 0
+                    tab_state["Logs"]['v_offset']    = 0
+                    copy_msg = "Unpaused — logs cleared"
+                else:
+                    copy_msg = "Paused"
+                copy_time = time.time()
+                continue
+
+            # Wrap toggle for Logs
+            elif c in (ord('w'), ord('W')):
+                log_wrap = not log_wrap
+                copy_msg = f"Log wrap {'ON' if log_wrap else 'OFF'}"
+                copy_time = time.time()
+                continue
             # Tab switching # Ensure this try block is at the same level as the elif
             try:
                 key_char = chr(c)
@@ -720,7 +746,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                 draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
             # --- Restore Drawing Call for Logs Tab ---
             elif active_tab_name == "Logs":
-                draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw) # Pass log items
+                draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw, wrap=log_wrap)
             elif " Raw" in active_tab_name and interface_for_raw_tab:
                 # Pass fetched/cached data and interface name
                 draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
@@ -759,7 +785,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
 # --- Drawing Functions ---
 
 # --- Restore Drawing Function for Logs Tab ---
-def draw_logs_tab(stdscr, h, w, max_rows, state, items):
+def draw_logs_tab(stdscr, h, w, max_rows, state, items, wrap=False):
     """Draws the 'Logs' tab content."""
     global copy_msg, copy_time, log_filter
     pad = 1
@@ -800,25 +826,29 @@ def draw_logs_tab(stdscr, h, w, max_rows, state, items):
     if v_offset + max_rows < total:
         stdscr.addstr(h - 3, w - 1, "↓", curses.A_DIM)
 
-    # Draw list items (log messages)
+    # Draw list items, with optional wrapping
+    row = 2
     for idx in range(v_offset, min(v_offset + max_rows, total)):
-        row = 2 + idx - v_offset # Start drawing from row 2
-        item_text = filtered[idx] # Items are already formatted strings
-        is_selected = (idx == selected_idx)
-
-        # Color based on log level
-        attr = curses.color_pair(3) # Default white
-        if "ERROR" in item_text:
-            attr = curses.color_pair(7) # Red
-        elif "WARNING" in item_text:
-            attr = curses.color_pair(5) # Yellow
-        elif "DEBUG" in item_text:
-            attr = curses.color_pair(6) # Magenta/Dim
-
-        if is_selected:
-            attr |= curses.A_REVERSE # Highlight selected line
-
-        stdscr.addnstr(row, pad, item_text.ljust(w - pad * 2), w - pad * 2, attr)
+        item = filtered[idx]
+        lines = textwrap.wrap(item, w - pad*2) if wrap else [item]
+        for sub in lines:
+            if row > h - 3:
+                break
+            is_sel = (idx == selected_idx)
+            # Color based on log level
+            attr = curses.color_pair(3)
+            if "ERROR" in sub:
+                attr = curses.color_pair(7)
+            elif "WARNING" in sub:
+                attr = curses.color_pair(5)
+            elif "DEBUG" in sub:
+                attr = curses.color_pair(6)
+            if is_sel:
+                attr |= curses.A_REVERSE
+            stdscr.addnstr(row, pad, sub.ljust(w - pad*2), w - pad*2, attr)
+            row += 1
+        if row > h - 3:
+            break
 
     # --- Copy Action for Logs Tab ---
     if state.get('_copy_action', False):
