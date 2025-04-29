@@ -788,21 +788,46 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
         stdscr.addnstr(row, area_start, item.get('suggested_area', 'N/A').ljust(col_area_w), col_area_w, area_attr)
         stdscr.addnstr(row, name_start, item.get('friendly_name', 'N/A').ljust(col_name_w), col_name_w, attr)
 
-        # Display state - Look for common light state signals (e.g., 'state', 'brightness')
+        # --- Modified State Display Logic ---
         decoded = item.get('last_decoded_data', {})
-        state_str = decoded.get('state', 'Unknown') # Default to 'state' signal if present
-        brightness = decoded.get('brightness') # Check for brightness
+        state_str = ""
+        state_attr = attr # Default attribute
+
+        if not decoded:
+            state_str = "[No Data]" # Indicate no decoded data received yet
+            state_attr = curses.color_pair(7) # Red
+        elif 'state' not in decoded:
+            state_str = "[State Missing]" # Indicate state signal wasn't in last message
+            state_attr = curses.color_pair(5) # Yellow
+        else:
+            state_str = str(decoded['state']) # Use the actual state value
+            # Optional: Add color based on actual state value here if needed
+            # state_attr = attr # Already set as default
+
+        brightness = decoded.get('brightness')
         if brightness is not None:
-            state_str += f" ({brightness})"
+             # Check if state_str is one of our debug strings before appending brightness
+             if state_str not in ("[No Data]", "[State Missing]"):
+                 state_str += f" ({brightness})"
 
         # Add control hint if selected
         if is_selected:
-            state_str += " [Enter to Control]"
-            state_attr = curses.color_pair(7) | curses.A_BOLD # Use red/action hint color
-        else:
-            state_attr = attr
+            # Only add control hint if we have actual state data
+            if state_str not in ("[No Data]", "[State Missing]"):
+                 state_str += " [Enter to Control]"
+                 # Override state_attr only if adding hint
+                 state_attr = curses.color_pair(7) | curses.A_BOLD
+            else:
+                 # If selected but no data/state, show different hint
+                 state_str += " [No State Data]"
+                 state_attr = curses.color_pair(5) | curses.A_BOLD # Yellow/Bold
+        # Ensure state_attr is set correctly if not selected but in an error state
+        elif state_str in ("[No Data]", "[State Missing]"):
+             pass # Already set above based on the error condition
+        # else: # If not selected and not error state, state_attr is already 'attr'
 
         stdscr.addnstr(row, state_start, state_str.ljust(col_state_w), col_state_w, state_attr)
+        # --- End Modified State Display Logic ---
 
     # --- Copy Action for Lights Tab ---
     if state.get('_copy_action', False):
