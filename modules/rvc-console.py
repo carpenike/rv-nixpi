@@ -228,46 +228,54 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
 
                                 # --- Populate status_lookup --- START
                                 status_dgn_hex = merged_config.get('status_dgn')
+                                # +++ ADDED DEBUG LOGGING +++
+                                logging.debug(f"  [load_config_data] DGN={dgn_hex.upper()}, Inst={instance_str}, Entity={entity_id}: Found status_dgn='{status_dgn_hex}'")
+                                # +++ END DEBUG LOGGING +++
                                 if status_dgn_hex:
-                                    status_lookup_key = (str(status_dgn_hex).upper(), str(instance_str))
-                                    if status_lookup_key not in status_lookup:
-                                        status_lookup[status_lookup_key] = merged_config
-                                        logging.debug(f"Added to status_lookup: {status_lookup_key} -> {entity_id}")
-                                    else:
-                                        # Log if overwriting, might indicate duplicate status definitions
-                                        logging.warning(f"Overwriting status_lookup entry for {status_lookup_key}. Previous: {status_lookup[status_lookup_key].get('entity_id')}, New: {entity_id}")
-                                        status_lookup[status_lookup_key] = merged_config
+                                    # Use upper() for consistency
+                                    status_lookup[(status_dgn_hex.upper(), str(instance_str))] = merged_config
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> Added to status_lookup: Key=({status_dgn_hex.upper()}, {instance_str})")
+                                    # +++ END DEBUG LOGGING +++
                                 else:
-                                    # If no specific status_dgn, assume status DGN is the same as definition DGN
-                                    status_lookup_key = (dgn_hex.upper(), str(instance_str))
-                                    if status_lookup_key not in status_lookup:
-                                        status_lookup[status_lookup_key] = merged_config
-                                        logging.debug(f"Added to status_lookup (using definition DGN): {status_lookup_key} -> {entity_id}")
-                                    # Don't warn on overwrite here, as multiple devices might share a status DGN/instance implicitly
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> No status_dgn found for this entry.")
+                                    # +++ END DEBUG LOGGING +++
                                 # --- Populate status_lookup --- END
 
-                                # Populate entity_id lookup only once per entity_id (first encountered wins for simplicity)
-                                if entity_id not in entity_id_lookup:
-                                    entity_id_lookup[entity_id] = merged_config
+                                # --- Populate entity_id_lookup --- START
+                                entity_id_lookup[entity_id] = merged_config
+                                # +++ ADDED DEBUG LOGGING +++
+                                logging.debug(f"    -> Added to entity_id_lookup: Key={entity_id}")
+                                # +++ END DEBUG LOGGING +++
+                                # --- Populate entity_id_lookup --- END
 
-                                # --- Identify Lights and Command Info (using device_type now) ---
-                                if str(merged_config.get('device_type', '')).lower() == 'light':
-                                    light_entity_ids.add(entity_id) # Use entity_id
-                                    logging.debug(f"Identified '{entity_id}' as a light.")
-                                    # Check if the DGN is the command DGN (1FED9) and store command info # <-- UPDATED DGN HERE
-                                    # Ensure dgn_hex is valid before comparing
-                                    if isinstance(dgn_hex, str) and dgn_hex.upper() == '1FED9': # <-- UPDATED DGN HERE
-                                        try:
-                                            instance_int = int(instance_str) # Ensure instance is int
-                                            # Store command info (overwrite if found again, assuming last is correct)
-                                            light_command_info[entity_id] = {'dgn': 0x1FED9, 'instance': instance_int, 'interface': merged_config.get('interface')} # <-- UPDATED DGN HERE
-                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FED9, Instance={instance_int}, Interface={merged_config.get('interface')}") # <-- UPDATED LOG MESSAGE
-                                        except ValueError:
-                                            logging.warning(f"Invalid instance '{instance_str}' for light command DGN {dgn_hex} and entity {entity_id}")
-                                # --- End Identify Lights ---
+                                # --- Identify Lights and Store Command Info --- START
+                                # Check if it's a light based on device_type
+                                # +++ ADDED DEBUG LOGGING +++
+                                device_type = merged_config.get('device_type')
+                                logging.debug(f"  [load_config_data] Checking DGN={dgn_hex.upper()}, Inst={instance_str}, Entity={entity_id}: Found device_type='{device_type}'")
+                                # +++ END DEBUG LOGGING +++
+                                if device_type == 'light':
+                                    light_entity_ids.add(entity_id) # Add to the set of light IDs
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> Identified as LIGHT. Storing command info.")
+                                    # +++ END DEBUG LOGGING +++
+
+                                    # Store command info (DGN, instance, interface)
+                                    # The DGN is the key we are currently iterating under (dgn_hex)
+                                    light_command_info[entity_id] = {
+                                        'dgn': int(dgn_hex, 16), # Store DGN as integer
+                                        'instance': int(instance_str), # Store instance as integer
+                                        'interface': merged_config.get('interface') # Store interface if available
+                                    }
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> Stored command info for {entity_id}: DGN=0x{light_command_info[entity_id]['dgn']:X}, Inst={light_command_info[entity_id]['instance']}, Iface={light_command_info[entity_id]['interface']}")
+                                    # +++ END DEBUG LOGGING +++
+                                # --- Identify Lights and Store Command Info --- END
+
                             else:
-                                # Update warning message
-                                logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'entity_id' or 'friendly_name'. Config: {config}")
+                                logging.warning(f"Skipping config under DGN '{dgn_hex}', Instance '{instance_str}': missing 'entity_id' or 'friendly_name' - Config: {merged_config}")
 
             logging.info(f"Loaded {len(device_lookup)} specific device mappings from {device_mapping_path}") # Use arg path
             logging.info(f"Built status lookup table with {len(status_lookup)} entries.") # Added log for status_lookup
