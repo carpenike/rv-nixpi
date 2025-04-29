@@ -1105,18 +1105,25 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
             dgn = cmd_info['dgn'] # Should be 0x1FEDA
 
             # Determine current state and desired command (Simple Toggle ON/OFF)
-            current_state = selected_item_data.get('last_decoded_data', {}).get('state', 'Unknown').upper()
+            # Get the raw state value if available, otherwise default to 'Unknown'
+            current_raw_state = selected_item_data.get('last_raw_values', {}).get('state')
+            # Determine command based on raw state (0 = OFF, anything else treat as ON)
             command = 0 # Default to Set Level (ON)
             brightness = 100 # Default brightness for ON (0-100%)
-            duration = 251 # Instant
+            duration = 251 # Instant (0xFB)
             action_desc = "Turning ON"
 
-            # Check if the light is currently considered ON
-            # Be lenient with state check (e.g., "ON", "ON (50%)", "1")
-            if current_state != 'OFF' and current_state != 'UNKNOWN' and current_state != '0':
-                command = 3 # OFF command
-                brightness = 0 # Brightness irrelevant for OFF command per spec
-                action_desc = "Turning OFF"
+            # If the raw state is not 0 (OFF), then send the OFF command
+            if current_raw_state != 0 and current_raw_state is not None:
+                 command = 3 # OFF command
+                 brightness = 0 # Brightness irrelevant for OFF command per spec
+                 action_desc = "Turning OFF"
+            # If state is None (never received), default to turning ON
+            elif current_raw_state is None:
+                 command = 0
+                 brightness = 100
+                 action_desc = "Attempting ON (state unknown)"
+
 
             # Construct CAN ID (Priority 6, PGN 0x1FEDA, Source 0x63)
             priority = 6
@@ -1130,37 +1137,45 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
             # Byte 1: Reserved (FF)
             # Byte 2: Level (0-100%, FE=Ignore, FF=Invalid)
             # Byte 3: Command (0=Set Level, 3=Off)
-            # Byte 4: Duration (0-25.0s, 251=Instant, 254=Ignore, 255=Invalid)
-            # Bytes 5-7: Reserved (FF FF FF)
-            data = bytearray(8)
-            data[0] = instance & 0xFF
-            data[1] = 0xFF
-            data[2] = brightness & 0xFF
-            data[3] = command & 0xFF
-            data[4] = duration & 0xFF
-            data[5] = 0xFF
-            data[6] = 0xFF
-            data[7] = 0xFF
+            # Byte 4: Duration (0-250=0-25s, 251=Instant, FE=Ignore, FF=Invalid)
+            # Byte 5: Reserved (FF)
+            # Byte 6: Reserved (FF)
+            # Byte 7: Reserved (FF)
+            try:
+                data = bytes([
+                    instance & 0xFF,
+                    0xFF, # Reserved
+                    brightness & 0xFF, # Level (0-100)
+                    command & 0xFF,    # Command (0=Set, 3=Off)
+                    duration & 0xFF,   # Duration (251=Instant)
+                    0xFF, # Reserved
+                    0xFF, # Reserved
+                    0xFF  # Reserved
+                ])
 
-            # Send command on the first interface
-            if INTERFACES:
-                target_interface = INTERFACES[0]
-                logging.info(f"Attempting to send command for '{light_name}' ({action_desc}) via {target_interface}")
-                if send_can_command(target_interface, can_id, bytes(data)):
-                    copy_msg = f"Sent {action_desc} command for '{light_name}'."
-                    # Optimistically update the cached state? Risky without confirmation.
-                    # Maybe clear state to 'Updating...'?
-                    # For now, just rely on the next status message received.
+                # Log before sending
+                logging.info(f"Attempting to send command for '{light_name}': {action_desc}")
+                logging.debug(f"  CAN ID: 0x{can_id:08X}")
+                logging.debug(f"  Data  : {data.hex().upper()}")
+
+                # Send the command (try both interfaces for now, might need refinement)
+                sent_on_any = False
+                for iface in INTERFACES: # Use the global INTERFACES list
+                    if send_can_command(iface, can_id, data):
+                        sent_on_any = True
+                        # Optional: break here if you only want to send on the first successful interface
+                        # break
+
+                if sent_on_any:
+                    copy_msg = f"Command '{action_desc}' sent for '{light_name}'."
                 else:
-                    copy_msg = f"Error sending command for '{light_name}'."
-            else:
-                copy_msg = "Error: No CAN interfaces defined to send command."
+                    copy_msg = f"Error: Failed to send command for '{light_name}' on any interface."
+                copy_time = time.time()
 
-            copy_time = time.time()
-
-        # elif active_tab_name == "Mapped Devices" and total:
-        #     # Placeholder for potential future actions on other devices
-        #     pass
+            except Exception as e:
+                logging.error(f"Error constructing or sending CAN command for '{light_name}': {e}")
+                copy_msg = f"Error sending command for '{light_name}': {e}"
+                copy_time = time.time()
 
 # --- Entry Point ---
 if __name__ == '__main__':
