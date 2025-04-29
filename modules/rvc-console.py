@@ -471,7 +471,8 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
             # Check if active_tab_name exists in tab_state before accessing
             if active_tab_name in tab_state:
                 state = tab_state[active_tab_name]
-                handle_input_for_tab(c, active_tab_name, state, interfaces) # Pass interfaces
+                # Pass current_tab_index to handle_input_for_tab
+                handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
             # else: # Handle case where tab might not have state (e.g., if Logs was still somehow selected)
                 # pass # Or log a warning
 
@@ -890,8 +891,8 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
         state['_copy_action'] = False # Reset flag
 
 
-# Modify handle_input to accept interfaces and pass them down if needed
-def handle_input_for_tab(c, active_tab_name, state, interfaces):
+# Modify handle_input to accept interfaces and current_tab_index
+def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index):
     """Handles key presses based on the active tab."""
     # Restore log_records and log_records_lock to global declaration
     global copy_msg, copy_time, light_command_info, INTERFACES, log_records, log_records_lock
