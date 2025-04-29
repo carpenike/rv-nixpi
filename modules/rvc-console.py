@@ -1181,20 +1181,22 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # --- Determine Command, Brightness, Duration --- END
 
-            # --- Construct CAN ID --- START (Restored Logic)
-            # DGN: 0x1FEDA (Light Command)
-            # Source Address (SA): Let's use a placeholder like 0xF9 (Diagnostic Tool)
-            # Destination Address (DA): 0xFF (Broadcast) or specific device address if known (not implemented yet)
-            # Priority: 6 (Default for control messages)
+            # --- Construct CAN ID --- START (Corrected Logic)
             priority = 6
             sa = 0xF9
-            da = 0xFF # Broadcast for now
-            can_id = (priority << 26) | (dgn << 8) | sa
-            # Add PDU Format (PF) and PDU Specific (PS) if DGN is in PDU2 range (PF >= 240)
-            if (dgn >> 8) >= 0xF0: # Check if PF is 240 or higher
-                can_id = (priority << 26) | ((dgn >> 8) << 16) | (da << 8) | sa # PDU1 format (uses DA)
-            else: # PDU2 format (uses PS = lower 8 bits of DGN)
-                 can_id = (priority << 26) | ((dgn >> 8) << 16) | ((dgn & 0xFF) << 8) | sa # PDU2 format (uses PS)
+            da = 0xFF # Broadcast DA for PDU1
+
+            # Extract PGN components
+            dp = (dgn >> 16) & 1 # Data Page bit
+            pf = (dgn >> 8) & 0xFF # PDU Format
+
+            if pf < 0xF0: # PDU1 Format (uses DA) PF 0-239
+                 # Build PDU1 ID: Prio | DP | PF | DA | SA
+                 can_id = (priority << 26) | (dp << 24) | (pf << 16) | (da << 8) | sa
+            else: # PDU2 Format (uses PS) PF 240-255
+                 # Build PDU2 ID: Prio | DP | PF | PS | SA
+                 ps = dgn & 0xFF # PDU Specific
+                 can_id = (priority << 26) | (dp << 24) | (pf << 16) | (ps << 8) | sa
 
             # --- Construct CAN ID --- END
 
