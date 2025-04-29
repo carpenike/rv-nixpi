@@ -842,22 +842,25 @@ def draw_logs_tab(stdscr, h, w, max_rows, state, items, wrap=False):
     row = 2
     for idx in range(v_offset, min(v_offset + max_rows, total)):
         item = filtered[idx]
+        # pick the colour once based on the original line
+        if "ERROR" in item:
+            base_attr = curses.color_pair(7)
+        elif "WARNING" in item:
+            base_attr = curses.color_pair(5)
+        elif "DEBUG" in item:
+            base_attr = curses.color_pair(6)
+        else:
+            base_attr = curses.color_pair(3)
+
+        is_sel = (idx == selected_idx)
+        if is_sel:
+            base_attr |= curses.A_REVERSE
+
         lines = textwrap.wrap(item, w - pad*2) if wrap else [item]
         for sub in lines:
             if row > h - 3:
                 break
-            is_sel = (idx == selected_idx)
-            # Color based on log level
-            attr = curses.color_pair(3)
-            if "ERROR" in sub:
-                attr = curses.color_pair(7)
-            elif "WARNING" in sub:
-                attr = curses.color_pair(5)
-            elif "DEBUG" in sub:
-                attr = curses.color_pair(6)
-            if is_sel:
-                attr |= curses.A_REVERSE
-            stdscr.addnstr(row, pad, sub.ljust(w - pad*2), w - pad*2, attr)
+            stdscr.addnstr(row, pad, sub.ljust(w - pad*2), w - pad*2, base_attr)
             row += 1
         if row > h - 3:
             break
