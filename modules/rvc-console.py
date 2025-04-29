@@ -932,7 +932,8 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index):
     """Handles key presses based on the active tab."""
     # Restore log_records and log_records_lock to global declaration
-    global copy_msg, copy_time, light_command_info, INTERFACES # REMOVED log_records, log_records_lock
+    # REMOVED log_records, log_records_lock from global list
+    global copy_msg, copy_time, light_command_info, INTERFACES
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
@@ -952,9 +953,8 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
              current_id = items_list[state['selected_idx']].get('entity_id') # Use entity_id
     # --- Restore Logic for Logs Tab ---
     elif active_tab_name == "Logs":
-        # Use log_records_lock when accessing log_records for count
-        with log_records_lock:
-            items_list = list(log_records) # Get a temporary list under lock
+        # Use cached log data to get the count
+        items_list = last_draw_data["logs"] # Get cached log list
         total = len(items_list)
         num_sort_modes = 0 # No sorting for logs
         # ID for logs is just the index, but we don't need stable selection on sort
@@ -974,8 +974,9 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
              total = len(names_list)
              num_sort_modes = len(sort_labels)
              if 0 <= state['selected_idx'] < total:
-                 current_id = names_list[state['selected_idx']] # Name is the ID
+                 current_id = names_list[state['selected_idx']] # Use name as ID
 
+    # --- Input Handling Logic (Up/Down/Sort/Copy/Enter) ---
     # --- Navigation ---
     if c == curses.KEY_DOWN and total:
         state['selected_idx'] = min(selected_idx + 1, total - 1)
