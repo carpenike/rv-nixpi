@@ -130,17 +130,22 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
         for entry in specs:
             if 'id' in entry:
                 try:
-                    # --- START: Restored inner try/except logic ---
-                    # Assume ID is hex in the JSON spec, convert to int
-                    dec_id = int(entry['id'], 16)
+                    spec_id = entry['id']
+                    if isinstance(spec_id, int):
+                        dec_id = spec_id # Use the integer directly
+                    elif isinstance(spec_id, str):
+                        # Try converting from hex string (base 16)
+                        dec_id = int(spec_id, 16)
+                    else:
+                        # Handle unexpected type
+                        raise TypeError(f"Unexpected type for 'id': {type(spec_id).__name__}")
+
                     decoder_map[dec_id] = entry
                     # Add DGN hex string for easier lookup later
                     entry['dgn_hex'] = f"{(dec_id >> 8) & 0x1FFFF:X}" # Extract DGN (17 bits for PF+PS/DA)
-                    # --- END: Restored inner try/except logic ---
                 except (ValueError, TypeError) as e:
-                    # --- START: Restored inner try/except logic ---
-                    logging.warning(f"Skipping spec entry with invalid 'id' {entry.get('id')}: {e}")
-                    # --- END: Restored inner try/except logic ---
+                    # Log warning if ID is invalid or has an unexpected type
+                    logging.warning(f"Skipping spec entry with invalid or unexpected 'id' {entry.get('id')}: {e}")
             else:
                 logging.warning(f"Skipping spec entry missing 'id': {entry}")
 
