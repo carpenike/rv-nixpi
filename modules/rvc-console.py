@@ -80,7 +80,7 @@ list_handler = ListLogHandler(max_entries=1000) # Increased size slightly
 list_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s:%(message)s', datefmt='%H:%M:%S'))
 
 # Set overall logging level
-logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
+logging.getLogger().setLevel(logging.DEBUG) # Or DEBUG for more verbosity # <-- Set to DEBUG
 
 # --- Prevent initial console logging --- START
 # Remove any default handlers (like StreamHandler to stderr) that might be present
