@@ -15,6 +15,7 @@ import queue # Import the queue module
 
 # --- Configuration ---
 # Defaults, can be overridden by args
+log_filter = ""
 DEFAULT_RVC_SPEC_PATH = '/etc/nixos/files/rvc.json'
 DEFAULT_DEVICE_MAPPING_PATH = '/etc/nixos/files/device_mapping.yaml'
 DEFAULT_INTERFACES = ['can0', 'can1']
@@ -504,7 +505,7 @@ def reader_thread(interface):
 # --- Main UI Drawing ---
 # Modify draw_screen to accept list_handler
 def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces list and handler
-    global copy_msg, copy_time, is_paused, last_draw_data
+    global copy_msg, copy_time, is_paused, last_draw_data, log_filter
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -550,6 +551,20 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             if c in (ord('q'), ord('Q')):
                 stop_event.set()
                 break
+            elif c == ord('/'):  # enter log‐filter mode
+                curses.echo()
+                h, w = stdscr.getmaxyx()
+                stdscr.move(h-2, 0)
+                stdscr.clrtoeol()
+                stdscr.addstr(h-2, 0, "Filter: ")
+                stdscr.refresh()
+                s = stdscr.getstr(h-2, 8, w-8).decode('utf-8')
+                curses.noecho()
+                log_filter = s
+                displayed_log_records.clear()
+                last_draw_data["logs"] = []
+                copy_msg = f"Log filter set to '{log_filter}'"
+                copy_time = time.time()
 
             # Pause Toggle
             elif c in (ord('p'), ord('P')): # Ensure this elif is correctly indented
@@ -664,6 +679,11 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
         # Pause indicator
         if paused_now:
              header_text += "[PAUSED] "
+        # Filter indicator
+        if log_filter:
+            header_text += f"[Filter='{log_filter}'] "
+        else:
+            header_text += "[Filter=OFF] "
         # Tabs
         for i, name in enumerate(tabs):
             key = tab_keys[i]
@@ -741,13 +761,24 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
 # --- Restore Drawing Function for Logs Tab ---
 def draw_logs_tab(stdscr, h, w, max_rows, state, items):
     """Draws the 'Logs' tab content."""
-    global copy_msg, copy_time
+    global copy_msg, copy_time, log_filter
     pad = 1
+
+    # apply filter
+    if log_filter:
+        filtered = [line for line in items if log_filter in line]
+    else:
+        filtered = list(items)
+
+    # if filter hides everything, show a hint and return
+    if log_filter and not filtered:
+        stdscr.addstr(3, pad, f"-- no log lines matching '{log_filter}' --", curses.A_DIM)
+        return
 
     # No titles needed, just list the logs
     # stdscr.hline(1, 0, '-', w) # REMOVED: Redundant separator, already drawn in draw_screen
 
-    total = len(items)
+    total = len(filtered)
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
 
@@ -772,7 +803,7 @@ def draw_logs_tab(stdscr, h, w, max_rows, state, items):
     # Draw list items (log messages)
     for idx in range(v_offset, min(v_offset + max_rows, total)):
         row = 2 + idx - v_offset # Start drawing from row 2
-        item_text = items[idx] # Items are already formatted strings
+        item_text = filtered[idx] # Items are already formatted strings
         is_selected = (idx == selected_idx)
 
         # Color based on log level
@@ -792,7 +823,7 @@ def draw_logs_tab(stdscr, h, w, max_rows, state, items):
     # --- Copy Action for Logs Tab ---
     if state.get('_copy_action', False):
         if total:
-            item_to_copy = items[selected_idx]
+            item_to_copy = filtered[selected_idx]
             copy_to_clipboard(item_to_copy)
             copy_msg = f"Log line copied."
             copy_time = time.time()
