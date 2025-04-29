@@ -287,29 +287,28 @@ def decode_payload(entry, data_bytes):
     return decoded, raw_values # Return both formatted and raw
 
 # --- CAN Sending Helper ---
-def send_can_command(interface, can_id, data):
-    """Sends a CAN message."""
-    bus = None # Initialize bus to None
+# Modify send_can_command to accept a bus object
+def send_can_command(bus_object, can_id, data): # Takes bus object now
+    """Sends a CAN message using a provided bus object."""
+    if not bus_object:
+         logging.error("send_can_command called with invalid bus object.")
+         return False
+    # Attempt to get the interface name for logging purposes
+    interface_name = getattr(bus_object, 'channel_info', 'unknown_interface')
     try:
-        logging.debug(f"Attempting to create CAN bus for interface {interface}...")
-        # Use context manager for bus cleanup
-        with can.interface.Bus(channel=interface, interface='socketcan', receive_own_messages=False) as bus:
-            logging.debug(f"CAN bus created for {interface}. Preparing message...")
-            msg = can.Message(arbitration_id=can_id, data=data, is_extended_id=True)
-            logging.debug(f"Message prepared: ID=0x{can_id:08X}, Data={data.hex().upper()}. Attempting send...")
-            bus.send(msg)
-            # Add log immediately after send returns
-            logging.debug(f"bus.send() completed for {interface}.")
-            logging.info(f"Sent CAN msg on {interface}: ID=0x{can_id:08X}, Data={data.hex().upper()}")
-            return True
+        # Bus object is already created and passed in
+        logging.debug(f"Preparing message for {interface_name}...")
+        msg = can.Message(arbitration_id=can_id, data=data, is_extended_id=True)
+        logging.debug(f"Message prepared: ID=0x{can_id:08X}, Data={data.hex().upper()}. Attempting send on {interface_name}...")
+        bus_object.send(msg) # Use the passed bus object
+        logging.debug(f"bus.send() completed for {interface_name}.")
+        logging.info(f"Sent CAN msg on {interface_name}: ID=0x{can_id:08X}, Data={data.hex().upper()}")
+        return True
     except can.CanError as e:
-        # Log the specific CanError
-        logging.error(f"CAN Error sending message on {interface}: {type(e).__name__} - {e}")
+        logging.error(f"CAN Error sending message on {interface_name}: {type(e).__name__} - {e}")
         return False
     except Exception as e:
-        # Catch specific exceptions if possible, e.g., OSError if interface down
-        # Log the specific Exception type
-        logging.error(f"Unexpected error sending CAN message on {interface}: {type(e).__name__} - {e}")
+        logging.error(f"Unexpected error sending CAN message on {interface_name}: {type(e).__name__} - {e}")
         return False
 
 # OSC52 copy to clipboard
@@ -331,6 +330,9 @@ light_device_states = {} # Keyed by entity_id for lights (Changed from ha_name)
 raw_records_lock = threading.Lock()
 # mapped_states_lock = threading.Lock() # REMOVED
 light_states_lock = threading.Lock() # Lock for light states
+# Add dictionary and lock for active bus objects
+active_buses = {}
+active_buses_lock = threading.Lock()
 stop_event = threading.Event()
 copy_msg = None
 copy_time = 0
@@ -352,11 +354,20 @@ INTERFACES = [] # Will be populated by args
 # --- Reader Thread ---
 def reader_thread(interface):
     """Reads CAN messages, decodes, and updates raw records, mapped device states, and light states."""
+    global active_buses, active_buses_lock # Add globals
+    bus = None # Initialize bus to None outside try
     try:
         bus = can.interface.Bus(channel=interface, interface='socketcan')
         logging.info(f"Successfully opened CAN interface {interface}")
+        # Store the active bus object
+        with active_buses_lock:
+            active_buses[interface] = bus
     except Exception as e:
         logging.error(f"Error opening CAN interface {interface}: {e}")
+        # Ensure bus is removed if opening failed but object was partially created
+        with active_buses_lock:
+            if interface in active_buses:
+                del active_buses[interface]
         return # Exit thread if CAN interface fails
 
     while not stop_event.is_set():
@@ -428,12 +439,16 @@ def reader_thread(interface):
             logging.exception(f"Unhandled error in reader thread for {interface}") # Log traceback
             time.sleep(1) # Prevent tight loop on unexpected errors
 
-    # Cleanup
-    try:
-        bus.shutdown()
-        logging.info(f"Closed CAN interface {interface}")
-    except Exception as e:
-        logging.error(f"Error shutting down CAN interface {interface}: {e}")
+    # Cleanup: Shutdown bus and remove from active list
+    with active_buses_lock:
+        if interface in active_buses:
+            if bus: # Check if bus object exists before trying to shut down
+                try:
+                    bus.shutdown()
+                    logging.info(f"Closed CAN interface {interface}")
+                except Exception as e:
+                    logging.error(f"Error shutting down CAN interface {interface}: {e}")
+            del active_buses[interface] # Remove from active list regardless of shutdown success
 
 # --- Main UI Drawing ---
 # Modify draw_screen to accept list_handler
@@ -969,12 +984,11 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
         state['_copy_action'] = False # Reset flag
 
 
-# Modify handle_input to accept interfaces and current_tab_index
+# Modify handle_input to use active_buses
 def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index):
     """Handles key presses based on the active tab."""
-    # Restore log_records and log_records_lock to global declaration
-    # REMOVED log_records, log_records_lock from global list
-    global copy_msg, copy_time, light_command_info, INTERFACES
+    # Add active_buses and lock to globals
+    global copy_msg, copy_time, light_command_info, INTERFACES, active_buses, active_buses_lock
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
@@ -1105,14 +1119,11 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
             dgn = cmd_info['dgn'] # Should be 0x1FEDA
             target_interface_name = cmd_info.get('interface') # <-- Get the target interface name
 
-            # Find the actual interface object
-            target_interface = None
+            # --- Find the actual ACTIVE bus object --- START
+            target_bus = None
             if target_interface_name:
-                for iface in INTERFACES:
-                    # Match by channel_info which usually holds the interface name like 'can0', 'can1'
-                    if hasattr(iface, 'channel_info') and iface.channel_info == target_interface_name:
-                        target_interface = iface
-                        break
+                with active_buses_lock:
+                    target_bus = active_buses.get(target_interface_name) # Get bus object from the dictionary
             else:
                 # Fallback or error if interface not specified in mapping
                 logging.warning(f"No interface specified for light '{light_name}' ({entity_id}). Command not sent.")
@@ -1120,76 +1131,72 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
                 copy_time = time.time()
                 return
 
-            if not target_interface:
-                logging.error(f"Specified interface '{target_interface_name}' for light '{light_name}' not found or not active.")
-                copy_msg = f"Error: Interface '{target_interface_name}' for '{light_name}' not found. Command not sent."
+            if not target_bus: # Check if the bus object was found in the active dictionary
+                logging.error(f"Specified interface '{target_interface_name}' for light '{light_name}' not found or not active in active_buses.")
+                copy_msg = f"Error: Interface '{target_interface_name}' for '{light_name}' not found/active. Command not sent."
                 copy_time = time.time()
                 return
+            # --- Find the actual ACTIVE bus object --- END
 
-            # Determine current state and desired command (Simple Toggle ON/OFF)
-            # Get the raw state value if available, otherwise default to 'Unknown'
-            current_raw_state = selected_item_data.get('last_raw_values', {}).get('state')
-            # Determine command based on raw state (0 = OFF, anything else treat as ON)
-            command = 0 # Default to Set Level (ON)
-            brightness = 100 # Default brightness for ON (0-100%)
-            duration = 251 # Instant (0xFB)
-            action_desc = "Turning ON"
+            # --- Determine Command, Brightness, Duration --- START (Restored Logic)
+            # Get current state for toggle logic
+            current_state = light_states.get(entity_id, {}).get('state', 'OFF') # Default to OFF if unknown
+            current_brightness = light_states.get(entity_id, {}).get('brightness', 0) # Default to 0
 
-            # If the raw state is not 0 (OFF), then send the OFF command
-            if current_raw_state != 0 and current_raw_state is not None:
-                 command = 3 # OFF command
-                 brightness = 0 # Brightness irrelevant for OFF command per spec
-                 action_desc = "Turning OFF"
-            # If state is None (never received), default to turning ON
-            elif current_raw_state is None:
-                 command = 0
-                 brightness = 100
-                 action_desc = "Attempting ON (state unknown)"
+            # Toggle logic: If ON, turn OFF. If OFF, turn ON to previous brightness or default (e.g., 100%).
+            if current_state == 'ON':
+                command = 0x00 # Command: OFF
+                brightness = 0x00 # Brightness: 0%
+                duration = 0x00 # Duration: Instant
+                action_desc = "Turn OFF"
+            else: # Currently OFF or unknown
+                command = 0x01 # Command: ON
+                # Restore previous brightness if available and > 0, otherwise default to 100%
+                brightness = current_brightness if current_brightness > 0 else 100
+                duration = 0x00 # Duration: Instant
+                action_desc = f"Turn ON to {brightness}%"
+                brightness = brightness & 0xFF # Ensure brightness fits in one byte
 
+            # --- Determine Command, Brightness, Duration --- END
 
-            # Construct CAN ID (Priority 6, PGN 0x1FEDA, Source 0x63)
+            # --- Construct CAN ID --- START (Restored Logic)
+            # DGN: 0x1FEDA (Light Command)
+            # Source Address (SA): Let's use a placeholder like 0xF9 (Diagnostic Tool)
+            # Destination Address (DA): 0xFF (Broadcast) or specific device address if known (not implemented yet)
+            # Priority: 6 (Default for control messages)
             priority = 6
-            source_addr = 0x63 # 99
-            # J1939 ID construction: (Prio << 26) | (PGN << 8) | SourceAddr
-            # PGN for 1FEDA is 0x1FEDA
-            can_id = (priority << 26) | (dgn << 8) | source_addr
+            sa = 0xF9
+            da = 0xFF # Broadcast for now
+            can_id = (priority << 26) | (dgn << 8) | sa
+            # Add PDU Format (PF) and PDU Specific (PS) if DGN is in PDU2 range (PF >= 240)
+            if (dgn >> 8) >= 0xF0: # Check if PF is 240 or higher
+                can_id = (priority << 26) | ((dgn >> 8) << 16) | (da << 8) | sa # PDU1 format (uses DA)
+            else: # PDU2 format (uses PS = lower 8 bits of DGN)
+                 can_id = (priority << 26) | ((dgn >> 8) << 16) | ((dgn & 0xFF) << 8) | sa # PDU2 format (uses PS)
 
-            # Construct Data Payload (8 bytes) - RVC_LIGHT_COMMAND (1FEDA)
-            # Byte 0: Instance
-            # Byte 1: Reserved (FF)
-            # Byte 2: Level (0-100%, FE=Ignore, FF=Invalid)
-            # Byte 3: Command (0=Set Level, 3=Off)
-            # Byte 4: Duration (0-250=0-25s, 251=Instant, FE=Ignore, FF=Invalid)
-            # Byte 5: Reserved (FF)
-            # Byte 6: Reserved (FF)
-            # Byte 7: Reserved (FF)
+            # --- Construct CAN ID --- END
+
+            # Construct Data Payload
             try:
+                # Data: [Instance, Reserved (0xFF), Brightness (0-100), Command (0=OFF, 1=ON), Duration (0=Instant), Reserved (0xFF), Reserved (0xFF), Reserved (0xFF)]
                 data = bytes([
-                    instance & 0xFF,
-                    0xFF, # Reserved
-                    brightness & 0xFF, # Level (0-100)
-                    command & 0xFF,    # Command (0=Set, 3=Off)
-                    duration & 0xFF,   # Duration (251=Instant)
-                    0xFF, # Reserved
-                    0xFF, # Reserved
-                    0xFF  # Reserved
+                    instance & 0xFF, 0xFF, brightness & 0xFF, command & 0xFF,
+                    duration & 0xFF, 0xFF, 0xFF, 0xFF
                 ])
 
-                # Log before sending
-                logging.info(f"Attempting to send command for '{light_name}' on {target_interface_name}: {action_desc}") # MODIFIED LOG
+                logging.info(f"Attempting to send command for '{light_name}' on {target_interface_name}: {action_desc}")
                 logging.debug(f"  CAN ID: 0x{can_id:08X}")
                 logging.debug(f"  Data  : {data.hex().upper()}")
 
-                # Send the command ONLY on the target interface
-                if send_can_command(target_interface, can_id, data): # MODIFIED: Use target_interface
-                    copy_msg = f"Command '{action_desc}' sent for '{light_name}' on {target_interface_name}." # MODIFIED MSG
+                # Send the command using the retrieved target_bus object
+                if send_can_command(target_bus, can_id, data): # MODIFIED: Pass the bus object
+                    copy_msg = f"Command '{action_desc}' sent for '{light_name}' on {target_interface_name}."
                 else:
-                    # Error message handled by send_can_command logging
-                    copy_msg = f"Error: Failed to send command for '{light_name}' on {target_interface_name}." # MODIFIED MSG
+                    copy_msg = f"Error: Failed to send command for '{light_name}' on {target_interface_name}."
                 copy_time = time.time()
 
             except Exception as e:
-                logging.error(f"Error constructing or sending CAN command for '{light_name}': {e}")
+                logging.error(f"Error constructing or sending command for '{light_name}': {e}")
                 copy_msg = f"Error sending command for '{light_name}': {e}"
                 copy_time = time.time()
 
