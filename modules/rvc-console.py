@@ -171,6 +171,7 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
     # Load Device Mapping
     device_mapping = {} # Raw mapping loaded from YAML
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
+    status_lookup = {} # Added: Maps (Status_DGN_Hex, Instance_Str) -> mapped_config
     entity_id_lookup = {} # New lookup: entity_id -> mapped_config
     light_entity_ids = set() # Store entity_ids of devices identified as lights
     light_command_info = {} # New: Store command DGN/Instance/Interface per light entity_id # MODIFIED
@@ -217,8 +218,29 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
                             # Ensure essential keys are present (using entity_id now)
                             if 'entity_id' in merged_config and 'friendly_name' in merged_config:
                                 entity_id = merged_config['entity_id'] # Get entity_id
-                                # Store the final merged config
+                                # Store the final merged config in the primary lookup (keyed by definition DGN)
                                 device_lookup[(dgn_hex.upper(), str(instance_str))] = merged_config
+
+                                # --- Populate status_lookup --- START
+                                status_dgn_hex = merged_config.get('status_dgn')
+                                if status_dgn_hex:
+                                    status_lookup_key = (str(status_dgn_hex).upper(), str(instance_str))
+                                    if status_lookup_key not in status_lookup:
+                                        status_lookup[status_lookup_key] = merged_config
+                                        logging.debug(f"Added to status_lookup: {status_lookup_key} -> {entity_id}")
+                                    else:
+                                        # Log if overwriting, might indicate duplicate status definitions
+                                        logging.warning(f"Overwriting status_lookup entry for {status_lookup_key}. Previous: {status_lookup[status_lookup_key].get('entity_id')}, New: {entity_id}")
+                                        status_lookup[status_lookup_key] = merged_config
+                                else:
+                                    # If no specific status_dgn, assume status DGN is the same as definition DGN
+                                    status_lookup_key = (dgn_hex.upper(), str(instance_str))
+                                    if status_lookup_key not in status_lookup:
+                                        status_lookup[status_lookup_key] = merged_config
+                                        logging.debug(f"Added to status_lookup (using definition DGN): {status_lookup_key} -> {entity_id}")
+                                    # Don't warn on overwrite here, as multiple devices might share a status DGN/instance implicitly
+                                # --- Populate status_lookup --- END
+
                                 # Populate entity_id lookup only once per entity_id (first encountered wins for simplicity)
                                 if entity_id not in entity_id_lookup:
                                     entity_id_lookup[entity_id] = merged_config
@@ -227,14 +249,14 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
                                 if str(merged_config.get('device_type', '')).lower() == 'light':
                                     light_entity_ids.add(entity_id) # Use entity_id
                                     logging.debug(f"Identified '{entity_id}' as a light.")
-                                    # Check if the DGN is the command DGN (1FEDA) and store command info
+                                    # Check if the DGN is the command DGN (1FED9) and store command info # <-- UPDATED DGN HERE
                                     # Ensure dgn_hex is valid before comparing
-                                    if isinstance(dgn_hex, str) and dgn_hex.upper() == '1FEDA':
+                                    if isinstance(dgn_hex, str) and dgn_hex.upper() == '1FED9': # <-- UPDATED DGN HERE
                                         try:
                                             instance_int = int(instance_str) # Ensure instance is int
                                             # Store command info (overwrite if found again, assuming last is correct)
-                                            light_command_info[entity_id] = {'dgn': 0x1FEDA, 'instance': instance_int, 'interface': merged_config.get('interface')}
-                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FEDA, Instance={instance_int}, Interface={merged_config.get('interface')}")
+                                            light_command_info[entity_id] = {'dgn': 0x1FED9, 'instance': instance_int, 'interface': merged_config.get('interface')} # <-- UPDATED DGN HERE
+                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FED9, Instance={instance_int}, Interface={merged_config.get('interface')}") # <-- UPDATED LOG MESSAGE
                                         except ValueError:
                                             logging.warning(f"Invalid instance '{instance_str}' for light command DGN {dgn_hex} and entity {entity_id}")
                                 # --- End Identify Lights ---
@@ -243,6 +265,7 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
                                 logging.warning(f"Skipping mapping entry under DGN {dgn_hex}, Instance {instance_str} due to missing 'entity_id' or 'friendly_name'. Config: {config}")
 
             logging.info(f"Loaded {len(device_lookup)} specific device mappings from {device_mapping_path}") # Use arg path
+            logging.info(f"Built status lookup table with {len(status_lookup)} entries.") # Added log for status_lookup
             logging.info(f"Identified {len(light_entity_ids)} light devices.") # Use renamed set
             logging.info(f"Found command info for {len(light_command_info)} lights.")
         except yaml.YAMLError as e:
@@ -252,6 +275,7 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
             # Continue without device mapping if it fails, but initialize relevant vars
             device_mapping = {}
             device_lookup = {}
+            status_lookup = {} # Ensure status_lookup is initialized on error
             entity_id_lookup = {}
             light_entity_ids = set()
             light_command_info = {}
@@ -260,13 +284,14 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
         # Ensure vars are initialized even if file not found
         device_mapping = {}
         device_lookup = {}
+        status_lookup = {} # Ensure status_lookup is initialized if file not found
         entity_id_lookup = {}
         light_entity_ids = set()
         light_command_info = {}
 
 
-    # Return all relevant loaded/processed data
-    return decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info
+    # Return all relevant loaded/processed data, including status_lookup
+    return decoder_map, device_mapping, device_lookup, status_lookup, light_entity_ids, entity_id_lookup, light_command_info
 
 # --- Decoding Helpers ---
 def get_bits(data_bytes, start_bit, length):
@@ -331,6 +356,7 @@ device_mapping = None
 device_lookup = None
 light_entity_ids = set() # Renamed from light_ha_names
 light_command_info = {} # Added: Stores DGN/Instance for commanding lights
+status_lookup = {} # Added: Maps (Status_DGN, Instance) -> config for receiving
 latest_raw_records = {} # Initialized after interfaces are known
 # mapped_device_states = {} # REMOVED
 light_device_states = {} # Keyed by entity_id for lights (Changed from ha_name)
@@ -361,7 +387,7 @@ INTERFACES = [] # Will be populated by args
 # --- Reader Thread ---
 def reader_thread(interface):
     """Reads CAN messages, decodes, and updates raw records, mapped device states, and light states."""
-    global active_buses, active_buses_lock # Add globals
+    global active_buses, active_buses_lock, status_lookup # Add status_lookup to globals
     bus = None # Initialize bus to None outside try
     try:
         bus = can.interface.Bus(channel=interface, interface='socketcan')
@@ -411,9 +437,16 @@ def reader_thread(interface):
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
-                    mapped_config = device_lookup.get((dgn_hex.upper(), instance_str))
+                    # --- Use status_lookup instead of device_lookup --- START
+                    lookup_key = (dgn_hex.upper(), instance_str)
+                    mapped_config = status_lookup.get(lookup_key)
+                    # Optional: Fallback to default instance for the status DGN if specific instance not found
                     if not mapped_config:
-                         mapped_config = device_lookup.get((dgn_hex.upper(), 'default'))
+                        default_key = (dgn_hex.upper(), 'default')
+                        mapped_config = status_lookup.get(default_key)
+                        # if mapped_config:
+                        #     logging.debug(f"Using default status mapping for {lookup_key}")
+                    # --- Use status_lookup instead of device_lookup --- END
 
                     if mapped_config:
                         entity_id = mapped_config.get('entity_id')
@@ -428,7 +461,7 @@ def reader_thread(interface):
                                 'last_raw_values': raw_values,
                                 'last_decoded_data': decoded_data,
                                 'mapping_config': mapped_config,
-                                'dgn_hex': dgn_hex,
+                                'dgn_hex': dgn_hex, # Store the DGN the status was RECEIVED on
                                 'instance': instance_str
                             }
                             with light_states_lock:
@@ -1381,8 +1414,8 @@ if __name__ == '__main__':
     sys.stderr.flush() # Force flush after first log
     logging.info(f"Attempting to load device mapping from: {args.mapping}")
     sys.stderr.flush() # Force flush after second log
-    # Call the renamed function with both paths and unpack all return values
-    decoder_map, device_mapping, device_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_config_data(args.definitions, args.mapping)
+    # Call the renamed function with both paths and unpack all return values, including status_lookup
+    decoder_map, device_mapping, device_lookup, status_lookup, light_entity_ids, entity_id_lookup, light_command_info = load_config_data(args.definitions, args.mapping)
 
     # Check if decoder_map loaded successfully (load_config_data now handles sys.exit)
     # No need for explicit check here if sys.exit is used on critical load errors
