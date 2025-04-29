@@ -663,7 +663,7 @@ def draw_logs_tab(stdscr, h, w, max_rows, state, items):
     pad = 1
 
     # No titles needed, just list the logs
-    stdscr.hline(1, 0, '-', w) # Keep separator below header
+    # stdscr.hline(1, 0, '-', w) # REMOVED: Redundant separator, already drawn in draw_screen
 
     total = len(items)
     selected_idx = state['selected_idx']
