@@ -130,15 +130,17 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
         for entry in specs:
             if 'id' in entry:
                 try:
-                    # Ensure ID is treated as integer if it's hex string
-                    spec_id_str = str(entry['id'])
-                    if spec_id_str.startswith('0x'):
-                        spec_id = int(spec_id_str, 16)
-                    else:
-                        spec_id = int(spec_id_str)
-                    decoder_map[spec_id] = entry
+                    # --- START: Restored inner try/except logic ---
+                    # Assume ID is hex in the JSON spec, convert to int
+                    dec_id = int(entry['id'], 16)
+                    decoder_map[dec_id] = entry
+                    # Add DGN hex string for easier lookup later
+                    entry['dgn_hex'] = f"{(dec_id >> 8) & 0x1FFFF:X}" # Extract DGN (17 bits for PF+PS/DA)
+                    # --- END: Restored inner try/except logic ---
                 except (ValueError, TypeError) as e:
-                    logging.warning(f"Skipping spec entry due to invalid ID '{entry.get('id')}': {e}")
+                    # --- START: Restored inner try/except logic ---
+                    logging.warning(f"Skipping spec entry with invalid 'id' {entry.get('id')}: {e}")
+                    # --- END: Restored inner try/except logic ---
             else:
                 logging.warning(f"Skipping spec entry missing 'id': {entry}")
 
@@ -986,7 +988,7 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 
 # Modify handle_input to use active_buses
 def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): # Added interfaces and current_tab_index
-    global copy_msg, copy_time, light_states # Ensure globals are declared if modified
+    global copy_msg, copy_time # Removed light_states from global declaration
 
     # Get current state vars
     selected_idx = state['selected_idx']
@@ -1139,8 +1141,9 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # --- Determine Command, Brightness, Duration --- START (Restored Logic)
             # Get current state for toggle logic
-            current_state = light_states.get(entity_id, {}).get('state', 'OFF') # Default to OFF if unknown
-            current_brightness = light_states.get(entity_id, {}).get('brightness', 0) # Default to 0
+            # Use light_device_states instead of light_states
+            current_state = light_device_states.get(entity_id, {}).get('state', 'OFF') # Default to OFF if unknown
+            current_brightness = light_device_states.get(entity_id, {}).get('brightness', 0) # Default to 0
 
             # Toggle logic: If ON, turn OFF. If OFF, turn ON to previous brightness or default (e.g., 100%).
             if current_state == 'ON':
@@ -1202,16 +1205,18 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
     elif key == ord('l'):
         if tab_name == 'Lights':
             selected_index = state.get('selected_light_index', 0)
-            # Ensure light_states is accessed safely, it might be updated by the reader thread
+            # Ensure light_device_states is accessed safely, it might be updated by the reader thread
+            # Use light_device_states instead of light_states
             with light_states_lock:
-                current_light_keys = list(light_states.keys())
+                current_light_keys = list(light_device_states.keys())
 
             if 0 <= selected_index < len(current_light_keys):
                 light_id = current_light_keys[selected_index] # This is the entity_id
 
                 # Get light info safely
+                # Use light_device_states instead of light_states
                 with light_states_lock:
-                    light_info = light_states.get(light_id)
+                    light_info = light_device_states.get(light_id)
                     if light_info:
                         current_state = light_info.get('state', 0) # Default to OFF if state missing
                         instance_str = light_info.get('instance')
@@ -1290,9 +1295,9 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                     # Optimistically update state in the UI immediately
                     with light_states_lock:
                          # Check if light still exists before updating
-                         if light_id in light_states:
-                            light_states[light_id]['state'] = new_state
-                            light_states[light_id]['last_updated'] = time.time() # Update timestamp
+                         if light_id in light_device_states:
+                            light_device_states[light_id]['state'] = new_state
+                            light_device_states[light_id]['last_updated'] = time.time() # Update timestamp
                     state['message'] = f"Command sent to toggle light {light_id} {action_desc}."
                     copy_msg = state['message']
                     copy_time = time.time()
