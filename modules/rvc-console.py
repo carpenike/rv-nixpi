@@ -5,12 +5,13 @@ import time
 import sys
 import base64
 from collections import defaultdict, deque # Added deque
-import can # Ensure can is imported
-import yaml # Added for device mapping
+import can # type: ignore # Ensure can is imported
+import yaml # type: ignore # Added for device mapping
 import os # Added for file existence check
 import threading # Ensure threading is imported for Lock
 import logging # Added for logging
 import argparse # Added for command-line arguments
+import queue # Import the queue module
 
 # --- Configuration ---
 # Defaults, can be overridden by args
@@ -19,25 +20,48 @@ DEFAULT_DEVICE_MAPPING_PATH = '/etc/nixos/files/device_mapping.yaml'
 DEFAULT_INTERFACES = ['can0', 'can1']
 
 # --- Logging Setup ---
-# Keep track of log records for the UI
-MAX_LOG_RECORDS = 500 # Max logs to keep in memory for UI
-log_records = deque(maxlen=MAX_LOG_RECORDS)
-log_records_lock = threading.Lock()
-
 # Custom handler to capture logs for the UI
 class ListLogHandler(logging.Handler):
-    def __init__(self, log_list, lock):
+    """ A logging handler that stores messages in a thread-safe queue. """
+    def __init__(self, max_entries=500):
         super().__init__()
-        self.log_list = log_list
-        self.lock = lock
+        # Use a queue instead of a list and lock
+        self.log_queue = queue.Queue(maxsize=max_entries)
+        # Optional: Keep track of dropped messages if queue is full
+        self.dropped_messages = 0
 
     def emit(self, record):
+        # Format the message
+        log_entry = self.format(record)
         try:
-            msg = self.format(record)
-            with self.lock:
-                self.log_list.append(msg) # Append formatted message
-        except Exception:
-            self.handleError(record)
+            # Put the formatted message onto the queue (non-blocking put)
+            self.log_queue.put_nowait(log_entry)
+        except queue.Full:
+            # Handle queue full scenario if necessary (e.g., drop oldest or log an error)
+            # For simplicity, we'll just increment a counter here
+            self.dropped_messages += 1
+            # Optionally, try removing the oldest and adding the new one
+            try:
+                self.log_queue.get_nowait() # Remove oldest
+                self.log_queue.put_nowait(log_entry) # Add newest
+            except queue.Empty:
+                pass # Should not happen if queue was full
+            except queue.Full:
+                pass # Should not happen after removing one
+
+    def get_records(self):
+        """ Retrieve all currently available log records from the queue. """
+        records = []
+        while True:
+            try:
+                records.append(self.log_queue.get_nowait())
+            except queue.Empty:
+                break
+        # If messages were dropped, add a notification
+        if self.dropped_messages > 0:
+            records.append(f"... {self.dropped_messages} log messages dropped due to queue overflow ...")
+            self.dropped_messages = 0 # Reset counter after notifying
+        return records
 
 # Configure root logger
 log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(threadName)s - %(message)s', datefmt='%H:%M:%S')
@@ -51,10 +75,9 @@ console_handler = logging.StreamHandler(sys.stderr) # Use stderr to avoid interf
 console_handler.setFormatter(log_formatter)
 logging.getLogger().addHandler(console_handler)
 
-# Configure our custom list handler
-list_handler = ListLogHandler(log_records, log_records_lock)
-list_handler.setFormatter(log_formatter)
-# logging.getLogger().addHandler(list_handler) # <-- Keep this commented out here
+# Create the ListLogHandler instance (using the new class)
+list_handler = ListLogHandler(max_entries=1000) # Increased size slightly
+list_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s:%(message)s', datefmt='%H:%M:%S'))
 
 # Set overall logging level
 logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
@@ -408,8 +431,7 @@ def reader_thread(interface):
 # --- Main UI Drawing ---
 # Modify draw_screen to accept list_handler
 def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces list and handler
-    # Restore log_records and log_records_lock to global declaration
-    global copy_msg, copy_time, is_paused, last_draw_data, log_records, log_records_lock
+    global copy_msg, copy_time, is_paused, last_draw_data
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -443,6 +465,9 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
     # Restore logic for "Logs" tab state
     if "Logs" in tab_state:
         del tab_state["Logs"]['sort_mode']
+
+    # Local deque to store log messages retrieved from the handler's queue
+    displayed_log_records = deque(maxlen=500)
 
     while True:
         # --- Input Handling ---
@@ -512,9 +537,14 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                 last_draw_data["lights"] = light_items_to_draw # Cache fresh data
             # --- Restore Fetching for Logs Tab ---
             elif active_tab_name == "Logs": # Ensure this elif aligns with the 'if' above
-                with log_records_lock:
-                    # Make a copy of the deque items (newest first for display)
-                    log_items_to_draw = list(log_records)[::-1]
+                # Retrieve messages from the handler's queue
+                new_log_records = list_handler_instance.get_records()
+                if new_log_records:
+                    displayed_log_records.extend(new_log_records)
+                    # If not paused and on the Logs tab, scroll to the bottom
+                    if not is_paused and current_tab_index == 1:
+                        log_scroll_pos = max(0, len(displayed_log_records) - (h - 5))
+                log_items_to_draw = list(displayed_log_records) # Use the local deque
                 last_draw_data["logs"] = log_items_to_draw # Cache fresh data
             elif " Raw" in active_tab_name: # Ensure this elif aligns with the 'if' above
                 try:
