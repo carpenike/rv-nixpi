@@ -58,7 +58,7 @@ class ListLogHandler(logging.Handler):
             except queue.Empty:
                 break
         # If messages were dropped, add a notification
-        if self.dropped_messages > 0:
+        if (self.dropped_messages > 0):
             records.append(f"... {self.dropped_messages} log messages dropped due to queue overflow ...")
             self.dropped_messages = 0 # Reset counter after notifying
         return records
