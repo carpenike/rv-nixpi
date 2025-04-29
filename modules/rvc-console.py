@@ -1286,7 +1286,6 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 logging.debug(f"  CAN ID: 0x{can_id:08X}")
                 logging.debug(f"  Data  : {data.hex().upper()}")
 
-                global copy_msg, copy_time # Declare globals to modify them
                 if send_can_command(target_bus, can_id, data):
                     # Optimistically update state in the UI immediately
                     with light_states_lock:
