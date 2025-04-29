@@ -1144,21 +1144,36 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 return
             # --- Find the actual ACTIVE bus object --- END
 
-            # --- Determine Command, Brightness, Duration --- START (Restored Logic)
-            # Get current state for toggle logic
-            # Use light_device_states instead of light_states
-            current_state = light_device_states.get(entity_id, {}).get('state', 'OFF') # Default to OFF if unknown
-            current_brightness = light_device_states.get(entity_id, {}).get('brightness', 0) # Default to 0
+            # --- Determine Command, Brightness, Duration --- START (Modified Read Location)
+            # Get current state and brightness for toggle logic from the nested last_decoded_data
+            with light_states_lock: # Lock needed for reading light_device_states
+                entity_state_data = light_device_states.get(entity_id, {})
+                last_decoded = entity_state_data.get('last_decoded_data', {})
+                # Default to 'unavailable' if state is missing, ensuring the first press turns it ON
+                current_state = last_decoded.get('state', 'unavailable')
+                # Default to 0 brightness if missing
+                current_brightness_raw = last_decoded.get('brightness', 0)
 
-            # Toggle logic: If ON, turn OFF. If OFF, turn ON to previous brightness or default (e.g., 100%).
-            if current_state == 'ON':
+            # Ensure brightness is an integer (it might be a string like '100%')
+            try:
+                # Attempt to extract integer if it's a string with non-digits
+                if isinstance(current_brightness_raw, str):
+                    current_brightness = int(''.join(filter(str.isdigit, current_brightness_raw))) if any(char.isdigit() for char in current_brightness_raw) else 0
+                else:
+                    current_brightness = int(current_brightness_raw)
+            except (ValueError, TypeError):
+                current_brightness = 0 # Default to 0 if conversion fails
+
+            # Toggle logic: If ON, turn OFF. If OFF/unavailable, turn ON.
+            # Compare with the string 'ON' which is likely the decoded state value
+            if str(current_state).upper() == 'ON':
                 command = 0x00 # Command: OFF
                 brightness = 0x00 # Brightness: 0%
                 duration = 0x00 # Duration: Instant
                 action_desc = "Turn OFF"
-            else: # Currently OFF or unknown
+            else: # Currently OFF, unavailable, or other non-ON state
                 command = 0x01 # Command: ON
-                # Restore previous brightness if available and > 0, otherwise default to 100%
+                # Restore previous brightness if > 0, otherwise default to 100%
                 brightness = current_brightness if current_brightness > 0 else 100
                 duration = 0x00 # Duration: Instant
                 action_desc = f"Turn ON to {brightness}%"
