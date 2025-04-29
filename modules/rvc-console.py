@@ -73,7 +73,7 @@ log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(threadName)s 
 # Configure console handler (for initial messages before curses)
 console_handler = logging.StreamHandler(sys.stderr) # Use stderr to avoid interfering with curses stdout
 console_handler.setFormatter(log_formatter)
-logging.getLogger().addHandler(console_handler)
+# logging.getLogger().addHandler(console_handler) # REMOVED: Prevent adding console handler globally
 
 # Create the ListLogHandler instance (using the new class)
 list_handler = ListLogHandler(max_entries=1000) # Increased size slightly
@@ -81,6 +81,13 @@ list_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(nam
 
 # Set overall logging level
 logging.getLogger().setLevel(logging.INFO) # Or DEBUG for more verbosity
+
+# --- Prevent initial console logging --- START
+# Remove any default handlers (like StreamHandler to stderr) that might be present
+# before our curses handler takes over.
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+# --- Prevent initial console logging --- END
 
 # --- Load Definitions ---
 # REMOVED the first load_definitions function
