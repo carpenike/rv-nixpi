@@ -439,11 +439,15 @@ def reader_thread(interface):
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
-                    # DEBUG: show what PGN/instance we got and what keys we have available
-                    logging.debug(
-                        f"[reader:{interface}] Got PGN={dgn_hex.upper()}, "
-                        f"inst={instance_str}; looking for keys={list(status_lookup.keys())}"
-                    )
+                    # DEBUG → enqueue into the ListLogHandler so it only shows in the Logs tab
+                    try:
+                        list_handler.log_queue.put_nowait(
+                            f"{time.strftime('%H:%M:%S')} - DEBUG - reader:{interface} - "
+                            f"Got PGN={dgn_hex.upper()}, inst={instance_str}; looking for keys={list(status_lookup.keys())}"
+                        )
+                    except queue.Full:
+                        # drop it if the queue is full
+                        pass
                     # --- Use status_lookup instead of device_lookup --- START
                     lookup_key = (dgn_hex.upper(), instance_str)
                     mapped_config = status_lookup.get(lookup_key)
