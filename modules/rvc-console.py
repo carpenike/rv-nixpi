@@ -1249,32 +1249,33 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 if send_can_command(target_bus, can_id, data): # MODIFIED: Pass the bus object
                     copy_msg = f"Command '{action_desc}' sent for '{light_name}' on {target_interface_name}."
                     # --- START Optimistic Update ---
-                    with light_states_lock:
-                        if entity_id in light_device_states:
-                            # Update the state based on the command sent
-                            new_state_value = 'ON' if command == 0x01 else 'OFF'
-                            new_brightness_value = brightness if command == 0x01 else 0
-
-                            # Update last_decoded_data to reflect the command
-                            # Keep other fields, just update state and brightness potentially
-                            current_decoded = light_device_states[entity_id].get('last_decoded_data', {})
-                            # Ensure the state exists before trying to update it
-                            if 'state' not in current_decoded:
-                                current_decoded['state'] = 'unavailable' # Initialize if missing
-
-                            current_decoded['state'] = new_state_value
-                            # Only update brightness if the command was ON
-                            if command == 0x01:
-                                current_decoded['brightness'] = new_brightness_value
-                            # If turning OFF, we might want to explicitly set brightness to 0 in decoded data
-                            elif command == 0x00:
-                                current_decoded['brightness'] = 0
-
-                            light_device_states[entity_id]['last_decoded_data'] = current_decoded
-                            light_device_states[entity_id]['last_updated'] = time.time() # Update timestamp
-                            logging.info(f"Optimistically updated state for {entity_id} to {new_state_value}")
-                        else:
-                            logging.warning(f"Tried optimistic update for {entity_id}, but it wasn't found in light_device_states.")
+                    # COMMENTED OUT FOR VALIDATION
+                    # with light_states_lock:
+                    #     if entity_id in light_device_states:
+                    #         # Update the state based on the command sent
+                    #         new_state_value = 'ON' if command == 0x01 else 'OFF'
+                    #         new_brightness_value = brightness if command == 0x01 else 0
+                    #
+                    #         # Update last_decoded_data to reflect the command
+                    #         # Keep other fields, just update state and brightness potentially
+                    #         current_decoded = light_device_states[entity_id].get('last_decoded_data', {})
+                    #         # Ensure the state exists before trying to update it
+                    #         if 'state' not in current_decoded:
+                    #             current_decoded['state'] = 'unavailable' # Initialize if missing
+                    #
+                    #         current_decoded['state'] = new_state_value
+                    #         # Only update brightness if the command was ON
+                    #         if command == 0x01:
+                    #             current_decoded['brightness'] = new_brightness_value
+                    #         # If turning OFF, we might want to explicitly set brightness to 0 in decoded data
+                    #         elif command == 0x00:
+                    #             current_decoded['brightness'] = 0
+                    #
+                    #         light_device_states[entity_id]['last_decoded_data'] = current_decoded
+                    #         light_device_states[entity_id]['last_updated'] = time.time() # Update timestamp
+                    #         logging.info(f"Optimistically updated state for {entity_id} to {new_state_value}")
+                    #     else:
+                    #         logging.warning(f"Tried optimistic update for {entity_id}, but it wasn't found in light_device_states.")
                     # --- END Optimistic Update ---
                 else:
                     copy_msg = f"Error: Failed to send command for '{light_name}' on {target_interface_name}."
