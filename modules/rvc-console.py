@@ -406,7 +406,8 @@ def reader_thread(interface):
         logging.error(f"Error shutting down CAN interface {interface}: {e}")
 
 # --- Main UI Drawing ---
-def draw_screen(stdscr, interfaces): # Accept interfaces list
+# Modify draw_screen to accept list_handler
+def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces list and handler
     # Restore log_records and log_records_lock to global declaration
     global copy_msg, copy_time, is_paused, last_draw_data, log_records, log_records_lock
     curses.curs_set(0)
@@ -424,6 +425,12 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
     # Make getch non-blocking
     stdscr.nodelay(1)
     stdscr.timeout(100)
+
+    # --- Add the ListLogHandler HERE --- # MOVED FROM MAIN
+    logging.info("Adding ListLogHandler inside draw_screen...")
+    logging.getLogger().addHandler(list_handler_instance)
+    logging.info("ListLogHandler added.")
+    # --- End Add Handler ---
 
     # Restore "Logs" tab
     tabs = ["Lights", "Logs"] + [f"{iface.upper()} Raw" for iface in interfaces]
@@ -611,7 +618,7 @@ def draw_screen(stdscr, interfaces): # Accept interfaces list
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
         footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-        stdscr.addnstr(h - 1, 0, footer[:w - 1].ljust(w-1), w - 1)
+        stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w - 1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
 
         stdscr.refresh()
@@ -1155,15 +1162,16 @@ if __name__ == '__main__':
         logging.info(f"Started reader thread for {interface}.") # Log after each thread start
 
     # --- Start Curses UI ---
-    # Add the ListLogHandler *just before* starting curses
-    logging.info("Adding ListLogHandler before starting UI...")
-    logging.getLogger().addHandler(list_handler)
+    # REMOVE Add the ListLogHandler *just before* starting curses
+    # logging.info("Adding ListLogHandler before starting UI...")
+    # logging.getLogger().addHandler(list_handler)
 
     logging.info("Attempting to start curses UI...") # Log before curses
     # Remove the console handler *just before* starting curses
     logging.getLogger().removeHandler(console_handler)
     try:
-        curses.wrapper(draw_screen, INTERFACES) # Pass interfaces list
+        # Pass the list_handler instance to curses.wrapper
+        curses.wrapper(draw_screen, INTERFACES, list_handler) # Pass interfaces list and handler
     except Exception as e:
         # Ensure console handler is back if curses fails
         logging.getLogger().addHandler(console_handler)
@@ -1172,6 +1180,9 @@ if __name__ == '__main__':
         # Ensure console handler is back after curses finishes or crashes
         if console_handler not in logging.getLogger().handlers:
              logging.getLogger().addHandler(console_handler)
+        # Remove the list handler during cleanup
+        logging.info("Removing ListLogHandler...")
+        logging.getLogger().removeHandler(list_handler)
         logging.info("Requesting threads to stop...")
         stop_event.set()
         for t in threads:
