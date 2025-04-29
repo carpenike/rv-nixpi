@@ -1133,10 +1133,20 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
     elif tab_name == "Logs":
         # Use cached log data to get the count
         items_list = last_draw_data["logs"] # Get cached log list
-        total = len(items_list)
         num_sort_modes = 0 # No sorting for logs
-        # ID for logs is just the index, but we don't need stable selection on sort
-        current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
+        # total = len(items_list)
+        # # ID for logs is just the index, but we don't need stable selection on sort
+        # current_id = state['selected_idx'] if 0 <= state['selected_idx'] < total else None
+        # # how many rows of logs we can show (same as in draw_screen)
+        # max_rows = total_height - 5
+        # sel = state['selected_idx']
+        # vof = state['v_offset']
+        # # if we moved above the top of the window
+        # if sel < vof:
+        #     state['v_offset'] = sel
+        # # if we moved past the bottom of the window
+        # elif sel >= vof + max_rows:
+        #     state['v_offset'] = sel - max_rows + 1
     elif " Raw" in tab_name:
         iface_index = -1
         try: # Find interface index based on tab name
@@ -1154,20 +1164,46 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
              if 0 <= state['selected_idx'] < total:
                  current_id = names_list[state['selected_idx']] # Use name as ID
 
-    # --- Input Handling Logic (Up/Down/Sort/Copy/Enter) ---
-    # --- Navigation ---
+    # --- Input Handling Logic (Navigation) ---
+    # figure out how many lines of items we can display
+    max_rows = curses.LINES - 5
+
     if key == curses.KEY_DOWN and total:
-        state['selected_idx'] = min(selected_idx + 1, total - 1)
+        # move down, not past the end
+        state['selected_idx'] = min(state['selected_idx'] + 1, total - 1)
+        # if the cursor has fallen below the visible window, scroll down
+        if state['selected_idx'] >= state['v_offset'] + max_rows:
+            state['v_offset'] = state['selected_idx'] - max_rows + 1
+
     elif key == curses.KEY_UP and total:
-        state['selected_idx'] = max(selected_idx - 1, 0) # Corrected decrement
-    elif key == curses.KEY_NPAGE and total: # Page Down
-        state['selected_idx'] = min(selected_idx + (curses.LINES - 5), total - 1) # Adjust step size
-    elif key == curses.KEY_PPAGE and total: # Page Up
-        state['selected_idx'] = max(selected_idx - (curses.LINES - 5), 0)
-    elif key == curses.KEY_HOME:
+        # move up, not before the start
+        state['selected_idx'] = max(state['selected_idx'] - 1, 0)
+        # if the cursor is above the visible window, scroll up
+        if state['selected_idx'] < state['v_offset']:
+            state['v_offset'] = state['selected_idx']
+
+    elif key == curses.KEY_NPAGE and total:  # Page Down
+        # jump down one page
+        state['selected_idx'] = min(state['selected_idx'] + max_rows, total - 1)
+        if state['selected_idx'] >= state['v_offset'] + max_rows:
+            state['v_offset'] = state['selected_idx'] - max_rows + 1
+
+    elif key == curses.KEY_PPAGE and total:  # Page Up
+        # jump up one page
+        state['selected_idx'] = max(state['selected_idx'] - max_rows, 0)
+        if state['selected_idx'] < state['v_offset']:
+            state['v_offset'] = state['selected_idx']
+
+    elif key == curses.KEY_HOME and total:
+        # go to first item, scroll to top
         state['selected_idx'] = 0
+        state['v_offset'] = 0
+
     elif key == curses.KEY_END and total:
+        # go to last item, scroll to show it at bottom
         state['selected_idx'] = total - 1
+        state['v_offset'] = max(0, total - max_rows)
+    # --- end navigation ---
 
     # --- Sorting ---
     elif key in (ord('s'), ord('S')) and num_sort_modes > 0: # Check if sorting is applicable
