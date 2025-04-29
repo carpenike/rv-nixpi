@@ -932,7 +932,7 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index):
     """Handles key presses based on the active tab."""
     # Restore log_records and log_records_lock to global declaration
-    global copy_msg, copy_time, light_command_info, INTERFACES, log_records, log_records_lock
+    global copy_msg, copy_time, light_command_info, INTERFACES # REMOVED log_records, log_records_lock
     # Get current state vars
     selected_idx = state['selected_idx']
     v_offset = state['v_offset']
