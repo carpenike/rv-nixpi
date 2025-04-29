@@ -166,7 +166,7 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
     device_lookup = {} # Processed lookup: (dgn_hex, instance_str) -> mapped_config
     entity_id_lookup = {} # New lookup: entity_id -> mapped_config
     light_entity_ids = set() # Store entity_ids of devices identified as lights
-    light_command_info = {} # New: Store command DGN/Instance per light entity_id
+    light_command_info = {} # New: Store command DGN/Instance/Interface per light entity_id # MODIFIED
 
     # Use argument path
     logging.info(f"  [load_config_data] Attempting to load device mapping: {device_mapping_path}")
@@ -226,8 +226,8 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
                                         try:
                                             instance_int = int(instance_str) # Ensure instance is int
                                             # Store command info (overwrite if found again, assuming last is correct)
-                                            light_command_info[entity_id] = {'dgn': 0x1FEDA, 'instance': instance_int}
-                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FEDA, Instance={instance_int}")
+                                            light_command_info[entity_id] = {'dgn': 0x1FEDA, 'instance': instance_int, 'interface': merged_config.get('interface')}
+                                            logging.debug(f"Stored command info for {entity_id}: DGN=0x1FEDA, Instance={instance_int}, Interface={merged_config.get('interface')}")
                                         except ValueError:
                                             logging.warning(f"Invalid instance '{instance_str}' for light command DGN {dgn_hex} and entity {entity_id}")
                                 # --- End Identify Lights ---
@@ -1103,6 +1103,28 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
 
             instance = cmd_info['instance']
             dgn = cmd_info['dgn'] # Should be 0x1FEDA
+            target_interface_name = cmd_info.get('interface') # <-- Get the target interface name
+
+            # Find the actual interface object
+            target_interface = None
+            if target_interface_name:
+                for iface in INTERFACES:
+                    # Match by channel_info which usually holds the interface name like 'can0', 'can1'
+                    if hasattr(iface, 'channel_info') and iface.channel_info == target_interface_name:
+                        target_interface = iface
+                        break
+            else:
+                # Fallback or error if interface not specified in mapping
+                logging.warning(f"No interface specified for light '{light_name}' ({entity_id}). Command not sent.")
+                copy_msg = f"Error: No interface configured for '{light_name}'. Command not sent."
+                copy_time = time.time()
+                return
+
+            if not target_interface:
+                logging.error(f"Specified interface '{target_interface_name}' for light '{light_name}' not found or not active.")
+                copy_msg = f"Error: Interface '{target_interface_name}' for '{light_name}' not found. Command not sent."
+                copy_time = time.time()
+                return
 
             # Determine current state and desired command (Simple Toggle ON/OFF)
             # Get the raw state value if available, otherwise default to 'Unknown'
@@ -1154,28 +1176,26 @@ def handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_inde
                 ])
 
                 # Log before sending
-                logging.info(f"Attempting to send command for '{light_name}': {action_desc}")
+                logging.info(f"Attempting to send command for '{light_name}' on {target_interface_name}: {action_desc}") # MODIFIED LOG
                 logging.debug(f"  CAN ID: 0x{can_id:08X}")
                 logging.debug(f"  Data  : {data.hex().upper()}")
 
-                # Send the command (try both interfaces for now, might need refinement)
-                sent_on_any = False
-                for iface in INTERFACES: # Use the global INTERFACES list
-                    if send_can_command(iface, can_id, data):
-                        sent_on_any = True
-                        # Optional: break here if you only want to send on the first successful interface
-                        # break
-
-                if sent_on_any:
-                    copy_msg = f"Command '{action_desc}' sent for '{light_name}'."
+                # Send the command ONLY on the target interface
+                if send_can_command(target_interface, can_id, data): # MODIFIED: Use target_interface
+                    copy_msg = f"Command '{action_desc}' sent for '{light_name}' on {target_interface_name}." # MODIFIED MSG
                 else:
-                    copy_msg = f"Error: Failed to send command for '{light_name}' on any interface."
+                    # Error message handled by send_can_command logging
+                    copy_msg = f"Error: Failed to send command for '{light_name}' on {target_interface_name}." # MODIFIED MSG
                 copy_time = time.time()
 
             except Exception as e:
                 logging.error(f"Error constructing or sending CAN command for '{light_name}': {e}")
                 copy_msg = f"Error sending command for '{light_name}': {e}"
                 copy_time = time.time()
+
+        # ... other elif conditions ...
+
+# ... rest of the function ...
 
 # --- Entry Point ---
 if __name__ == '__main__':
