@@ -105,7 +105,7 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
         sys.exit(1)
     else:
         logging.info(f"  [load_config_data] RVC spec file exists.")
-        if not os.access(rvc_spec_path, os.R_OK):
+        if not os.access(rvc_spec_path, os.R_OK): # Use os.R_OK
             logging.error(f"  [load_config_data] RVC spec file exists but is NOT readable: {rvc_spec_path}")
             sys.exit(1)
         else:
@@ -591,6 +591,9 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
         h, w = stdscr.getmaxyx()
 
         # --- Header ---
+        # Clear the line first
+        stdscr.move(0, 0)
+        stdscr.clrtoeol()
         header_text = ""
         # Pause indicator
         if paused_now:
@@ -645,6 +648,9 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             stdscr.attroff(msg_color | curses.A_BOLD)
 
         # --- Footer ---
+        # Clear the line first
+        stdscr.move(h - 1, 0)
+        stdscr.clrtoeol()
         footer = "Arrows: Navigate | "
         if active_tab_name == "Lights":
              footer += "Enter: Control | " # Add hint for lights tab
