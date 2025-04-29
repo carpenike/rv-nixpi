@@ -1356,57 +1356,45 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # --- Construct CAN ID --- END
 
-            # Construct Data Payload
+            # Construct Data Payload according to 1FEDB (DC_DIMMER_COMMAND_2)
+            # Byte 0: Instance
+            # Byte 1: Group (0 for individual)
+            # Byte 2: Desired Level (Brightness)
+            # Byte 3: Command (0=Set Brightness, 1=On Duration, 3=Off, 5=Toggle)
+            # Byte 4: Delay/Duration (0 for immediate)
+            # Byte 5: Interlock (0)
+            # Byte 6: Reserved (0xFF)
+            # Byte 7: Reserved (0xFF)
             try:
-                # Data: [Instance, Reserved (0xFF), Brightness (0-100), Command (0=OFF, 1=ON), Duration (0=Instant), Reserved (0xFF), Reserved (0xFF), Reserved (0xFF)]
+                # Use command 0 (Set Brightness) for both ON and OFF, controlling with brightness level
+                command_byte = 0 # Command 0: Set Brightness
+                # Brightness is already set (100 for ON, 0 for OFF)
+                duration_byte = 0 # Immediate action
+                group_byte = 0 # Individual control
+                interlock_byte = 0 # No interlock
+
                 data = bytes([
-                    instance & 0xFF, 0xFF, brightness & 0xFF, command & 0xFF,
-                    duration & 0xFF, 0xFF, 0xFF, 0xFF
+                    instance,         # Byte 0: Instance
+                    group_byte,       # Byte 1: Group
+                    brightness,  # Byte 2: Brightness (0 or 100)
+                    command_byte,     # Byte 3: Command (Set Brightness)
+                    duration_byte,    # Byte 4: Duration/Delay
+                    interlock_byte,   # Byte 5: Interlock
+                    0xFF,             # Byte 6: Reserved
+                    0xFF              # Byte 7: Reserved
                 ])
+                logging.info(f"Constructed 1FEDB payload for {light_name} (Inst: {instance}): {data.hex().upper()}")
 
-                logging.info(f"Attempting to send command for '{light_name}' on {target_interface_name}: {action_desc}")
-                logging.debug(f"  CAN ID: 0x{can_id:08X}")
-                logging.debug(f"  Data  : {data.hex().upper()}")
-
-                # Send the command using the retrieved target_bus object
-                if send_can_command(target_bus, can_id, data): # MODIFIED: Pass the bus object
-                    copy_msg = f"Command '{action_desc}' sent for '{light_name}' on {target_interface_name}."
-                    # --- START Optimistic Update ---
-                    # COMMENTED OUT FOR VALIDATION
-                    # with light_states_lock:
-                    #     if entity_id in light_device_states:
-                    #         # Update the state based on the command sent
-                    #         new_state_value = 'ON' if command == 0x01 else 'OFF'
-                    #         new_brightness_value = brightness if command == 0x01 else 0
-                    #
-                    #         # Update last_decoded_data to reflect the command
-                    #         # Keep other fields, just update state and brightness potentially
-                    #         current_decoded = light_device_states[entity_id].get('last_decoded_data', {})
-                    #         # Ensure the state exists before trying to update it
-                    #         if 'state' not in current_decoded:
-                    #             current_decoded['state'] = 'unavailable' # Initialize if missing
-                    #
-                    #         current_decoded['state'] = new_state_value
-                    #         # Only update brightness if the command was ON
-                    #         if command == 0x01:
-                    #             current_decoded['brightness'] = new_brightness_value
-                    #         # If turning OFF, we might want to explicitly set brightness to 0 in decoded data
-                    #         elif command == 0x00:
-                    #             current_decoded['brightness'] = 0
-                    #
-                    #         light_device_states[entity_id]['last_decoded_data'] = current_decoded
-                    #         light_device_states[entity_id]['last_updated'] = time.time() # Update timestamp
-                    #         logging.info(f"Optimistically updated state for {entity_id} to {new_state_value}")
-                    #     else:
-                    #         logging.warning(f"Tried optimistic update for {entity_id}, but it wasn't found in light_device_states.")
-                    # --- END Optimistic Update ---
+                # Send the command using the correct bus object and constructed CAN ID
+                if send_can_command(target_bus, can_id, data):
+                    copy_msg = f"Sent {new_state} command to {light_name}"
                 else:
-                    copy_msg = f"Error: Failed to send command for '{light_name}' on {target_interface_name}."
+                    copy_msg = f"Failed to send command to {light_name}"
                 copy_time = time.time()
 
             except Exception as e:
-                logging.error(f"Error constructing or sending command for '{light_name}': {e}")
-                copy_msg = f"Error sending command for '{light_name}': {e}"
+                logging.error(f"Error constructing or sending 1FEDB command for {light_name}: {e}")
+                copy_msg = f"Error sending command to {light_name}"
                 copy_time = time.time()
 
     elif key == ord('l'):
