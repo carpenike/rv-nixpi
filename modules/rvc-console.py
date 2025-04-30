@@ -434,14 +434,10 @@ def reader_thread(interface):
                     rec.setdefault('first_received', now)
                     rec['last_received'] = now
                     decoded_data, raw_values = decode_payload(entry, msg.data)
-                    # ── derive ON/OFF from operating_status, not enable_status ──
+                    # ── derive ON/OFF from operating_status, and integer 0–100 brightness ──
                     ops = raw_values.get('operating_status', 0)
-                    decoded_data['state'] = 'ON' if ops > 0 else 'OFF'
-
-                    if 'operating_status' in raw_values:
-                        decoded_data['brightness'] = raw_values['operating_status'] / 2
-                    else:
-                        decoded_data['brightness'] = 0
+                    decoded_data['state']      = 'ON' if ops > 0 else 'OFF'
+                    decoded_data['brightness'] = ops // 2   # 0–200 raw → 0–100 integer
                     # ── end of new block ──
                     rec.update({
                         'raw_id': f"0x{msg.arbitration_id:08X}",
@@ -1417,120 +1413,6 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 logging.error(f"Error constructing or sending 1FEDB command for {light_name}: {e}")
                 copy_msg = f"Error sending command to {light_name}"
                 copy_time = time.time()
-
-    elif key == ord('l'):
-        if tab_name == 'Lights':
-            selected_index = state.get('selected_light_index', 0)
-            # Ensure light_device_states is accessed safely, it might be updated by the reader thread
-            # Use light_device_states instead of light_states
-            with light_states_lock:
-                current_light_keys = list(light_device_states.keys())
-
-            if 0 <= selected_index < len(current_light_keys):
-                light_id = current_light_keys[selected_index] # This is the entity_id
-
-                # Get light info safely
-                # Use light_device_states instead of light_states
-                with light_states_lock:
-                    light_info = light_device_states.get(light_id)
-                    if light_info:
-                        current_state = light_info.get('state', 0) # Default to OFF if state missing
-                        instance_str = light_info.get('instance')
-                        dgn_hex = light_info.get('dgn_hex') # Should be '1FEDA' for lights
-                        target_interface_name = light_info.get('last_interface') # Interface where light was last seen
-                    else:
-                        light_info = None # Ensure light_info is None if not found
-
-                if not light_info:
-                    state['message'] = f"Error: Could not find info for light {light_id}."
-                    logging.error(f"State info missing for selected light {light_id}")
-                    return # Exit handler
-
-                if not instance_str or not dgn_hex or not target_interface_name:
-                    state['message'] = f"Error: Missing instance, DGN, or interface for light {light_id}."
-                    logging.error(f"Command info missing for light {light_id}: instance={instance_str}, dgn={dgn_hex}, interface={target_interface_name}")
-                    return # Exit handler
-
-                try:
-                    instance = int(instance_str)
-                    dgn = int(dgn_hex, 16) # Convert DGN hex string to integer
-                except ValueError:
-                    state['message'] = f"Error: Invalid instance ({instance_str}) or DGN ({dgn_hex}) for light {light_id}."
-                    logging.error(f"Invalid instance/DGN for light {light_id}: instance={instance_str}, dgn={dgn_hex}")
-                    return # Exit handler
-
-                # --- Get Target Bus ---
-                with active_buses_lock:
-                    target_bus = active_buses.get(target_interface_name)
-
-                if not target_bus:
-                    state['message'] = f"Error: CAN interface '{target_interface_name}' not active."
-                    logging.error(f"CAN interface '{target_interface_name}' not found in active_buses for sending command.")
-                    return # Exit handler
-
-
-                # Toggle state: 0 -> 1, 1 -> 0
-                new_state = 1 - current_state
-
-                # --- Construct CAN ID (PDU2 for 0x1FEDA) ---
-                priority = 6
-                sa = 0xF9 # Diagnostic Tool address (TODO: make configurable?)
-                # DGN: 0x1FEDB (DC_DIMMER_COMMAND_2)
-                if (dgn >> 8) >= 0xF0: # Check if PF is 240 or higher (PDU2)
-                    can_id = (priority << 26) | ((dgn >> 8) << 16) | ((dgn & 0xFF) << 8) | sa # PDU2 format (uses PS)
-                else: # PDU1 format (uses DA) - Should not happen for 0x1FEDA but handle defensively
-                    logging.warning(f"Unexpected PDU1 DGN {dgn_hex} used for light command for {light_id}. Using broadcast DA.")
-                    da = 0xFF # Default broadcast DA for PDU1
-                    can_id = (priority << 26) | ((dgn >> 8) << 16) | (da << 8) | sa # PDU1 format (uses DA)
-
-
-                # --- Construct Data Payload ---
-                # Data: [Instance, Reserved (0xFF), Brightness (0-100), Command (0=OFF, 1=ON), Duration (0=Instant), Reserved (0xFF), Reserved (0xFF), Reserved (0xFF)]
-                command = new_state # 0 for OFF, 1 for ON
-                brightness = 100 if new_state == 1 else 0 # Full brightness if ON, 0 if OFF
-                duration = 0 # Instantaneous
-
-                data = bytes([
-                    instance & 0xFF,
-                    0xFF, # Reserved
-                    brightness & 0xFF,
-                    command & 0xFF,
-                    duration & 0xFF,
-                    0xFF, # Reserved
-                    0xFF, # Reserved
-                    0xFF  # Reserved
-                ])
-
-                # --- Send Command ---
-                action_desc = "ON" if new_state == 1 else "OFF"
-                logging.info(f"Attempting to toggle light '{light_id}' ({action_desc}) on {target_interface_name}")
-                logging.debug(f"  CAN ID: 0x{can_id:08X}")
-                logging.debug(f"  Data  : {data.hex().upper()}")
-
-                if send_can_command(target_bus, can_id, data):
-                    # Optimistically update state in the UI immediately
-                    with light_states_lock:
-                         # Check if light still exists before updating
-                         if light_id in light_device_states:
-                            light_device_states[light_id]['state'] = new_state
-                            light_device_states[light_id]['last_updated'] = time.time() # Update timestamp
-                    state['message'] = f"Command sent to toggle light {light_id} {action_desc}."
-                    copy_msg = state['message']
-                    copy_time = time.time()
-
-                else:
-                    # State was not updated if send failed
-                    state['message'] = f"Error sending toggle command for light {light_id}."
-                    copy_msg = state['message']
-                    copy_time = time.time()
-
-                # No need for the old placeholder message logic below
-                # state['message'] = f"Toggled light {light_id} to {'ON' if new_state == 1 else 'OFF'}. (Command not sent yet)" # REMOVE/REPLACE THIS
-
-            else:
-                state['message'] = "No light selected or invalid index."
-        else:
-            state['message'] = "'l' key only works in the Lights tab."
 
 
 # --- Entry Point ---
