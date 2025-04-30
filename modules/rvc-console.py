@@ -1323,15 +1323,10 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 # Default to 0 brightness if missing
                 current_brightness_raw = last_decoded.get('brightness', 0)
 
-            # Ensure brightness is an integer (it might be a string like '100%')
-            try:
-                # Attempt to extract integer if it's a string with non-digits
-                if isinstance(current_brightness_raw, str):
-                    current_brightness = int(''.join(filter(str.isdigit, current_brightness_raw))) if any(char.isdigit() for char in current_brightness_raw) else 0
-                else:
-                    current_brightness = int(current_brightness_raw)
-            except (ValueError, TypeError):
-                current_brightness = 0 # Default to 0 if conversion fails
+            # --- use the decoded_data values directly ---
+            # state is already "ON" or "OFF", brightness is already an int 0–100
+            current_state      = last_decoded.get('state',      'OFF')
+            current_brightness = last_decoded.get('brightness', 0)
 
             # Toggle logic: If ON, turn OFF. If OFF/unavailable, turn ON.
             # Compare with the string 'ON' which is likely the decoded state value
