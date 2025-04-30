@@ -565,6 +565,16 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
         # --- Input Handling ---
         c = stdscr.getch()
 
+        # 1) if we’re on the Lights tab and got ENTER, toggle immediately and skip everything else
+        active_tab_name = tabs[current_tab_index]
+        if c in (curses.KEY_ENTER, ord('\n'), ord('\r')) and active_tab_name == "Lights":
+            # delegate to your existing toggle logic
+            handle_input_for_tab(c, active_tab_name,
+                                 tab_state[active_tab_name],
+                                 interfaces, current_tab_index)
+            stdscr.refresh()
+            continue
+
         if c != curses.ERR:
             if c in (ord('q'), ord('Q')):
                 stop_event.set()
