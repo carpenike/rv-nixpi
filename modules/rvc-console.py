@@ -1398,7 +1398,8 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 logging.info(f"Constructed 1FEDB payload for {light_name} (Inst: {instance}): {data.hex().upper()}")
 
                 if send_can_command(target_bus, can_id, data):
-                    copy_msg = f"Sent {new_state} command to {light_name}"
+                    # use the human‐readable action_desc you created above
+                    copy_msg = f"Sent command to {light_name}: {action_desc}"
                 else:
                     copy_msg = f"Failed to send command to {light_name}"
                 copy_time = time.time()
