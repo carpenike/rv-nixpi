@@ -565,15 +565,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
     while True:
         # --- Input Handling ---
         c = stdscr.getch()
-        # --- 1) immediate toggle on Enter when in Lights tab ---
-        active_tab_name = tabs[current_tab_index]
-        if c in (curses.KEY_ENTER, ord('\n'), ord('\r')) and active_tab_name == "Lights":
-            # this will send your command and update light_device_states immediately
-            handle_input_for_tab(c,
-                                  active_tab_name,
-                                  tab_state[active_tab_name],
-                                  interfaces,
-                                  current_tab_index)
+        # --- REMOVED immediate toggle block ---
 
         if c != curses.ERR:
             if c in (ord('q'), ord('Q')):
@@ -642,20 +634,18 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             # Check if active_tab_name exists in tab_state before accessing
             if active_tab_name in tab_state:
                 state = tab_state[active_tab_name]
-                # Only re–call handle_input for non-Enter events, OR if the tab is NOT Lights
-                if c not in (curses.KEY_ENTER, ord('\n'), ord('\r')) or active_tab_name != "Lights":
-                    handle_input_for_tab(c,
-                                         active_tab_name,
-                                         state,
-                                         interfaces,
-                                         current_tab_index)
-                # …and for the Logs tab, make sure the window scrolls with the selection
-                if active_tab_name == "Logs" and c in (curses.KEY_DOWN, curses.KEY_UP,
-                                                    curses.KEY_NPAGE, curses.KEY_PPAGE,
-                                                    curses.KEY_HOME, curses.KEY_END):
-                    # Re-call handle_input specifically for scrolling logs (already handled above for other keys)
-                    # This ensures scrolling happens even if the main call was skipped
-                    handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
+                # --- MODIFIED: Always call handle_input_for_tab if tab has state ---
+                # The function itself handles different keys, including Enter for Lights
+                handle_input_for_tab(c,
+                                     active_tab_name,
+                                     state,
+                                     interfaces,
+                                     current_tab_index)
+                # --- End Modification ---
+
+                # ... existing code for Logs scrolling ...
+                # if active_tab_name == "Logs" and c in (curses.KEY_DOWN, curses.KEY_UP, ... ):
+                #    ...
 
         # --- Data Fetching (Conditional based on Pause) ---
         with pause_lock:
