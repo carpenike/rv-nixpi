@@ -5,14 +5,14 @@ import curses
 import time
 import sys
 import base64
-from collections import defaultdict, deque # Added deque
-import can # type: ignore # Ensure can is imported
-import yaml # type: ignore # Added for device mapping
-import os # Added for file existence check
-import threading # Ensure threading is imported for Lock
-import logging # Added for logging
-import argparse # Added for command-line arguments
-import queue # Import the queue module
+from collections import defaultdict, deque
+import can # type: ignore
+import yaml # type: ignore
+import os
+import threading
+import logging
+import argparse
+import queue
 
 # --- Configuration ---
 # Defaults, can be overridden by args
