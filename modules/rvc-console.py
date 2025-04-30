@@ -1376,59 +1376,29 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # Construct Data Payload according to 1FEDB (DC_DIMMER_COMMAND_2)
             # B0: instance
-            # B1: group mask (exact bitmask from last status)
+            # B1: group mask (exact bitmask from mapping or last status)
             # B2: desired level (0–200 => 0–100%)
             # B3: command (0=SetLevel)
             # B4: duration (0=immediate)
-            # B5–B7: all reserved => must be 0xFF
-            # fetch whatever group mask we’ve learned so far
-            with light_states_lock:
-                last_raw = light_device_states.get(entity_id, {}).get('last_raw_values', {})
-
-            # if we don’t yet know our group, probe for it and retry in 200ms
-            if 'group' not in last_raw:
-                # build a “Report Status” request (cmd=0x02, broadcast group)
-                report_status = bytes([
-                    instance        & 0xFF,  # B0: instance
-                    0xFF,                    # B1: broadcast mask
-                    0x00,                    # B2: ignored
-                    0x02,                    # B3: ReportStatus
-                    0x00,                    # B4: immediate
-                    0xFF, 0xFF, 0xFF         # B5–B7: reserved
-                ])
-                send_can_command(target_bus, can_id, report_status)
-                copy_msg  = f"Probing {light_name} for group mask… sending real command in 200 ms"
-                copy_time = time.time()
-
-                # schedule the real SetLevel for 200 ms out
-                def retry_setlevel():
-                    # rebuild the group byte from the newly arrived status
-                    with light_states_lock:
-                        lr = light_device_states[entity_id]['last_raw_values']
-                    group_byte     = int(lr.get('group_raw', lr.get('group', 0))) & 0xFF
-                    brightness_raw = min(int(brightness * 2), 200) & 0xFF
-                    data = bytes([
-                        instance        & 0xFF,  # B0: instance
-                        group_byte,              # B1: channel mask
-                        brightness_raw,          # B2: level raw
-                        command_byte   & 0xFF,   # B3: SetLevel
-                        duration_byte  & 0xFF,   # B4: immediate
-                        0xFF, 0xFF, 0xFF         # B5–B7: reserved
-                    ])
-                    send_can_command(target_bus, can_id, data)
-
-                threading.Timer(0.2, retry_setlevel).start()
-                return  # don’t fall through to the old try‐block yet
-
-            # --- we already have group_raw, so do the normal SetLevel now ---
+            # B5–B7: all reserved => 0xFF
             try:
                 command_byte  = 0    # SetLevel
                 duration_byte = 0    # immediate
 
-                # (you can drop the old “get last_raw” here since we just probed)
-                with light_states_lock:
-                    lr = light_device_states[entity_id]['last_raw_values']
-                group_byte     = int(lr.get('group_raw', lr.get('group', 0))) & 0xFF
+                # First, try a static group mask from your YAML mapping
+                mapping = selected_item_data['mapping_config']
+                if 'group_mask' in mapping:
+                    group_byte = int(mapping['group_mask'], 0) & 0xFF
+                else:
+                    # Fall back to whatever we last learned
+                    with light_states_lock:
+                        lr = light_device_states.get(entity_id, {}).get('last_raw_values', {})
+                    try:
+                        raw_group = lr.get('group_raw', lr.get('group', 0))
+                        group_byte = int(raw_group) & 0xFF
+                    except Exception:
+                        group_byte = 0
+
                 brightness_raw = min(int(brightness * 2), 200) & 0xFF
 
                 data = bytes([
@@ -1451,6 +1421,7 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 logging.error(f"Error constructing or sending 1FEDB command for {light_name}: {e}")
                 copy_msg  = f"Error sending command to {light_name}"
                 copy_time = time.time()
+
 
 # --- Entry Point ---
 if __name__ == '__main__':
