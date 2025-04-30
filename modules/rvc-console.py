@@ -1412,6 +1412,16 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 if send_can_command(target_bus, can_id, data):
                     # use the human‐readable action_desc you created above
                     copy_msg = f"Sent command to {light_name}: {action_desc}"
+                    # ── Optimistically update our in-memory state so the UI flips immediately ──
+                    with light_states_lock:
+                        st = light_device_states.get(entity_id, {})
+                        # overwrite just the decoded Data
+                        st['last_decoded_data'] = {
+                            'state':    'ON' if command == 0x01 else 'OFF',
+                            'brightness': brightness if command == 0x01 else 0
+                        }
+                        st['last_updated'] = time.time()
+                        light_device_states[entity_id] = st
                 else:
                     copy_msg = f"Failed to send command to {light_name}"
                 copy_time = time.time()
