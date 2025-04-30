@@ -5,14 +5,14 @@ import curses
 import time
 import sys
 import base64
-from collections import defaultdict, deque
-import can # type: ignore
-import yaml # type: ignore
-import os
-import threading
-import logging
-import argparse
-import queue
+from collections import defaultdict, deque # Added deque
+import can # type: ignore # Ensure can is imported
+import yaml # type: ignore # Added for device mapping
+import os # Added for file existence check
+import threading # Ensure threading is imported for Lock
+import logging # Added for logging
+import argparse # Added for command-line arguments
+import queue # Import the queue module
 
 # --- Configuration ---
 # Defaults, can be overridden by args
@@ -379,7 +379,6 @@ light_states_lock = threading.Lock() # Lock for light states
 # Add dictionary and lock for active bus objects
 active_buses = {}
 active_buses_lock = threading.Lock()
-# REMOVED recently_commanded_lights and lock
 stop_event = threading.Event()
 copy_msg = None
 copy_time = 0
@@ -401,7 +400,7 @@ INTERFACES = [] # Will be populated by args
 # --- Reader Thread ---
 def reader_thread(interface):
     """Reads CAN messages, decodes, and updates raw records, mapped device states, and light states."""
-    global active_buses, active_buses_lock, status_lookup
+    global active_buses, active_buses_lock, status_lookup # Add status_lookup to globals
     bus = None # Initialize bus to None outside try
     try:
         bus = can.interface.Bus(channel=interface, interface='socketcan')
@@ -482,8 +481,6 @@ def reader_thread(interface):
                         entity_id = mapped_config.get('entity_id')
                         # Update light state if it's a light (using entity_id)
                         if entity_id and entity_id in light_entity_ids: # Check against light_entity_ids
-
-                            # Always update if not ignored (ignore logic removed)
                             state_data = {
                                 'entity_id': entity_id,
                                 'friendly_name': mapped_config.get('friendly_name', entity_id),
@@ -501,10 +498,9 @@ def reader_thread(interface):
                                 light_state_entry = light_device_states.get(entity_id, {})
                                 light_state_entry.update(state_data)
                                 light_device_states[entity_id] = light_state_entry
-
                 # --- Update Light State Only --- END
 
-            # --- End Update Mapped Device State -- REMOVED (was commented out) ---
+            # --- End Update Mapped Device State ---
 
         except can.CanError as e:
             logging.error(f"CAN Error on {interface}: {e}")
@@ -568,17 +564,18 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
 
     while True:
         # --- Input Handling ---
-        # Ensure correct timeout settings before blocking getch
-        stdscr.nodelay(False)
-        stdscr.timeout(100)
         c = stdscr.getch()
-        processed_action = False # Flag if any action was taken based on 'c'
+        # --- 1) immediate toggle on Enter when in Lights tab ---
+        active_tab_name = tabs[current_tab_index]
+        if c in (curses.KEY_ENTER, ord('\n'), ord('\r')) and active_tab_name == "Lights":
+            # this will send your command and update light_device_states immediately
+            handle_input_for_tab(c,
+                                  active_tab_name,
+                                  tab_state[active_tab_name],
+                                  interfaces,
+                                  current_tab_index)
 
         if c != curses.ERR:
-            processed_action = True # Mark that we are processing a key
-            original_key = c # Store the key that was read
-            logging.debug(f"Key pressed: c={c}, char={chr(c) if 32 <= c <= 126 else 'N/A'}, KEY_ENTER={curses.KEY_ENTER}") # Log the key code
-
             if c in (ord('q'), ord('Q')):
                 stop_event.set()
                 break
@@ -637,168 +634,190 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                 key_char = chr(c)
                 if key_char in tab_keys:
                     current_tab_index = tab_keys.index(key_char)
-                    # Reset selection/scroll when switching tabs
-                    active_tab_name = tabs[current_tab_index]
-                    if active_tab_name in tab_state:
-                        tab_state[active_tab_name]['selected_idx'] = 0
-                        tab_state[active_tab_name]['v_offset'] = 0
             except (ValueError, IndexError):
                 pass # Ignore non-character/invalid keys
 
-            # --- Call main input handler --- # MOVED BEFORE CONSUMING NEWLINE
+            # Context-aware actions (pass interfaces for raw tabs) # Ensure this block is at the same level
             active_tab_name = tabs[current_tab_index]
+            # Check if active_tab_name exists in tab_state before accessing
             if active_tab_name in tab_state:
                 state = tab_state[active_tab_name]
-                handle_input_for_tab(original_key, # Pass the original key
-                                     active_tab_name,
-                                     state,
-                                     interfaces,
-                                     current_tab_index)
+                # Only re–call handle_input for non-Enter events, so you don’t double‐toggle
+                if c not in (curses.KEY_ENTER, ord('\n'), ord('\r')):
+                    handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
+                # …and for the Logs tab, make sure the window scrolls with the selection
+                if active_tab_name == "Logs" and c in (curses.KEY_DOWN, curses.KEY_UP,
+                                                    curses.KEY_NPAGE, curses.KEY_PPAGE,
+                                                    curses.KEY_HOME, curses.KEY_END):
+                    h, w = stdscr.getmaxyx()
+                    max_rows = h - 5
+                    sel = state['selected_idx']
+                    vof = state['v_offset']
+                    if sel < vof:
+                        state['v_offset'] = sel
+                    elif sel >= vof + max_rows:
+                      state['v_offset'] = sel - max_rows + 1
+            # else: # Handle case where tab might not have state (e.g., if Logs was still somehow selected)
+                # pass # Or log a warning
 
-            # --- REMOVED Redundant Logs scrolling block ---
-
-            # --- Simplified newline consumption --- START
-            # If the key pressed was Enter/Return, try one non-blocking read to consume potential extra newline
-            if original_key in (curses.KEY_ENTER, ord('\n'), ord('\r')):
-                stdscr.nodelay(True)  # Set non-blocking read
-                _ = stdscr.getch()    # Read and discard whatever character is next (or ERR)
-                # No need to restore nodelay(False) here, timeout(100) at loop start handles it
-            # --- Simplified newline consumption --- END
-
-        # --- Data Fetching & Drawing --- (Only if NOT paused OR if an action was just processed)
+        # --- Data Fetching (Conditional based on Pause) ---
         with pause_lock:
-            paused_now = is_paused
-        # Redraw if not paused, OR if we just processed an input key (even if paused)
-        if not paused_now or processed_action:
-            active_tab_name = tabs[current_tab_index]
-            state = tab_state.get(active_tab_name)
-            if not state:
-                continue # Skip drawing cycle if state is missing
+            paused_now = is_paused # Read pause state under lock
 
-            # Data for drawing - fetch ONLY if not paused, otherwise use cached
-            light_items_to_draw = []
-            log_items_to_draw = []
-            raw_names_to_draw = []
-            raw_recs_to_draw = {}
-            interface_for_raw_tab = None
+        active_tab_name = tabs[current_tab_index]
+        # Check if active_tab_name exists in tab_state before accessing
+        state = tab_state.get(active_tab_name) # Use .get for safety
+        if not state:
+            # Handle case where state might be missing (shouldn't happen with current logic)
+            # logging.warning(f"State not found for active tab: {active_tab_name}")
+            continue # Skip drawing cycle if state is missing
 
-            if not paused_now:
-                # Fetch fresh data
-                # --- Lights Tab Data Fetch ---
-                with light_states_lock:
-                    # Create a temporary list to hold items for this draw cycle
-                    current_light_items = []
-                    for entity_id, item_state in light_device_states.items():
-                        # IMPORTANT: Append a *copy* to prevent modification issues if state changes during draw
-                        current_light_items.append(item_state.copy())
-                    light_items_to_draw = current_light_items # Assign the fetched list
-                    # --- Log the state of the first light for debugging --- START
-                    if light_items_to_draw and processed_action and active_tab_name == "Lights":
-                         first_light_state = light_items_to_draw[0].get('last_decoded_data', {})
-                         logging.debug(f"[Draw Fetch] State of first light ({light_items_to_draw[0].get('entity_id')}): {first_light_state}")
-                    # --- Log the state of the first light for debugging --- END
-                    last_draw_data["lights"] = current_light_items # Update cache *after* fetching
+        # Data for drawing - fetch ONLY if not paused, otherwise use cached
+        light_items_to_draw = []
+        log_items_to_draw = [] # <-- Restore log items list
+        raw_names_to_draw = []
+        raw_recs_to_draw = {}
+        interface_for_raw_tab = None
 
-                # --- Logs Tab Data Fetch ---
-                # ... (existing logs data fetch using list_handler_instance) ...
-                # --- Raw Tab Data Fetch ---
-                # ... (existing raw data fetch using latest_raw_records) ...
-
-            else: # Use cached data if paused
-                # --- Lights Tab Data (Paused) ---
-                light_items_to_draw = last_draw_data.get("lights", [])
-                # --- Logs Tab Data (Paused) ---
-                log_items_to_draw = displayed_log_records # Use the locally maintained deque
-                # --- Raw Tab Data (Paused) ---
-                # ... (existing raw data cache retrieval) ...
-
-            # --- Drawing ---
-            stdscr.erase()
-            h, w = stdscr.getmaxyx()
-
-            # --- Header ---
-            # Clear the line first
-            stdscr.move(0, 0)
-            stdscr.clrtoeol()
-            header_text = ""
-            # Pause indicator
-            if paused_now:
-                 header_text += "[PAUSED] "
-            # Filter indicator
-            if log_filter:
-                header_text += f"[Filter='{log_filter}'] "
-            else:
-                header_text += "[Filter=OFF] "
-            # Tabs
-            for i, name in enumerate(tabs):
-                key = tab_keys[i]
-                indicator = "*" if i == current_tab_index else " "
-                header_text += f"[{key}]{indicator}{name}{indicator}  "
-            # Sort mode
-            sort_label = ""
-            num_sort_modes = 0
-            # Check state exists before accessing sort_mode
-            if state:
-                if active_tab_name == "Lights":
-                    sort_label = light_sort_labels[state['sort_mode']]
-                    num_sort_modes = len(light_sort_labels)
-                elif " Raw" in active_tab_name:
-                    sort_label = sort_labels[state['sort_mode']]
-                    num_sort_modes = len(sort_labels)
-            # Restore original logic (don't show sort for Logs)
-            if sort_label:
-                header_text += f"[S] Sort:{sort_label}  "
-            # Other actions
-            header_text += "[C] Copy  [P] Pause  [Q] Quit"
-            stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-            stdscr.addnstr(0, 0, header_text.ljust(w), w)
-            stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
-            stdscr.hline(1, 0, '-', w)
-
-            # --- Main Content Area ---
-            max_rows = h - 5 # Rows available for content list
-
-            # Check state exists before passing to draw functions
-            if state:
-                if active_tab_name == "Lights":
-                    # Pass fetched/cached light data
-                    draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
-                # --- Restore Drawing Call for Logs Tab ---
-                elif active_tab_name == "Logs":
-                    draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw, wrap=log_wrap)
-                elif " Raw" in active_tab_name and interface_for_raw_tab:
-                    # Pass fetched/cached data and interface name
-                    draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
-
-            # --- Copy/Action Notification ---
-            if copy_msg and time.time() - copy_time < 3:
-                # Use yellow for copy, red for action hint
-                msg_color = curses.color_pair(5) if "copied" in copy_msg else curses.color_pair(7)
-                stdscr.attron(msg_color | curses.A_BOLD)
-                stdscr.addnstr(h - 2, 0, copy_msg[:w - 1].ljust(w - 1), w - 1)
-                stdscr.attroff(msg_color | curses.A_BOLD)
-
-            # --- Footer ---
-            # Clear the line first
-            stdscr.move(h - 1, 0)
-            stdscr.clrtoeol()
-            footer = "Arrows: Navigate | "
+        if not paused_now:
+            # Fetch fresh data
+            # Ensure the following block is correctly indented under 'if not paused_now:'
             if active_tab_name == "Lights":
-                 footer += "Enter: Control | " # Add hint for lights tab
-            # Restore hint for logs tab
-            elif active_tab_name == "Logs":
-                 footer += "C: Copy Line | "
-            # Update tab names in footer hint
-            footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
-            footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
-            stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
-            stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w - 1)
-            stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
+                with light_states_lock:
+                    # Make a copy
+                    light_items_to_draw = list(light_device_states.values())
+                last_draw_data["lights"] = light_items_to_draw # Cache fresh data
+            # --- Restore Fetching for Logs Tab ---
+            elif active_tab_name == "Logs": # Ensure this elif aligns with the 'if' above
+                # Retrieve messages from the handler's queue
+                new_log_records = list_handler_instance.get_records()
+                if new_log_records:
+                    displayed_log_records.extend(new_log_records)
+                    # If not paused and on the Logs tab, scroll to the bottom
+                    if not is_paused and current_tab_index == 1:
+                        log_scroll_pos = max(0, len(displayed_log_records) - (h - 5))
+                log_items_to_draw = list(displayed_log_records) # Use the local deque
+                last_draw_data["logs"] = log_items_to_draw # Cache fresh data
+            elif " Raw" in active_tab_name: # Ensure this elif aligns with the 'if' above
+                try:
+                    # Determine interface based on tab name/index relative to "Lights"
+                    # Restore original index calculation
+                    iface_index = current_tab_index - 2
+                    if 0 <= iface_index < len(interfaces):
+                        interface_for_raw_tab = interfaces[iface_index]
+                        with raw_records_lock:
+                             # Make copies
+                             raw_recs_to_draw = latest_raw_records[interface_for_raw_tab].copy()
+                        raw_names_to_draw = list(raw_recs_to_draw.keys()) # Get names from the copy
+                        # Cache fresh data (use index for key robustness)
+                        last_draw_data[f"raw{iface_index}"] = (raw_names_to_draw, raw_recs_to_draw)
+                    else: # Should not happen if tabs/keys are correct
+                         logging.warning(f"Could not determine interface for tab: {active_tab_name}")
 
-            # --- Add explicit redraw command ---
-            stdscr.redrawwin() 
-            # --- End add explicit redraw command ---
-            stdscr.refresh()
+                except Exception as e:
+                     logging.exception(f"Error fetching raw data for {active_tab_name}")
+
+        else: # Use cached data if paused - Ensure this 'else' aligns with 'if not paused_now:'
+            if active_tab_name == "Lights":
+                light_items_to_draw = last_draw_data["lights"]
+            # --- Restore Cache Retrieval for Logs Tab ---
+            elif active_tab_name == "Logs":
+                log_items_to_draw = last_draw_data["logs"]
+            elif " Raw" in active_tab_name:
+                # Restore original index calculation
+                iface_index = current_tab_index - 2
+                if 0 <= iface_index < len(interfaces):
+                    interface_for_raw_tab = interfaces[iface_index]
+                    # Retrieve cached data
+                    raw_names_to_draw, raw_recs_to_draw = last_draw_data.get(f"raw{iface_index}", ([], {}))
+
+        # --- Drawing ---
+        stdscr.erase()
+        h, w = stdscr.getmaxyx()
+
+        # --- Header ---
+        # Clear the line first
+        stdscr.move(0, 0)
+        stdscr.clrtoeol()
+        header_text = ""
+        # Pause indicator
+        if paused_now:
+             header_text += "[PAUSED] "
+        # Filter indicator
+        if log_filter:
+            header_text += f"[Filter='{log_filter}'] "
+        else:
+            header_text += "[Filter=OFF] "
+        # Tabs
+        for i, name in enumerate(tabs):
+            key = tab_keys[i]
+            indicator = "*" if i == current_tab_index else " "
+            header_text += f"[{key}]{indicator}{name}{indicator}  "
+        # Sort mode
+        sort_label = ""
+        num_sort_modes = 0
+        # Check state exists before accessing sort_mode
+        if state:
+            if active_tab_name == "Lights":
+                sort_label = light_sort_labels[state['sort_mode']]
+                num_sort_modes = len(light_sort_labels)
+            elif " Raw" in active_tab_name:
+                sort_label = sort_labels[state['sort_mode']]
+                num_sort_modes = len(sort_labels)
+        # Restore original logic (don't show sort for Logs)
+        if sort_label:
+            header_text += f"[S] Sort:{sort_label}  "
+        # Other actions
+        header_text += "[C] Copy  [P] Pause  [Q] Quit"
+        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
+        stdscr.addnstr(0, 0, header_text.ljust(w), w)
+        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
+        stdscr.hline(1, 0, '-', w)
+
+        # --- Main Content Area ---
+        max_rows = h - 5 # Rows available for content list
+
+        # Check state exists before passing to draw functions
+        if state:
+            if active_tab_name == "Lights":
+                # Pass fetched/cached light data
+                draw_lights_tab(stdscr, h, w, max_rows, state, light_items_to_draw)
+            # --- Restore Drawing Call for Logs Tab ---
+            elif active_tab_name == "Logs":
+                draw_logs_tab(stdscr, h, w, max_rows, state, log_items_to_draw, wrap=log_wrap)
+            elif " Raw" in active_tab_name and interface_for_raw_tab:
+                # Pass fetched/cached data and interface name
+                draw_raw_can_tab(stdscr, h, w, max_rows, state, interface_for_raw_tab, raw_names_to_draw, raw_recs_to_draw)
+
+        # --- Copy/Action Notification ---
+        if copy_msg and time.time() - copy_time < 3:
+            # Use yellow for copy, red for action hint
+            msg_color = curses.color_pair(5) if "copied" in copy_msg else curses.color_pair(7)
+            stdscr.attron(msg_color | curses.A_BOLD)
+            stdscr.addnstr(h - 2, 0, copy_msg[:w - 1].ljust(w - 1), w - 1)
+            stdscr.attroff(msg_color | curses.A_BOLD)
+
+        # --- Footer ---
+        # Clear the line first
+        stdscr.move(h - 1, 0)
+        stdscr.clrtoeol()
+        footer = "Arrows: Navigate | "
+        if active_tab_name == "Lights":
+             footer += "Enter: Control | " # Add hint for lights tab
+        # Restore hint for logs tab
+        elif active_tab_name == "Logs":
+             footer += "C: Copy Line | "
+        # Update tab names in footer hint
+        footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
+        footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
+        stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
+        stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w - 1)
+        stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
+
+        # --- Add explicit redraw command ---
+        stdscr.redrawwin() 
+        # --- End add explicit redraw command ---
+        stdscr.refresh()
 
 
 # --- Drawing Functions ---
@@ -1118,9 +1137,9 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
         state['_copy_action'] = False # Reset flag
 
 
-# Modify handle_input to use active_buses and recently_commanded
+# Modify handle_input to use active_buses
 def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): # Added interfaces and current_tab_index
-    global copy_msg, copy_time
+    global copy_msg, copy_time # Removed light_states from global declaration
 
     # Get current state vars
     selected_idx = state['selected_idx']
@@ -1266,13 +1285,11 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
     # --- Command/Control (Lights Only for now) ---
     elif key in (curses.KEY_ENTER, ord('\n'), ord('\r')):
-        logging.debug(f"Enter key ({key}) detected for tab: {tab_name}") # Log Enter detection
         if tab_name == "Lights" and total:
             # Use cached data to identify the selected item without needing lock
             selected_item_data = last_draw_data["lights"][state['selected_idx']]
             entity_id = selected_item_data.get('entity_id')
             light_name = selected_item_data.get('friendly_name', 'Unknown Light')
-            logging.debug(f"Processing Enter for light: {light_name} ({entity_id})") # Log before action
 
             if not entity_id:
                 copy_msg = "Error: Could not get entity_id for selected light."
@@ -1311,16 +1328,13 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # --- Determine Command, Brightness, Duration --- START (Modified Read Location)
             # Get current state and brightness for toggle logic from the nested last_decoded_data
-            with light_states_lock:
-                entity_state = light_device_states.get(entity_id, {})
-                last_decoded = entity_state.get('last_decoded_data', {})
-                # Safely parse group byte from the *last raw values*, defaulting to 0 on error
-                last_raw = entity_state.get('last_raw_values', {})
-                group_byte_raw = last_raw.get('group_mask') # Assuming 'group_mask' is the raw signal name
-                try:
-                    group_byte = int(group_byte_raw) if group_byte_raw is not None else 0
-                except (ValueError, TypeError):
-                    group_byte = 0 # Default if conversion fails
+            with light_states_lock: # Lock needed for reading light_device_states
+                entity_state_data = light_device_states.get(entity_id, {})
+                last_decoded = entity_state_data.get('last_decoded_data', {})
+                # Default to 'unavailable' if state is missing, ensuring the first press turns it ON
+                current_state = last_decoded.get('state', 'unavailable')
+                # Default to 0 brightness if missing
+                current_brightness_raw = last_decoded.get('brightness', 0)
 
             # --- use the decoded_data values directly ---
             # state is already "ON" or "OFF", brightness is already an int 0–100
@@ -1330,95 +1344,36 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
             # Toggle logic: If ON, turn OFF. If OFF/unavailable, turn ON.
             # Compare with the string 'ON' which is likely the decoded state value
             if str(current_state).upper() == 'ON':
+                command = 0x00 # Command: OFF
+                brightness = 0x00 # Brightness: 0%
+                duration = 0x00 # Duration: Instant
                 action_desc = "Turn OFF"
-                command = 0 # SetLevel
-                level = 0   # 0% brightness
-            else:
-                action_desc = "Turn ON to 100%" # Default to 100% when turning on
-                command = 0 # SetLevel
-                level = 200 # 100% brightness (0-200 scale)
+            else: # Currently OFF, unavailable, or other non-ON state
+                command = 0x01 # Command: ON
+                # Restore previous brightness if > 0, otherwise default to 100%
+                brightness = current_brightness if current_brightness > 0 else 100
+                duration = 0x00 # Duration: Instant
+                action_desc = f"Turn ON to {brightness}%"
+                brightness = brightness & 0xFF # Ensure brightness fits in one byte
 
             # --- Determine Command, Brightness, Duration --- END
-            logging.debug(f"Determined action: {action_desc}") # Log determined action
-
-            # --- OPTIMISTIC UI UPDATE --- START
-            logging.debug("Performing optimistic UI update...") # Log before optimistic update
-            expected_state = 'ON' if action_desc.startswith("Turn ON") else 'OFF'
-            expected_brightness = 0
-            if expected_state == 'ON':
-                # Try to parse brightness from action_desc, default to 100
-                try:
-                    expected_brightness = int(action_desc.split(' to ')[1].split('%')[0])
-                except (IndexError, ValueError):
-                    expected_brightness = 100 # Fallback if parsing fails
-
-            now_time = time.time() # Get current time once
-
-            # Update live state
-            with light_states_lock:
-                if entity_id in light_device_states:
-                    # Ensure 'last_decoded_data' exists before updating nested keys
-                    if 'last_decoded_data' not in light_device_states[entity_id]:
-                        light_device_states[entity_id]['last_decoded_data'] = {}
-                    light_device_states[entity_id]['last_decoded_data']['state'] = expected_state
-                    light_device_states[entity_id]['last_decoded_data']['brightness'] = expected_brightness
-                    light_device_states[entity_id]['last_updated'] = now_time # Update timestamp
-
-            # --- ALSO UPDATE CACHED STATE --- START
-            # Find and update the item in the last_draw_data cache
-            # Note: This assumes last_draw_data["lights"] is a list of dictionaries
-            #       and doesn't require a lock as it's typically accessed only by the main thread.
-            try:
-                # Find the index of the item with the matching entity_id
-                cache_index = -1
-                # Ensure last_draw_data["lights"] is iterable
-                cached_lights = last_draw_data.get("lights", [])
-                if isinstance(cached_lights, list):
-                    for i, item in enumerate(cached_lights):
-                        # Ensure item is a dict and has 'entity_id'
-                        if isinstance(item, dict) and item.get('entity_id') == entity_id:
-                            cache_index = i
-                            break
-                else:
-                    logging.warning("last_draw_data['lights'] is not a list, cannot perform optimistic cache update.")
-
-
-                if cache_index != -1:
-                    # Update the cached item directly
-                    cached_item = last_draw_data["lights"][cache_index]
-                    # Ensure 'last_decoded_data' exists in the cached item
-                    if 'last_decoded_data' not in cached_item:
-                         cached_item['last_decoded_data'] = {} # Initialize if missing
-                    cached_item['last_decoded_data']['state'] = expected_state
-                    cached_item['last_decoded_data']['brightness'] = expected_brightness
-                    cached_item['last_updated'] = now_time # Update timestamp in cache too
-                # else: # Item not found in cache (could happen if cache is stale or item just appeared)
-                    # logging.debug(f"Optimistic cache update skipped: {entity_id} not found in last_draw_data['lights'].")
-            except Exception as e:
-                 # Log potential errors during cache update
-                 logging.error(f"Error during optimistic cache update for {entity_id}: {e}")
-            # --- ALSO UPDATE CACHED STATE --- END
-            logging.debug("Optimistic UI update complete.") # Log after optimistic update
-
-            # --- OPTIMISTIC UI UPDATE --- END
 
             # --- Construct CAN ID --- START (Corrected Logic)
             priority = 6
             sa = 0xF9
             da = 0xFF # Broadcast DA for PDU1
 
-            # Extract PGN components from the DGN (which is already an integer)
-            # REMOVED: dgn_int = int(dgn, 16) # No longer needed, dgn is already the integer
-            dp = (dgn >> 16) & 1 # Data Page bit (Use dgn directly)
-            pf = (dgn >> 8) & 0xFF # PDU Format (Use dgn directly)
-            ps = dgn & 0xFF       # PDU Specific (DA if PF >= 240) (Use dgn directly)
+            # Extract PGN components
+            dp = (dgn >> 16) & 1 # Data Page bit
+            pf = (dgn >> 8) & 0xFF # PDU Format
 
-            # Construct the CAN ID (J1939 format)
-            constructed_can_id = (priority << 26) | (dp << 24) | (pf << 16) | (ps << 8) | sa
-            if pf >= 0xF0: # PDU2 format (uses PS field for Group Extension)
-                constructed_can_id = (priority << 26) | (dp << 24) | (pf << 16) | (ps << 8) | sa
-            else: # PDU1 format (uses DA in PS field)
-                constructed_can_id = (priority << 26) | (dp << 24) | (pf << 16) | (da << 8) | sa
+            if pf < 0xF0: # PDU1 Format (uses DA) PF 0-239
+                 # Build PDU1 ID: Prio | DP | PF | DA | SA
+                 can_id = (priority << 26) | (dp << 24) | (pf << 16) | (da << 8) | sa
+            else: # PDU2 Format (uses PS) PF 240-255
+                 # Build PDU2 ID: Prio | DP | PF | PS | SA
+                 ps = dgn & 0xFF # PDU Specific
+                 can_id = (priority << 26) | (dp << 24) | (pf << 16) | (ps << 8) | sa
 
             # --- Construct CAN ID --- END
 
@@ -1430,29 +1385,46 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
             # B4: duration (0=immediate)
             # B5–B7: all reserved => must be 0xFF
             try:
-                data_payload = bytearray(8)
-                data_payload[0] = instance
-                data_payload[1] = group_byte # Use the safely parsed group_byte
-                data_payload[2] = level
-                data_payload[3] = command
-                data_payload[4] = 0 # Immediate duration
-                data_payload[5] = 0xFF
-                data_payload[6] = 0xFF
-                data_payload[7] = 0xFF
+                command_byte  = 0    # SetLevel
+                duration_byte = 0    # immediate
 
-                # Send the command using the determined bus and constructed ID/payload
-                logging.debug(f"Attempting to send CAN command: ID={constructed_can_id:08X}, Data={data_payload.hex().upper()}") # Log before send
-                if send_can_command(target_bus, constructed_can_id, data_payload):
-                    copy_msg = f"Sent: {action_desc} to {light_name}"
-                    logging.debug("CAN command sent successfully.") # Log success
+                # Get the last-known raw values (may be empty on first press)
+                with light_states_lock:
+                    entity_state = light_device_states.get(entity_id, {})
+                    last_raw = entity_state.get('last_raw_values', {})
+
+                # Safely parse group byte, defaulting to 0 on error
+                try:
+                    raw_group = last_raw.get('group_raw', last_raw.get('group', 0))
+                    group_byte = int(raw_group) & 0xFF
+                except Exception as e:
+                    logging.warning(f"Could not parse group byte for {entity_id}, defaulting to 0: {e}")
+                    group_byte = 0
+
+                # Scale brightness 0–100% → raw 0–200
+                brightness_raw = min(int(brightness * 2), 200) & 0xFF
+
+                # Build the 8-byte DC_DIMMER_COMMAND_2 payload
+                data = bytes([
+                    instance        & 0xFF,  # B0: instance
+                    group_byte,              # B1: channel mask
+                    brightness_raw,          # B2: level raw
+                    command_byte   & 0xFF,   # B3: SetLevel
+                    duration_byte  & 0xFF,   # B4: immediate
+                    0xFF, 0xFF, 0xFF         # B5–B7: reserved
+                ])
+
+                logging.debug(f"→ Sending CAN ID 0x{can_id:08X}: {data.hex().upper()} on {target_interface_name}")
+
+                if send_can_command(target_bus, can_id, data):
+                    copy_msg = f"Sent command to {light_name}: {action_desc}"
                 else:
-                    copy_msg = f"Error sending command to {light_name}"
-                    logging.warning("send_can_command returned False.") # Log failure
+                    copy_msg = f"Failed to send command to {light_name}"
                 copy_time = time.time()
 
             except Exception as e:
-                logging.error(f"Error constructing/sending CAN payload for {light_name}: {e}")
-                copy_msg = f"Payload error for {light_name}"
+                logging.error(f"Error constructing or sending 1FEDB command for {light_name}: {e}")
+                copy_msg = f"Error sending command to {light_name}"
                 copy_time = time.time()
 
 
