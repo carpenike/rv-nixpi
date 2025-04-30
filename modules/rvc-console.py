@@ -1381,34 +1381,39 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
             # B3: command (0=SetLevel)
             # B4: duration (0=immediate)
             # B5–B7: all reserved => must be 0xFF
-            # --- Construct DC_DIMMER_COMMAND_2 payload and send ---
             try:
-                # Use the on/off command you already chose above
-                command_byte  = command & 0xFF
+                command_byte  = 0    # SetLevel
                 duration_byte = 0    # immediate
 
-                # Grab the last-known raw bytes (if any)
+                # Get the last-known raw values (may be empty on first press)
                 with light_states_lock:
-                    raw_bytes = light_device_states.get(entity_id, {}).get('last_raw_bytes', b'')
+                    entity_state = light_device_states.get(entity_id, {})
+                    last_raw = entity_state.get('last_raw_values', {})
 
-                # Byte 1 is the channel mask in DC_DIMMER_STATUS_3
-                group_byte = raw_bytes[1] if len(raw_bytes) >= 2 else 0
+                # Safely parse group byte, defaulting to 0 on error
+                try:
+                    raw_group = last_raw.get('group_raw', last_raw.get('group', 0))
+                    group_byte = int(raw_group) & 0xFF
+                except Exception as e:
+                    logging.warning(f"Could not parse group byte for {entity_id}, defaulting to 0: {e}")
+                    group_byte = 0
 
-                # Scale brightness 0–100% → 0–200
+                # Scale brightness 0–100% → raw 0–200
                 brightness_raw = min(int(brightness * 2), 200) & 0xFF
 
-                payload = bytes([
-                    instance   & 0xFF,  # B0: instance
-                    group_byte,         # B1: channel mask
-                    brightness_raw,     # B2: level raw
-                    command_byte,       # B3: ON(1) or OFF(0)
-                    duration_byte,      # B4: immediate
-                    0xFF, 0xFF, 0xFF    # B5–B7: reserved
+                # Build the 8-byte DC_DIMMER_COMMAND_2 payload
+                data = bytes([
+                    instance        & 0xFF,  # B0: instance
+                    group_byte,              # B1: channel mask
+                    brightness_raw,          # B2: level raw
+                    command_byte   & 0xFF,   # B3: SetLevel
+                    duration_byte  & 0xFF,   # B4: immediate
+                    0xFF, 0xFF, 0xFF         # B5–B7: reserved
                 ])
 
-                logging.debug(f"→ Sending CAN ID 0x{can_id:08X}: {payload.hex().upper()} on {target_interface_name}")
+                logging.debug(f"→ Sending CAN ID 0x{can_id:08X}: {data.hex().upper()} on {target_interface_name}")
 
-                if send_can_command(target_bus, can_id, payload):
+                if send_can_command(target_bus, can_id, data):
                     copy_msg = f"Sent command to {light_name}: {action_desc}"
                 else:
                     copy_msg = f"Failed to send command to {light_name}"
