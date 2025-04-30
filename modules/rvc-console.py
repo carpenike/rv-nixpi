@@ -642,23 +642,20 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             # Check if active_tab_name exists in tab_state before accessing
             if active_tab_name in tab_state:
                 state = tab_state[active_tab_name]
-                # Only re–call handle_input for non-Enter events, so you don’t double‐toggle
-                if c not in (curses.KEY_ENTER, ord('\n'), ord('\r')):
-                    handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
+                # Only re–call handle_input for non-Enter events, OR if the tab is NOT Lights
+                if c not in (curses.KEY_ENTER, ord('\n'), ord('\r')) or active_tab_name != "Lights":
+                    handle_input_for_tab(c,
+                                         active_tab_name,
+                                         state,
+                                         interfaces,
+                                         current_tab_index)
                 # …and for the Logs tab, make sure the window scrolls with the selection
                 if active_tab_name == "Logs" and c in (curses.KEY_DOWN, curses.KEY_UP,
                                                     curses.KEY_NPAGE, curses.KEY_PPAGE,
                                                     curses.KEY_HOME, curses.KEY_END):
-                    h, w = stdscr.getmaxyx()
-                    max_rows = h - 5
-                    sel = state['selected_idx']
-                    vof = state['v_offset']
-                    if sel < vof:
-                        state['v_offset'] = sel
-                    elif sel >= vof + max_rows:
-                      state['v_offset'] = sel - max_rows + 1
-            # else: # Handle case where tab might not have state (e.g., if Logs was still somehow selected)
-                # pass # Or log a warning
+                    # Re-call handle_input specifically for scrolling logs (already handled above for other keys)
+                    # This ensures scrolling happens even if the main call was skipped
+                    handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
 
         # --- Data Fetching (Conditional based on Pause) ---
         with pause_lock:
