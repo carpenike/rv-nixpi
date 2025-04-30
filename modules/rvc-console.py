@@ -428,22 +428,22 @@ def reader_thread(interface):
             # --- Update Raw Records ---
             if entry and not entry.get('name', '').startswith('UNKNOWN'):
                 name = entry['name']
-                # --- Update Raw Records (Locked) ---
                 with raw_records_lock:
                     rec = latest_raw_records[interface].get(name, {})
                     rec.setdefault('first_received', now)
                     rec['last_received'] = now
 
-                    # decode all the signals
+                    # 1) decode everything
                     decoded_data, raw_values = decode_payload(entry, msg.data)
 
-                    # ── derive ON/OFF from enable_status (00b = ON, 01b = OFF) ──
-                    en = raw_values.get('enable_status', 0)
-                    decoded_data['state'] = 'ON' if en == 0 else 'OFF'
+                    # 2) override just state & brightness
+                    # enable_status == 0 → ON, otherwise OFF
+                    decoded_data['state'] = 'ON' if raw_values.get('enable_status', 1) == 0 else 'OFF'
 
-                    # ── operating_status is already 0–100% ──
-                    decoded_data['brightness'] = raw_values.get('operating_status', 0)
+                    # operating_status is reported 0–200, so divide by 2 for 0–100%
+                    decoded_data['brightness'] = raw_values.get('operating_status', 0) // 2
 
+                    # finally stash it all
                     rec.update({
                         'raw_id':   f"0x{msg.arbitration_id:08X}",
                         'raw_data': msg.data.hex().upper(),
