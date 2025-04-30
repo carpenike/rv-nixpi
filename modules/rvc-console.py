@@ -564,16 +564,15 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
     while True:
         # --- Input Handling ---
         c = stdscr.getch()
-
-        # 1) if we’re on the Lights tab and got ENTER, toggle immediately and skip everything else
+        # --- 1) immediate toggle on Enter when in Lights tab ---
         active_tab_name = tabs[current_tab_index]
         if c in (curses.KEY_ENTER, ord('\n'), ord('\r')) and active_tab_name == "Lights":
-            # delegate to your existing toggle logic
-            handle_input_for_tab(c, active_tab_name,
-                                 tab_state[active_tab_name],
-                                 interfaces, current_tab_index)
-            stdscr.refresh()
-            continue
+            # this will send your command and update light_device_states immediately
+            handle_input_for_tab(c,
+                                  active_tab_name,
+                                  tab_state[active_tab_name],
+                                  interfaces,
+                                  current_tab_index)
 
         if c != curses.ERR:
             if c in (ord('q'), ord('Q')):
@@ -642,8 +641,9 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             # Check if active_tab_name exists in tab_state before accessing
             if active_tab_name in tab_state:
                 state = tab_state[active_tab_name]
-                # Pass current_tab_index to handle_input_for_tab
-                handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
+                # Only re–call handle_input for non-Enter events, so you don’t double‐toggle
+                if c not in (curses.KEY_ENTER, ord('\n'), ord('\r')):
+                    handle_input_for_tab(c, active_tab_name, state, interfaces, current_tab_index)
                 # …and for the Logs tab, make sure the window scrolls with the selection
                 if active_tab_name == "Logs" and c in (curses.KEY_DOWN, curses.KEY_UP,
                                                     curses.KEY_NPAGE, curses.KEY_PPAGE,
