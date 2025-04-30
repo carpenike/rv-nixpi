@@ -379,9 +379,7 @@ light_states_lock = threading.Lock() # Lock for light states
 # Add dictionary and lock for active bus objects
 active_buses = {}
 active_buses_lock = threading.Lock()
-# Add dictionary and lock for recently commanded lights
-recently_commanded_lights = {}
-recently_commanded_lock = threading.Lock()
+# REMOVED recently_commanded_lights and lock
 stop_event = threading.Event()
 copy_msg = None
 copy_time = 0
@@ -403,7 +401,7 @@ INTERFACES = [] # Will be populated by args
 # --- Reader Thread ---
 def reader_thread(interface):
     """Reads CAN messages, decodes, and updates raw records, mapped device states, and light states."""
-    global active_buses, active_buses_lock, status_lookup, recently_commanded_lights, recently_commanded_lock # Add new globals
+    global active_buses, active_buses_lock, status_lookup
     bus = None # Initialize bus to None outside try
     try:
         bus = can.interface.Bus(channel=interface, interface='socketcan')
@@ -485,40 +483,24 @@ def reader_thread(interface):
                         # Update light state if it's a light (using entity_id)
                         if entity_id and entity_id in light_entity_ids: # Check against light_entity_ids
 
-                            # --- Check if recently commanded --- START
-                            ignore_update = False
-                            with recently_commanded_lock:
-                                command_time = recently_commanded_lights.get(entity_id)
-                                if command_time:
-                                    # Ignore status updates within 1.5 seconds of sending a command
-                                    if now - command_time < 1.5:
-                                        ignore_update = True
-                                        # Don't delete yet, let subsequent status messages through after the delay
-                                    else:
-                                        # If time expired, remove the entry so future updates aren't ignored
-                                        del recently_commanded_lights[entity_id]
-                            # --- Check if recently commanded --- END
-
-                            if not ignore_update: # Only update if not recently commanded
-                                state_data = {
-                                    'entity_id': entity_id,
-                                    'friendly_name': mapped_config.get('friendly_name', entity_id),
-                                    'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
-                                    'last_updated': now,
-                                    'last_interface': interface,
-                                    'last_raw_values': raw_values,
-                                    'last_decoded_data': decoded_data,
-                                    'last_raw_bytes': msg.data,
-                                    'mapping_config': mapped_config,
-                                    'dgn_hex': dgn_hex, # Store the DGN the status was RECEIVED on
-                                    'instance': instance_str
-                                }
-                                with light_states_lock:
-                                    light_state_entry = light_device_states.get(entity_id, {})
-                                    light_state_entry.update(state_data)
-                                    light_device_states[entity_id] = light_state_entry
-                            # else: # Optional logging if ignoring
-                            #    logging.debug(f"Ignoring status update for recently commanded light: {entity_id}")
+                            # Always update if not ignored (ignore logic removed)
+                            state_data = {
+                                'entity_id': entity_id,
+                                'friendly_name': mapped_config.get('friendly_name', entity_id),
+                                'suggested_area': mapped_config.get('suggested_area', 'Unknown'),
+                                'last_updated': now,
+                                'last_interface': interface,
+                                'last_raw_values': raw_values,
+                                'last_decoded_data': decoded_data,
+                                'last_raw_bytes': msg.data,
+                                'mapping_config': mapped_config,
+                                'dgn_hex': dgn_hex, # Store the DGN the status was RECEIVED on
+                                'instance': instance_str
+                            }
+                            with light_states_lock:
+                                light_state_entry = light_device_states.get(entity_id, {})
+                                light_state_entry.update(state_data)
+                                light_device_states[entity_id] = light_state_entry
 
                 # --- Update Light State Only --- END
 
@@ -1138,7 +1120,7 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 
 # Modify handle_input to use active_buses and recently_commanded
 def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): # Added interfaces and current_tab_index
-    global copy_msg, copy_time, recently_commanded_lights, recently_commanded_lock # Add new globals
+    global copy_msg, copy_time
 
     # Get current state vars
     selected_idx = state['selected_idx']
@@ -1463,11 +1445,6 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 if send_can_command(target_bus, constructed_can_id, data_payload):
                     copy_msg = f"Sent: {action_desc} to {light_name}"
                     logging.debug("CAN command sent successfully.") # Log success
-                    # --- Record command time --- START
-                    with recently_commanded_lock:
-                        recently_commanded_lights[entity_id] = time.time()
-                        logging.debug(f"Recorded command time for {entity_id}: {recently_commanded_lights[entity_id]}")
-                    # --- Record command time --- END
                 else:
                     copy_msg = f"Error sending command to {light_name}"
                     logging.warning("send_can_command returned False.") # Log failure
