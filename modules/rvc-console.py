@@ -1462,7 +1462,7 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 # --- Construct CAN ID (PDU2 for 0x1FEDA) ---
                 priority = 6
                 sa = 0xF9 # Diagnostic Tool address (TODO: make configurable?)
-                # DGN: 0x1FEDA (Light Command) -> PF=FE, PS=DA
+                # DGN: 0x1FEDB (DC_DIMMER_COMMAND_2)
                 if (dgn >> 8) >= 0xF0: # Check if PF is 240 or higher (PDU2)
                     can_id = (priority << 26) | ((dgn >> 8) << 16) | ((dgn & 0xFF) << 8) | sa # PDU2 format (uses PS)
                 else: # PDU1 format (uses DA) - Should not happen for 0x1FEDA but handle defensively
