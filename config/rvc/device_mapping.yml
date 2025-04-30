@@ -38,15 +38,6 @@ templates:
     device_type: lock
     capabilities: [lock_unlock]
 
-# Interior Lights (DGN 1FED9 likely corresponds to RVC_LIGHT_COMMAND)
-# MOVED TO 1FEDB for sending commands
-1FED9:
-  pass # Placeholder if no other 1FED9 command devices exist
-
-# Light Status (DGN 1FEDA likely corresponds to RVC_LIGHT_STATUS)
-1FEDA:
-  pass # Placeholder
-
 # Door Locks (DGN 1FEDB likely corresponds to RVC_LOCK_COMMAND)
 # ADDING LIGHTS HERE FOR SENDING COMMANDS
 1FEDB:
