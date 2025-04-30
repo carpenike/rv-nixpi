@@ -434,6 +434,17 @@ def reader_thread(interface):
                     rec.setdefault('first_received', now)
                     rec['last_received'] = now
                     decoded_data, raw_values = decode_payload(entry, msg.data)
+                    # ── NEW: derive the ON/OFF and brightness fields ──
+                    if 'enable_status' in raw_values:
+                        decoded_data['state'] = 'ON' if raw_values['enable_status'] == 1 else 'OFF'
+                    else:
+                        decoded_data['state'] = 'UNKNOWN'
+
+                    if 'operating_status' in raw_values:
+                        decoded_data['brightness'] = raw_values['operating_status'] / 2
+                    else:
+                        decoded_data['brightness'] = 0
+                    # ── end of new block ──
                     rec.update({
                         'raw_id': f"0x{msg.arbitration_id:08X}",
                         'raw_data': msg.data.hex().upper(),
