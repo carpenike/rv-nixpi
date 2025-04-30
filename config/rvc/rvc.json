@@ -660,7 +660,7 @@
       ]
     },
     {
-      "name": "DC_DIMMER_STATUS_3_8E",
+      "name": "DC_DIMMER_STATUS_3",
       "id": 436132494,
       "extended": true,
       "length": 8,
