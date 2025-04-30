@@ -1425,11 +1425,11 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
             sa = 0xF9
             da = 0xFF # Broadcast DA for PDU1
 
-            # Extract PGN components from the DGN (0x1FEDA)
-            dgn_int = int(dgn, 16) # Convert hex string DGN to integer
-            dp = (dgn_int >> 16) & 1 # Data Page bit
-            pf = (dgn_int >> 8) & 0xFF # PDU Format
-            ps = dgn_int & 0xFF       # PDU Specific (DA if PF >= 240)
+            # Extract PGN components from the DGN (which is already an integer)
+            # REMOVED: dgn_int = int(dgn, 16) # No longer needed, dgn is already the integer
+            dp = (dgn >> 16) & 1 # Data Page bit (Use dgn directly)
+            pf = (dgn >> 8) & 0xFF # PDU Format (Use dgn directly)
+            ps = dgn & 0xFF       # PDU Specific (DA if PF >= 240) (Use dgn directly)
 
             # Construct the CAN ID (J1939 format)
             constructed_can_id = (priority << 26) | (dp << 24) | (pf << 16) | (ps << 8) | sa
