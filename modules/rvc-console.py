@@ -1273,7 +1273,7 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
         state['_copy_action'] = True # Signal draw function to perform copy
 
     # --- Command/Control (Lights Only for now) ---
-    elif key == curses.KEY_ENTER or key == ord('\n'):
+    elif key in (curses.KEY_ENTER, ord('\n'), ord('\r')):
         if tab_name == "Lights" and total:
             # Use cached data to identify the selected item without needing lock
             selected_item_data = last_draw_data["lights"][state['selected_idx']]
