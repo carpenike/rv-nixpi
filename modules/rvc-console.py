@@ -434,11 +434,9 @@ def reader_thread(interface):
                     rec.setdefault('first_received', now)
                     rec['last_received'] = now
                     decoded_data, raw_values = decode_payload(entry, msg.data)
-                    # ── NEW: derive the ON/OFF and brightness fields ──
-                    if 'enable_status' in raw_values:
-                        decoded_data['state'] = 'ON' if raw_values['enable_status'] == 1 else 'OFF'
-                    else:
-                        decoded_data['state'] = 'UNKNOWN'
+                    # ── derive ON/OFF from operating_status, not enable_status ──
+                    ops = raw_values.get('operating_status', 0)
+                    decoded_data['state'] = 'ON' if ops > 0 else 'OFF'
 
                     if 'operating_status' in raw_values:
                         decoded_data['brightness'] = raw_values['operating_status'] / 2
