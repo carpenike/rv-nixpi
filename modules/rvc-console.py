@@ -489,6 +489,7 @@ def reader_thread(interface):
                                 'last_interface': interface,
                                 'last_raw_values': raw_values,
                                 'last_decoded_data': decoded_data,
+                                'last_raw_bytes': msg.data,
                                 'mapping_config': mapped_config,
                                 'dgn_hex': dgn_hex, # Store the DGN the status was RECEIVED on
                                 'instance': instance_str
@@ -1389,8 +1390,9 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
                 # grab the exact 8-bit group mask from the last status frame
                 with light_states_lock:
-                    last_raw = light_device_states[entity_id]['last_raw_values']
-                group_byte = int(last_raw.get('group_raw', last_raw.get('group', 0)))
+                    raw_bytes = light_device_states[entity_id]['last_raw_bytes']
+                # byte-index 1 is the channel-mask in DC_DIMMER_STATUS_3
+                group_byte = raw_bytes[1] if raw_bytes and len(raw_bytes) >= 2 else 0
 
                 # scale brightness 0–100% → raw 0–200
                 brightness_raw = min(int(brightness * 2), 200) & 0xFF
