@@ -47,7 +47,7 @@ templates:
       suggested_area: Entrance
       interface: can1
       status_dgn: '1FEDC'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *lock
 
   # Interior Lights (Moved from 1FEDA)
@@ -57,7 +57,7 @@ templates:
       suggested_area: Bedroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   27:
     - entity_id: bedroom_accent_light
@@ -65,7 +65,7 @@ templates:
       suggested_area: Bedroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   28:
     - entity_id: bedroom_vanity_light
@@ -73,7 +73,7 @@ templates:
       suggested_area: Bedroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   29:
     - entity_id: bedroom_reading_light
@@ -81,7 +81,7 @@ templates:
       suggested_area: Bedroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   30:
     - entity_id: master_bath_ceiling_light
@@ -89,7 +89,7 @@ templates:
       suggested_area: Master Bathroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   31:
     - entity_id: master_bath_lav_light
@@ -97,7 +97,7 @@ templates:
       suggested_area: Master Bathroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   32:
     - entity_id: master_bath_accent_light
@@ -105,7 +105,7 @@ templates:
       suggested_area: Master Bathroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   33:
     - entity_id: mid_bath_ceiling_light
@@ -113,7 +113,7 @@ templates:
       suggested_area: Mid Bathroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   34:
     - entity_id: mid_bath_accent_light
@@ -121,7 +121,7 @@ templates:
       suggested_area: Mid Bathroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   35:
     - entity_id: entrance_ceiling_light
@@ -129,7 +129,7 @@ templates:
       suggested_area: Entrance
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   37:
     - entity_id: main_ceiling_light
@@ -137,7 +137,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   38:
     - entity_id: bedroom_courtesy_light
@@ -145,7 +145,7 @@ templates:
       suggested_area: Master Bedroom
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   39:
     - entity_id: main_ceiling_accent_light
@@ -153,7 +153,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   41:
     - entity_id: main_driver_side_ceiling_light
@@ -161,7 +161,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   42:
     - entity_id: main_passenger_side_ceiling_light
@@ -169,7 +169,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   43:
     - entity_id: main_driver_side_slide_light
@@ -177,7 +177,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   45:
     - entity_id: main_dinette_light
@@ -185,7 +185,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   46:
     - entity_id: main_sink_light
@@ -193,7 +193,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
   47:
     - entity_id: main_midship_light
@@ -201,7 +201,7 @@ templates:
       suggested_area: Main Living Area
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *dimmable_light
 
   # Exterior Lights (Moved from 1FEDA)
@@ -211,7 +211,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   52:
     - entity_id: exterior_passenger_side_awning_light
@@ -219,7 +219,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   53:
     - entity_id: basement_cargo_light
@@ -227,7 +227,7 @@ templates:
       suggested_area: Basement
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   54:
     - entity_id: exterior_under_slide_light
@@ -235,7 +235,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   57:
     - entity_id: exterior_driver_side_security_light
@@ -243,7 +243,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   58:
     - entity_id: exterior_passenger_side_security_light
@@ -251,7 +251,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   59:
     - entity_id: exterior_motion_light
@@ -259,7 +259,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
   60:
     - entity_id: exterior_porch_light
@@ -267,7 +267,7 @@ templates:
       suggested_area: Exterior
       interface: can1
       status_dgn: '1FEDA'
-      group_mask: 0x7C
+      group_mask: '0x7C'
       <<: *switchable_light
 
 # Lock Status (DGN 1FEDC likely corresponds to RVC_LOCK_STATUS)
