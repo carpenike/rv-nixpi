@@ -1365,35 +1365,35 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
             # --- Construct CAN ID --- END
 
             # Construct Data Payload according to 1FEDB (DC_DIMMER_COMMAND_2)
-            # Byte 0: Instance
-            # Byte 1: Group (0 for individual)
-            # Byte 2: Desired Level (Brightness)
-            # Byte 3: Command (0=Set Brightness, 1=On Duration, 3=Off, 5=Toggle)
-            # Byte 4: Delay/Duration (0 for immediate)
-            # Byte 5: Interlock (0)
-            # Byte 6: Reserved (0xFF)
-            # Byte 7: Reserved (0xFF)
+            # B0: instance
+            # B1: group mask (exact bitmask from last status)
+            # B2: desired level (0–200 => 0–100%)
+            # B3: command (0=SetLevel)
+            # B4: duration (0=immediate)
+            # B5–B7: all reserved => must be 0xFF
             try:
-                # Use command 0 (Set Brightness) for both ON and OFF, controlling with brightness level
-                command_byte = 0 # Command 0: Set Brightness
-                # Brightness is already set (100 for ON, 0 for OFF)
-                duration_byte = 0 # Immediate action
-                group_byte = 0 # Individual control
-                interlock_byte = 0 # No interlock
+                command_byte  = 0    # SetLevel
+                duration_byte = 0    # immediate
 
+                # grab the exact 8-bit group mask from the last status frame
+                with light_states_lock:
+                    last_raw = light_device_states[entity_id]['last_raw_values']
+                group_byte = int(last_raw.get('group', 0))
+
+                # build the 8-byte payload:
                 data = bytes([
-                    instance,         # Byte 0: Instance
-                    group_byte,       # Byte 1: Group
-                    brightness,  # Byte 2: Brightness (0 or 100)
-                    command_byte,     # Byte 3: Command (Set Brightness)
-                    duration_byte,    # Byte 4: Duration/Delay
-                    interlock_byte,   # Byte 5: Interlock
-                    0xFF,             # Byte 6: Reserved
-                    0xFF              # Byte 7: Reserved
+                    instance & 0xFF,    # B0
+                    group_byte,         # B1
+                    brightness & 0xFF,  # B2
+                    command_byte,       # B3
+                    duration_byte,      # B4
+                    0xFF,               # B5 (reserved)
+                    0xFF,               # B6 (reserved)
+                    0xFF,               # B7 (reserved)
                 ])
+
                 logging.info(f"Constructed 1FEDB payload for {light_name} (Inst: {instance}): {data.hex().upper()}")
 
-                # Send the command using the correct bus object and constructed CAN ID
                 if send_can_command(target_bus, can_id, data):
                     copy_msg = f"Sent {new_state} command to {light_name}"
                 else:
