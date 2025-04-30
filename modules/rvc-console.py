@@ -1380,16 +1380,19 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                     last_raw = light_device_states[entity_id]['last_raw_values']
                 group_byte = int(last_raw.get('group_raw', last_raw.get('group', 0)))
 
-                # build the 8-byte payload:
+                # scale brightness 0–100% → raw 0–200
+                brightness_raw = min(int(brightness * 2), 200) & 0xFF
+
+                # build the 8‐byte DC_DIMMER_COMMAND_2 payload:
                 data = bytes([
-                    instance        & 0xFF,  # B0: instance
-                    group_byte             ,  # B1: group mask from status
-                    brightness     & 0xFF,  # B2: brightness
-                    command        & 0xFF,  # B3: SetLevel (0)
-                    duration       & 0xFF,  # B4: immediate (0)
-                    0xFF,                   # B5: reserved
-                    0xFF,                   # B6: reserved
-                    0xFF,                   # B7: reserved
+                    instance        & 0xFF,    # B0: instance
+                    group_byte,                # B1: channel mask from last status
+                    brightness_raw,            # B2: level raw (0–200)
+                    command_byte     & 0xFF,   # B3: SetLevel (0x00)
+                    duration_byte    & 0xFF,   # B4: immediate (0x00)
+                    0xFF,                      # B5: reserved
+                    0xFF,                      # B6: reserved
+                    0xFF,                      # B7: reserved
                 ])
 
                 logging.info(f"Constructed 1FEDB payload for {light_name} (Inst: {instance}): {data.hex().upper()}")
