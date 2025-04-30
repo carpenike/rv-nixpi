@@ -1388,11 +1388,11 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 command_byte  = 0    # SetLevel
                 duration_byte = 0    # immediate
 
-                # grab the exact 8-bit group mask from the last status frame
+                # grab the exact 8‐bit group mask from the last status frame
                 with light_states_lock:
-                    raw_bytes = light_device_states[entity_id]['last_raw_bytes']
-                # byte-index 1 is the channel-mask in DC_DIMMER_STATUS_3
-                group_byte = raw_bytes[1] if raw_bytes and len(raw_bytes) >= 2 else 0
+                    last_raw = light_device_states[entity_id]['last_raw_values']
+                # try the raw signal first, fall back to decoded 'group' if necessary
+                group_byte = int(last_raw.get('group_raw', last_raw.get('group', 0))) & 0xFF
 
                 # scale brightness 0–100% → raw 0–200
                 brightness_raw = min(int(brightness * 2), 200) & 0xFF
