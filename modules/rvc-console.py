@@ -433,17 +433,22 @@ def reader_thread(interface):
                     rec = latest_raw_records[interface].get(name, {})
                     rec.setdefault('first_received', now)
                     rec['last_received'] = now
+
+                    # decode all the signals
                     decoded_data, raw_values = decode_payload(entry, msg.data)
-                    # ── derive ON/OFF from operating_status, and integer 0–100 brightness ──
-                    ops = raw_values.get('operating_status', 0)
-                    decoded_data['state']      = 'ON' if ops > 0 else 'OFF'
-                    decoded_data['brightness'] = ops // 2   # 0–200 raw → 0–100 integer
-                    # ── end of new block ──
+
+                    # ── derive ON/OFF from enable_status (00b = ON, 01b = OFF) ──
+                    en = raw_values.get('enable_status', 0)
+                    decoded_data['state'] = 'ON' if en == 0 else 'OFF'
+
+                    # ── operating_status is already 0–100% ──
+                    decoded_data['brightness'] = raw_values.get('operating_status', 0)
+
                     rec.update({
-                        'raw_id': f"0x{msg.arbitration_id:08X}",
+                        'raw_id':   f"0x{msg.arbitration_id:08X}",
                         'raw_data': msg.data.hex().upper(),
-                        'decoded': decoded_data,
-                        'spec': entry,
+                        'decoded':  decoded_data,
+                        'spec':     entry,
                         'interface': interface
                     })
                     latest_raw_records[interface][name] = rec
