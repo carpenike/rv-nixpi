@@ -1378,18 +1378,18 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 # grab the exact 8-bit group mask from the last status frame
                 with light_states_lock:
                     last_raw = light_device_states[entity_id]['last_raw_values']
-                group_byte = int(last_raw.get('group', 0))
+                group_byte = int(last_raw.get('group_raw', last_raw.get('group', 0)))
 
                 # build the 8-byte payload:
                 data = bytes([
-                    instance & 0xFF,    # B0
-                    group_byte,         # B1
-                    brightness & 0xFF,  # B2
-                    command_byte,       # B3
-                    duration_byte,      # B4
-                    0xFF,               # B5 (reserved)
-                    0xFF,               # B6 (reserved)
-                    0xFF,               # B7 (reserved)
+                    instance        & 0xFF,  # B0: instance
+                    group_byte             ,  # B1: group mask from status
+                    brightness     & 0xFF,  # B2: brightness
+                    command        & 0xFF,  # B3: SetLevel (0)
+                    duration       & 0xFF,  # B4: immediate (0)
+                    0xFF,                   # B5: reserved
+                    0xFF,                   # B6: reserved
+                    0xFF,                   # B7: reserved
                 ])
 
                 logging.info(f"Constructed 1FEDB payload for {light_name} (Inst: {instance}): {data.hex().upper()}")
