@@ -1386,7 +1386,7 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                 last_raw = light_device_states.get(entity_id, {}).get('last_raw_values', {})
 
             # if we don’t yet know our group, probe for it and retry in 200ms
-            if 'group_raw' not in last_raw:
+            if 'group' not in last_raw:
                 # build a “Report Status” request (cmd=0x02, broadcast group)
                 report_status = bytes([
                     instance        & 0xFF,  # B0: instance
