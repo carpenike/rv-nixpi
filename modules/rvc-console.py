@@ -426,33 +426,30 @@ def reader_thread(interface):
             entry = decoder_map.get(msg.arbitration_id)
 
             # --- Update Raw Records ---
-            if entry and not entry.get('name', '').startswith('UNKNOWN'):
+            if entry and not entry.get('name','').startswith('UNKNOWN'):
                 name = entry['name']
                 with raw_records_lock:
                     rec = latest_raw_records[interface].get(name, {})
                     rec.setdefault('first_received', now)
                     rec['last_received'] = now
 
-                    # 1) decode everything
+                    # decode all signals
                     decoded_data, raw_values = decode_payload(entry, msg.data)
 
-                    # 2) override just state & brightness
-                    # enable_status == 0 → ON, otherwise OFF
-                    decoded_data['state'] = 'ON' if raw_values.get('enable_status', 1) == 0 else 'OFF'
+                    # override state/brightness based on operating_status
+                    op = raw_values.get('operating_status', 0)
+                    decoded_data['brightness'] = op // 2
+                    decoded_data['state']      = 'ON' if op > 0 else 'OFF'
 
-                    # operating_status is reported 0–200, so divide by 2 for 0–100%
-                    decoded_data['brightness'] = raw_values.get('operating_status', 0) // 2
-
-                    # finally stash it all
                     rec.update({
-                        'raw_id':   f"0x{msg.arbitration_id:08X}",
-                        'raw_data': msg.data.hex().upper(),
-                        'decoded':  decoded_data,
-                        'spec':     entry,
+                        'raw_id':    f"0x{msg.arbitration_id:08X}",
+                        'raw_data':  msg.data.hex().upper(),
+                        'decoded':   decoded_data,
+                        'spec':      entry,
                         'interface': interface
                     })
                     latest_raw_records[interface][name] = rec
-                # --- End Update Raw Records ---
+            # --- End Update Raw Records ---
 
                 # --- Update Light State Only (if applicable) --- START
                 dgn_hex = entry.get('dgn_hex')
