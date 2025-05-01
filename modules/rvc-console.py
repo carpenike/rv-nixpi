@@ -965,6 +965,10 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
 
         # --- Modified State Display Logic ---
         decoded = item.get('last_decoded_data', {})
+        mapping_config = item.get('mapping_config', {}) # Get the mapping config for this light
+        capabilities = mapping_config.get('capabilities', []) # Get capabilities list
+        is_dimmable = 'brightness' in capabilities # Check if brightness capability exists
+
         state_str = ""
         state_attr = attr # Default attribute
 
@@ -980,26 +984,26 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
             # state_attr = attr # Already set as default
 
         brightness = decoded.get('brightness')
-        if brightness is not None:
+        # Only add brightness if it exists AND the light IS dimmable
+        if brightness is not None and is_dimmable:
              # Check if state_str is one of our debug strings before appending brightness
              if state_str not in ("[No Data]", "[State Missing]"):
-                 state_str += f" ({brightness})"
+                 # Ensure brightness is treated as an integer for display
+                 try:
+                     state_str += f" ({int(brightness)}%)"
+                 except (ValueError, TypeError):
+                     state_str += f" (NaN%)" # Handle cases where brightness isn't a number
 
         # Add control hint if selected
         if is_selected:
             # Only add control hint if we have actual state data
             if state_str not in ("[No Data]", "[State Missing]"):
-                 state_str += " [Enter to Control]"
-                 # Override state_attr only if adding hint
-                 state_attr = curses.color_pair(7) | curses.A_BOLD
+                 state_str += " [Enter: Toggle]"
             else:
-                 # If selected but no data/state, show different hint
-                 state_str += " [No State Data]"
-                 state_attr = curses.color_pair(5) | curses.A_BOLD # Yellow/Bold
+                 state_str += " [No State Data]" # Indicate why control might not work
         # Ensure state_attr is set correctly if not selected but in an error state
         elif state_str in ("[No Data]", "[State Missing]"):
              pass # Already set above based on the error condition
-        # else: # If not selected and not error state, state_attr is already 'attr'
 
         stdscr.addnstr(row, state_start, state_str.ljust(col_state_w), col_state_w, state_attr)
         # --- End Modified State Display Logic ---
