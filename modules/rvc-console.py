@@ -729,7 +729,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                     raw_names_to_draw, raw_recs_to_draw = last_draw_data.get(f"raw{iface_index}", ([], {}))
 
         # --- Drawing ---
-        stdscr.erase()
+        stdscr.clear() # Use clear() instead of erase()
         h, w = stdscr.getmaxyx()
 
         # --- Header ---
