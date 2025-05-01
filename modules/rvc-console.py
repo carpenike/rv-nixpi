@@ -997,8 +997,12 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
         # Add control hint if selected
         if is_selected:
             # Only add control hint if we have actual state data
-            if state_str not in ("[No Data]", "[State Missing]"):
-                 state_str += " [Enter: Toggle]"
+            if is_selected:
+                if state_str not in ("[No Data]", "[State Missing]"):
+                     if is_dimmable:
+                         state_str += " [←/→: Dim  Enter: Toggle]"
+                     else:
+                         state_str += " [Enter: Toggle]"
             else:
                  state_str += " [No State Data]" # Indicate why control might not work
         # Ensure state_attr is set correctly if not selected but in an error state
@@ -1138,6 +1142,39 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
+def _send_new_brightness(item, delta_pct):
+    """
+    Adjust brightness by delta_pct (e.g. +10 or -10), clamp 0–100,
+    and send exactly the same CAN command frame you already build.
+    """
+    entity_id = item['entity_id']
+    cfg       = light_command_info[entity_id]
+    interface = cfg['interface']
+    bus       = active_buses.get(interface)
+    if not bus:
+        copy_msg = f"Error: no bus for {entity_id}"
+        return
+
+    # compute new UI brightness
+    with light_states_lock:
+        current = item.get('last_decoded_data',{}).get('brightness',0)
+    new_ui  = max(0, min(100, current + delta_pct))
+    # build CAN brightness scale
+    new_can = min(0xC8, new_ui * 2)
+
+    # (re-use your PGN→ID logic)
+    dgn = cfg['dgn']; inst = cfg['instance']
+    prio=6; sa=0xF9; da=0xFF
+    dp=(dgn>>16)&1; pf=(dgn>>8)&0xFF
+    if pf<0xF0:
+        can_id=(prio<<26)|(dp<<24)|(pf<<16)|(da<<8)|sa
+    else:
+        ps=dgn&0xFF
+        can_id=(prio<<26)|(dp<<24)|(pf<<16)|(ps<<8)|sa
+
+    data=bytes([inst,0x7C,new_can,0x00,0x00,0xFF,0xFF,0xFF])
+    send_can_command(bus, can_id, data)
+    copy_msg = f"{item['friendly_name']} → {new_ui}%"
 
 # Modify handle_input to use active_buses
 def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): # Added interfaces and current_tab_index
@@ -1288,6 +1325,15 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
     # --- Command/Control (Lights Only for now) ---
     elif key in (curses.KEY_ENTER, ord('\n'), ord('\r')):
         if tab_name == "Lights" and total:
+            # figure out if this light is dimmable
+            sel = last_draw_data["lights"][state['selected_idx']]
+            caps = sel.get('mapping_config',{}).get('capabilities',[])
+            if key in (curses.KEY_RIGHT, ord('+')) and 'brightness' in caps:
+                _send_new_brightness(sel, +10)
+                return
+            if key in (curses.KEY_LEFT, ord('-')) and 'brightness' in caps:
+                _send_new_brightness(sel, -10)
+                return
             # Use cached data to identify the selected item without needing lock
             selected_item_data = last_draw_data["lights"][state['selected_idx']]
             entity_id = selected_item_data.get('entity_id')
