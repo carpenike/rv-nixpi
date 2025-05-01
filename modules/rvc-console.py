@@ -88,8 +88,11 @@ logging.getLogger().setLevel(logging.DEBUG) # Or DEBUG for more verbosity # <-- 
 # --- Prevent initial console logging --- START
 # Remove any default handlers (like StreamHandler to stderr) that might be present
 # before our curses handler takes over.
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
+# Remove _all_ existing handlers:
+for h in logging.root.handlers[:]:
+    logging.root.removeHandler(h)
+# Now install _only_ our queue handler:
+logging.root.addHandler(list_handler)
 # --- Prevent initial console logging --- END
 
 # --- Load Definitions ---
@@ -542,9 +545,9 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
     stdscr.keypad(True)
 
     # --- Add the ListLogHandler HERE --- # MOVED FROM MAIN
-    logging.info("Adding ListLogHandler inside draw_screen...")
-    logging.getLogger().addHandler(list_handler_instance)
-    logging.info("ListLogHandler added.")
+    # logging.info("Adding ListLogHandler inside draw_screen...")
+    # logging.getLogger().addHandler(list_handler_instance)
+    # logging.info("ListLogHandler added.")
     # --- End Add Handler ---
 
     # Restore "Logs" tab
@@ -729,7 +732,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                     raw_names_to_draw, raw_recs_to_draw = last_draw_data.get(f"raw{iface_index}", ([], {}))
 
         # --- Drawing ---
-        stdscr.clear() # Use clear() instead of erase()
+        stdscr.erase()
         h, w = stdscr.getmaxyx()
 
         # --- Header ---
