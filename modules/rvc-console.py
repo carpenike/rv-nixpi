@@ -439,26 +439,16 @@ def reader_thread(interface):
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
-                    # DEBUG → enqueue into the ListLogHandler so it only shows in the Logs tab
-                    try:
-                        list_handler.log_queue.put_nowait(
-                            f"{time.strftime('%H:%M:%S')} - DEBUG - reader:{interface} - "
-                            f"Got PGN={dgn_hex.upper()}, inst={instance_str}; looking for keys={list(status_lookup.keys())}"
-                        )
-                    except queue.Full:
-                        # drop it if the queue is full
-                        pass
-                    # --- Use status_lookup instead of device_lookup --- START
-                    lookup_key = (dgn_hex.upper(), instance_str)
-                    mapped_config = status_lookup.get(lookup_key)
-                    # Optional: Fallback to default instance for the status DGN if specific instance not found
-                    if not mapped_config:
-                        default_key = (dgn_hex.upper(), 'default')
-                        mapped_config = status_lookup.get(default_key)
-                        # if mapped_config:
-                        #     logging.debug(f"Using default status mapping for {lookup_key}")
-                    # --- Use status_lookup instead of device_lookup --- END
+                    # Construct potential lookup keys
+                    lookup_key_specific = (dgn_hex.upper(), instance_str)
+                    lookup_key_default_instance = (dgn_hex.upper(), 'default') # Check for 'default' instance
 
+                    # --- REMOVED DEBUG LOGGING --- # This was missed before
+                    # logging.debug(f"Got PGN={pgn_hex}, inst={instance_str}; looking for keys={list(status_lookup.keys())}") # Check against status_lookup
+
+                    mapped_config = status_lookup.get(lookup_key_specific) or status_lookup.get(lookup_key_default_instance)
+
+                    # If we found a mapping in status_lookup, process it
                     if mapped_config:
                         entity_id = mapped_config.get('entity_id')
                         # Update light state if it's a light (using entity_id)
