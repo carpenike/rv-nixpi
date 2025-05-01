@@ -1336,22 +1336,23 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
             # --- use the decoded_data values directly ---
             # state is already "ON" or "OFF", brightness is already an int 0–100
             current_state      = last_decoded.get('state',      'OFF')
-            current_brightness = last_decoded.get('brightness', 0)
+            current_brightness_ui = last_decoded.get('brightness', 0) # This is 0-100
 
             # Toggle logic: If ON, turn OFF. If OFF/unavailable, turn ON.
             # Compare with the string 'ON' which is likely the decoded state value
             if str(current_state).upper() == 'ON':
-                command = 0x00 # Command: OFF
-                brightness = 0x00 # Brightness: 0%
-                duration = 0x00 # Duration: Instant
                 action_desc = "Turn OFF"
-            else: # Currently OFF, unavailable, or other non-ON state
-                command = 0x01 # Command: ON
-                # Restore previous brightness if > 0, otherwise default to 100%
-                brightness = current_brightness if current_brightness > 0 else 100
+                brightness_ui = 0 # Target UI brightness (0-100)
+                brightness = 0    # Target CAN brightness (0-200)
                 duration = 0x00 # Duration: Instant
-                action_desc = f"Turn ON to {brightness}%"
-                brightness = brightness & 0xFF # Ensure brightness fits in one byte
+            else: # Currently OFF, unavailable, or other non-ON state
+                # Restore previous brightness if > 0, otherwise default to 100%
+                brightness_ui = current_brightness_ui if current_brightness_ui > 0 else 100
+                action_desc = f"Turn ON to {brightness_ui}%"
+                brightness = brightness_ui * 2 # Scale to 0-200 for CAN command
+                # Ensure brightness fits in one byte (0-255), C8 is max for spec
+                brightness = min(brightness, 0xC8)
+                duration = 0x00 # Duration: Instant
 
             # --- Determine Command, Brightness, Duration --- END
 
@@ -1374,52 +1375,78 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # --- Construct CAN ID --- END
 
-            # Construct Data Payload according to 1FEDB (DC_DIMMER_COMMAND_2)
+            # --- Construct Data Payload according to 1FEDB (DC_DIMMER_COMMAND_2)
             # B0: instance
-            # B1: group mask (exact bitmask from mapping or last status)
+            # B1: group mask (Using 7C as observed from status)
             # B2: desired level (0–200 => 0–100%)
             # B3: command (0=SetLevel)
             # B4: duration (0=immediate)
-            # B5–B7: all reserved => 0xFF
+            # B5–B7: all reserved => must be 0xFF
             try:
-                command_byte  = 0    # SetLevel
-                duration_byte = 0    # immediate
-
-                # First, try a static group mask from your YAML mapping
-                mapping = selected_item_data['mapping_config']
-                if 'group_mask' in mapping:
-                    group_byte = int(mapping['group_mask'], 0) & 0xFF
-                else:
-                    # Fall back to whatever we last learned
-                    with light_states_lock:
-                        lr = light_device_states.get(entity_id, {}).get('last_raw_values', {})
-                    try:
-                        raw_group = lr.get('group_raw', lr.get('group', 0))
-                        group_byte = int(raw_group) & 0xFF
-                    except Exception:
-                        group_byte = 0
-
-                brightness_raw = min(int(brightness * 2), 200) & 0xFF
-
+                # Use the determined action, scaled brightness (0-200), and duration
                 data = bytes([
-                    instance        & 0xFF,
-                    group_byte,
-                    brightness_raw,
-                    command_byte   & 0xFF,
-                    duration_byte  & 0xFF,
-                    0xFF, 0xFF, 0xFF
+                    instance,   # B0: Instance
+                    0x7C,       # B1: Group Mask (Using 7C as observed)
+                    brightness, # B2: Desired Level (0-200)
+                    0x00,       # B3: Command (0 = SetLevel)
+                    duration,   # B4: Duration (0 = immediate)
+                    0xFF,       # B5: Reserved
+                    0xFF,       # B6: Reserved
+                    0xFF        # B7: Reserved
                 ])
 
                 logging.debug(f"→ Sending CAN ID 0x{can_id:08X}: {data.hex().upper()} on {target_interface_name}")
-                if send_can_command(target_bus, can_id, data):
-                    copy_msg = f"Sent command to {light_name}: {action_desc}"
-                else:
-                    copy_msg = f"Failed to send command to {light_name}"
-                copy_time = time.time()
+
+                # --- Send Command Twice --- START
+                first_send_success = send_can_command(target_bus, can_id, data)
+                if first_send_success:
+                    copy_msg = f"Sent command to {light_name}: {action_desc} (1/2)" # Indicate first send
+                    copy_time = time.time() # Update time for first message
+
+                    # --- Optimistic UI Update (after first successful send) ---
+                    with light_states_lock:
+                        if entity_id in light_device_states:
+                            # Determine expected state based on action
+                            expected_state = 'ON' if action_desc.startswith("Turn ON") else 'OFF'
+                            # Use the brightness value *before* scaling (0-100) for UI
+                            expected_brightness_ui = brightness_ui if expected_state == 'ON' else 0
+
+                            # Update the last decoded data optimistically
+                            # Ensure 'last_decoded_data' exists before trying to update nested keys
+                            if 'last_decoded_data' not in light_device_states[entity_id]:
+                                light_device_states[entity_id]['last_decoded_data'] = {} # Initialize if missing
+
+                            light_device_states[entity_id]['last_decoded_data']['state'] = expected_state
+                            light_device_states[entity_id]['last_decoded_data']['brightness'] = expected_brightness_ui # Store 0-100
+                            light_device_states[entity_id]['last_updated'] = time.time()
+                            logging.debug(f"Optimistically updated UI for {entity_id} to {expected_state} ({expected_brightness_ui}%)")
+                        else:
+                            logging.warning(f"Cannot optimistically update UI: {entity_id} not found in light_device_states")
+                    # --- End Optimistic UI Update ---
+
+                    # Wait briefly before sending again
+                    time.sleep(0.05) # 50 milliseconds delay
+
+                    logging.debug(f"→ Resending CAN ID 0x{can_id:08X}: {data.hex().upper()} on {target_interface_name}")
+                    second_send_success = send_can_command(target_bus, can_id, data)
+
+                    if second_send_success:
+                        copy_msg = f"Sent command to {light_name}: {action_desc} (2/2)" # Update message for second send
+                        copy_time = time.time() # Update time again
+                    else:
+                        copy_msg = f"Sent first command, but second send failed for {light_name}"
+                        copy_time = time.time()
+                        # Log the second failure specifically
+                        logging.error(f"Second send attempt failed for {light_name} (ID: 0x{can_id:08X})")
+
+                else: # First send failed
+                    copy_msg = f"Failed to send command to {light_name} (1/2)"
+                    copy_time = time.time()
+                # --- Send Command Twice --- END
 
             except Exception as e:
-                logging.error(f"Error constructing or sending 1FEDB command for {light_name}: {e}")
-                copy_msg  = f"Error sending command to {light_name}"
+                logging.error(f"Error constructing or sending CAN command for {light_name}: {e}")
+                copy_msg = f"Error sending command to {light_name}"
                 copy_time = time.time()
 
 
