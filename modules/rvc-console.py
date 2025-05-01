@@ -1175,6 +1175,7 @@ def _send_new_brightness(item, delta_pct):
     data=bytes([inst,0x7C,new_can,0x00,0x00,0xFF,0xFF,0xFF])
     send_can_command(bus, can_id, data)
     copy_msg = f"{item['friendly_name']} → {new_ui}%"
+    copy_time = time.time()
 
 # Modify handle_input to use active_buses
 def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): # Added interfaces and current_tab_index
@@ -1321,6 +1322,19 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
     elif key in (ord('c'), ord('C')):
         # Restore original logic (allow copy on Logs tab)
         state['_copy_action'] = True # Signal draw function to perform copy
+
+    # ——— Brightness adjustments ———
+    if tab_name == "Lights":
+        sel = last_draw_data["lights"][state['selected_idx']]
+        caps = sel.get('mapping_config', {}).get('capabilities', [])
+        if key in (curses.KEY_RIGHT, ord('+')) and 'brightness' in caps:
+            _send_new_brightness(sel, +10)
+            copy_time = time.time()
+            return
+        if key in (curses.KEY_LEFT, ord('-')) and 'brightness' in caps:
+            _send_new_brightness(sel, -10)
+            copy_time = time.time()
+            return
 
     # --- Command/Control (Lights Only for now) ---
     elif key in (curses.KEY_ENTER, ord('\n'), ord('\r')):
