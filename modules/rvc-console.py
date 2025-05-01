@@ -811,9 +811,6 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
         stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w - 1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
 
-        # --- Add explicit redraw command ---
-        stdscr.redrawwin() 
-        # --- End add explicit redraw command ---
         stdscr.refresh()
 
 
@@ -1389,7 +1386,7 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
                     0x7C,       # B1: Group Mask (Using 7C as observed)
                     brightness, # B2: Desired Level (0-200)
                     0x00,       # B3: Command (0 = SetLevel)
-                    duration,   # B4: Duration (0 = immediate)
+                    0x00,       # B4: Duration (0 = immediate)
                     0xFF,       # B5: Reserved
                     0xFF,       # B6: Reserved
                     0xFF        # B7: Reserved
