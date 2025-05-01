@@ -1341,6 +1341,17 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
         # Restore original logic (allow copy on Logs tab)
         state['_copy_action'] = True # Signal draw function to perform copy
 
+    # Pre-compute selected light and its capabilities if we’re on Lights
+    if tab_name == "Lights":
+        items_list = last_draw_data["lights"]
+        total = len(items_list)
+        if total:
+            sel  = items_list[state['selected_idx']]
+            caps = sel.get('mapping_config', {}).get('capabilities', [])
+        else:
+            sel = None
+            caps = []
+
     # ——— Brightness adjustments ———
     if tab_name == "Lights" and key in (curses.KEY_RIGHT, ord('+')) and 'brightness' in caps:
         _send_new_brightness(sel, +10)
