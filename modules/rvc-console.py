@@ -1342,21 +1342,17 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
         state['_copy_action'] = True # Signal draw function to perform copy
 
     # ——— Brightness adjustments ———
-    if tab_name == "Lights":
-        sel = last_draw_data["lights"][state['selected_idx']]
-        caps = sel.get('mapping_config', {}).get('capabilities', [])
-        if key in (curses.KEY_RIGHT, ord('+')) and 'brightness' in caps:
-            _send_new_brightness(sel, +10)
-            copy_time = time.time()
-            return
-        if key in (curses.KEY_LEFT, ord('-')) and 'brightness' in caps:
-            _send_new_brightness(sel, -10)
-            copy_time = time.time()
-            return
+    if tab_name == "Lights" and key in (curses.KEY_RIGHT, ord('+')) and 'brightness' in caps:
+        _send_new_brightness(sel, +10)
+        copy_time = time.time()
+        return
+    if tab_name == "Lights" and key in (curses.KEY_LEFT, ord('-')) and 'brightness' in caps:
+        _send_new_brightness(sel, -10)
+        copy_time = time.time()
+        return
 
     # --- Command/Control (Lights Only for now) ---
-    elif key in (curses.KEY_ENTER, ord('\n'), ord('\r')):
-        if tab_name == "Lights" and total:
+    if key in (curses.KEY_ENTER, ord('\n'), ord('\r')) and tab_name == "Lights" and total:
             # figure out if this light is dimmable
             sel = last_draw_data["lights"][state['selected_idx']]
             caps = sel.get('mapping_config',{}).get('capabilities',[])
