@@ -1142,6 +1142,62 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
+def _send_exact_brightness(item, brightness_ui):
+    """
+    Send a SetLevel command to put this light at exactly brightness_ui (0–100%).
+    That’ll both turn it on and set its level.
+    """
+    entity_id = item['entity_id']
+    cfg       = light_command_info[entity_id]
+    bus       = active_buses.get(cfg['interface'])
+    if not bus:
+        copy_msg = f"Error: no bus for {entity_id}"
+        return
+
+    # Scale 0–100% to 0–200 CAN units (capped at 0xC8)
+    can_level = min(brightness_ui * 2, 0xC8)
+
+    # Reconstruct ID exactly like your toggle logic
+    dgn      = cfg['dgn']
+    prio, sa, da = 6, 0xF9, 0xFF
+    dp = (dgn >> 16) & 1
+    pf = (dgn >> 8) & 0xFF
+    if pf < 0xF0:
+        can_id = (prio<<26)|(dp<<24)|(pf<<16)|(da<<8)|sa
+    else:
+        ps     = dgn & 0xFF
+        can_id = (prio<<26)|(dp<<24)|(pf<<16)|(ps<<8)|sa
+
+    # Build the “SetLevel” payload
+    data = bytes([
+        cfg['instance'],  # B0 = instance
+        0x7C,             # B1 = group mask
+        can_level,        # B2 = desired level
+        0x00,             # B3 = command (0 = SetLevel)
+        0x00,             # B4 = duration
+        0xFF, 0xFF, 0xFF  # B5–B7 = reserved
+    ])
+
+    # Send it twice (per your pattern) and optimistically update UI
+    ok1 = send_can_command(bus, can_id, data)
+    time.sleep(0.05)
+    ok2 = send_can_command(bus, can_id, data)
+
+    # Optimistic UI update
+    with light_states_lock:
+        ent = light_device_states.get(entity_id)
+        if ent:
+            ent['last_decoded_data']['state'] = 'ON' if brightness_ui > 0 else 'OFF'
+            ent['last_decoded_data']['brightness'] = brightness_ui
+            ent['last_updated'] = time.time()
+    if brightness_ui > 0:
+        ent['prev_brightness'] = brightness_ui
+
+    # Clipboard/notification
+    status = "2/2" if ok1 and ok2 else "1/2" if ok1 else "failed"
+    copy_msg = f"{item['friendly_name']}: set to {brightness_ui}% ({status})"
+    copy_time = time.time()
+
 def _send_new_brightness(item, delta_pct):
     """
     Adjust brightness by delta_pct (e.g. +10 or -10), clamp 0–100,
@@ -1361,6 +1417,14 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
         _send_new_brightness(sel, -10)
         copy_time = time.time()
         return
+    
+    # ——— Direct-level brightness via number keys ———
+    if tab_name == "Lights" and key in [ord(c) for c in '0123456789'] and 'brightness' in caps:
+        # digit → 0 = 100%, 1–9 = 10%–90%
+        n = int(chr(key))
+        level = 100 if n == 0 else n * 10
+        _send_exact_brightness(sel, level)
+        return
 
     # --- Command/Control (Lights Only for now) ---
     if key in (curses.KEY_ENTER, ord('\n'), ord('\r')) and tab_name == "Lights" and total:
@@ -1430,19 +1494,26 @@ def handle_input_for_tab(key, tab_name, state, interfaces, current_tab_index): #
 
             # Toggle logic: If ON, turn OFF. If OFF/unavailable, turn ON.
             # Compare with the string 'ON' which is likely the decoded state value
+            # pull out any previously saved level (or None)
+            prev = entity_state_data.get('prev_brightness')
+
             if str(current_state).upper() == 'ON':
                 action_desc = "Turn OFF"
-                brightness_ui = 0 # Target UI brightness (0-100)
-                brightness = 0    # Target CAN brightness (0-200)
-                duration = 0x00 # Duration: Instant
-            else: # Currently OFF, unavailable, or other non-ON state
-                # Restore previous brightness if > 0, otherwise default to 100%
-                brightness_ui = current_brightness_ui if current_brightness_ui > 0 else 100
+                # remember the last non-zero brightness
+                if current_brightness_ui > 0:
+                    entity_state_data['prev_brightness'] = current_brightness_ui
+                brightness_ui = 0    # UI level
+                brightness    = 0    # CAN level
+                duration      = 0x00
+            else:
+                # restore the saved level, or fall back to 100%
+                if prev and prev > 0:
+                    brightness_ui = prev
+                else:
+                    brightness_ui = 100
                 action_desc = f"Turn ON to {brightness_ui}%"
-                brightness = brightness_ui * 2 # Scale to 0-200 for CAN command
-                # Ensure brightness fits in one byte (0-255), C8 is max for spec
-                brightness = min(brightness, 0xC8)
-                duration = 0x00 # Duration: Instant
+                brightness   = min(brightness_ui * 2, 0xC8)  # scale & cap
+                duration     = 0x00
 
             # --- Determine Command, Brightness, Duration --- END
 
