@@ -1484,7 +1484,8 @@ if __name__ == '__main__':
                     'last_updated': 0, # Placeholder
                     'last_interface': 'N/A',
                     'last_raw_values': {},
-                    'last_decoded_data': {'state': 'unavailable'}, # Initial state
+                    # Change initial state from 'unavailable' to 'OFF' with 0 brightness
+                    'last_decoded_data': {'state': 'OFF', 'brightness': 0},
                     'mapping_config': config,
                     # DGN/Instance might not be directly in this config if template was used,
                     # but command info is in light_command_info. We can add them if needed for display.
