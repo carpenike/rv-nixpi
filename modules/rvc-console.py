@@ -538,7 +538,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
 
     # Make getch non-blocking
     stdscr.nodelay(1)
-    stdscr.timeout(100)
+    stdscr.timeout(500) # Increased timeout to 500ms
     stdscr.keypad(True)
 
     # --- Add the ListLogHandler HERE --- # MOVED FROM MAIN
