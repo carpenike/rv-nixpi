@@ -5,7 +5,7 @@ import curses
 import time
 import sys
 import base64
-from collections import deque
+from collections import defaultdict, deque
 import can # type: ignore
 import yaml # type: ignore
 import os
@@ -83,7 +83,7 @@ list_handler = ListLogHandler(max_entries=1000) # Increased size slightly
 list_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s:%(message)s', datefmt='%H:%M:%S'))
 
 # Set overall logging level
-logging.getLogger().setLevel(logging.INFO) # <-- Set default to INFO
+logging.getLogger().setLevel(logging.DEBUG) # Or DEBUG for more verbosity # <-- Set to DEBUG
 
 # --- Prevent initial console logging --- START
 # Remove any default handlers (like StreamHandler to stderr) that might be present
@@ -231,20 +231,39 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
 
                                 # --- Populate status_lookup --- START
                                 status_dgn_hex = merged_config.get('status_dgn')
+                                # +++ ADDED DEBUG LOGGING +++
+                                logging.debug(f"  [load_config_data] DGN={dgn_hex.upper()}, Inst={instance_str}, Entity={entity_id}: Found status_dgn='{status_dgn_hex}'")
+                                # +++ END DEBUG LOGGING +++
                                 if status_dgn_hex:
                                     # Use upper() for consistency
                                     status_lookup[(status_dgn_hex.upper(), str(instance_str))] = merged_config
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> Added to status_lookup: Key=({status_dgn_hex.upper()}, {instance_str})")
+                                    # +++ END DEBUG LOGGING +++
+                                else:
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> No status_dgn found for this entry.")
+                                    # +++ END DEBUG LOGGING +++
                                 # --- Populate status_lookup --- END
 
                                 # --- Populate entity_id_lookup --- START
                                 entity_id_lookup[entity_id] = merged_config
+                                # +++ ADDED DEBUG LOGGING +++
+                                logging.debug(f"    -> Added to entity_id_lookup: Key={entity_id}")
+                                # +++ END DEBUG LOGGING +++
                                 # --- Populate entity_id_lookup --- END
 
                                 # --- Identify Lights and Store Command Info --- START
                                 # Check if it's a light based on device_type
+                                # +++ ADDED DEBUG LOGGING +++
                                 device_type = merged_config.get('device_type')
+                                logging.debug(f"  [load_config_data] Checking DGN={dgn_hex.upper()}, Inst={instance_str}, Entity={entity_id}: Found device_type='{device_type}'")
+                                # +++ END DEBUG LOGGING +++
                                 if device_type == 'light':
                                     light_entity_ids.add(entity_id) # Add to the set of light IDs
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> Identified as LIGHT. Storing command info.")
+                                    # +++ END DEBUG LOGGING +++
 
                                     # Store command info (DGN, instance, interface)
                                     # The DGN is the key we are currently iterating under (dgn_hex)
@@ -253,6 +272,9 @@ def load_config_data(rvc_spec_path, device_mapping_path): # Accept paths as args
                                         'instance': int(instance_str), # Store instance as integer
                                         'interface': merged_config.get('interface') # Store interface if available
                                     }
+                                    # +++ ADDED DEBUG LOGGING +++
+                                    logging.debug(f"    -> Stored command info for {entity_id}: DGN=0x{light_command_info[entity_id]['dgn']:X}, Inst={light_command_info[entity_id]['instance']}, Iface={light_command_info[entity_id]['interface']}")
+                                    # +++ END DEBUG LOGGING +++
                                 # --- Identify Lights and Store Command Info --- END
 
                             else:
@@ -368,7 +390,6 @@ sort_labels = ['A→Z', 'Newest', 'Oldest']
 light_sort_labels = ['Area→Name', 'Name', 'Newest'] # Sort options for lights tab
 is_paused = False # Pause state flag
 pause_lock = threading.Lock() # Lock for pause state
-debug_logging_enabled = False # Added flag for logging level toggle
 # Store the data used for the last draw, to display when paused
 last_draw_data = {
     # "mapped": [], # REMOVED
@@ -439,16 +460,26 @@ def reader_thread(interface):
 
                 if dgn_hex and instance_raw is not None:
                     instance_str = str(instance_raw)
-                    # Construct potential lookup keys
-                    lookup_key_specific = (dgn_hex.upper(), instance_str)
-                    lookup_key_default_instance = (dgn_hex.upper(), 'default') # Check for 'default' instance
+                    # DEBUG → enqueue into the ListLogHandler so it only shows in the Logs tab
+                    try:
+                        list_handler.log_queue.put_nowait(
+                            f"{time.strftime('%H:%M:%S')} - DEBUG - reader:{interface} - "
+                            f"Got PGN={dgn_hex.upper()}, inst={instance_str}; looking for keys={list(status_lookup.keys())}"
+                        )
+                    except queue.Full:
+                        # drop it if the queue is full
+                        pass
+                    # --- Use status_lookup instead of device_lookup --- START
+                    lookup_key = (dgn_hex.upper(), instance_str)
+                    mapped_config = status_lookup.get(lookup_key)
+                    # Optional: Fallback to default instance for the status DGN if specific instance not found
+                    if not mapped_config:
+                        default_key = (dgn_hex.upper(), 'default')
+                        mapped_config = status_lookup.get(default_key)
+                        # if mapped_config:
+                        #     logging.debug(f"Using default status mapping for {lookup_key}")
+                    # --- Use status_lookup instead of device_lookup --- END
 
-                    # --- REMOVED DEBUG LOGGING --- # This was missed before
-                    # logging.debug(f"Got PGN={pgn_hex}, inst={instance_str}; looking for keys={list(status_lookup.keys())}") # Check against status_lookup
-
-                    mapped_config = status_lookup.get(lookup_key_specific) or status_lookup.get(lookup_key_default_instance)
-
-                    # If we found a mapping in status_lookup, process it
                     if mapped_config:
                         entity_id = mapped_config.get('entity_id')
                         # Update light state if it's a light (using entity_id)
@@ -495,7 +526,7 @@ def reader_thread(interface):
 # --- Main UI Drawing ---
 # Modify draw_screen to accept list_handler
 def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces list and handler
-    global copy_msg, copy_time, is_paused, last_draw_data, log_filter, log_wrap, debug_logging_enabled # Added debug_logging_enabled
+    global copy_msg, copy_time, is_paused, last_draw_data, log_filter, log_wrap
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
@@ -601,16 +632,6 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
                 copy_msg = f"Log wrap {'ON' if log_wrap else 'OFF'}"
                 copy_time = time.time()
                 continue
-
-            # Debug Log Level Toggle
-            elif c in (ord('d'), ord('D')):
-                debug_logging_enabled = not debug_logging_enabled
-                new_level = logging.DEBUG if debug_logging_enabled else logging.INFO
-                logging.getLogger().setLevel(new_level)
-                copy_msg = f"Logging level set to {'DEBUG' if debug_logging_enabled else 'INFO'}"
-                copy_time = time.time()
-                continue # Skip redraw for this cycle
-
             # Tab switching # Ensure this try block is at the same level as the elif
             try:
                 key_char = chr(c)
@@ -727,8 +748,6 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
             header_text += f"[Filter='{log_filter}'] "
         else:
             header_text += "[Filter=OFF] "
-        # Log Level indicator
-        header_text += f"[Lvl:{'DBG' if debug_logging_enabled else 'INF'}] " # Added Log Level
         # Tabs
         for i, name in enumerate(tabs):
             key = tab_keys[i]
@@ -749,7 +768,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
         if sort_label:
             header_text += f"[S] Sort:{sort_label}  "
         # Other actions
-        header_text += "[C] Copy  [P] Pause  [D] Debug Log  [Q] Quit" # Added D
+        header_text += "[C] Copy  [P] Pause  [Q] Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
         stdscr.addnstr(0, 0, header_text.ljust(w), w)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
@@ -790,7 +809,7 @@ def draw_screen(stdscr, interfaces, list_handler_instance): # Accept interfaces 
              footer += "C: Copy Line | "
         # Update tab names in footer hint
         footer += " ".join([f"{key}:{name}" for key, name in zip(tab_keys, tabs)])
-        footer += " | S: Sort | C: Copy | P: Pause | D: Debug Log | Q: Quit" # Added D
+        footer += " | S: Sort (where avail) | C: Copy | P: Pause | Q: Quit"
         stdscr.attron(curses.color_pair(1) | curses.A_BOLD)
         stdscr.addnstr(h - 1, 0, footer[:w-1].ljust(w-1), w - 1)
         stdscr.attroff(curses.color_pair(1) | curses.A_BOLD)
@@ -964,18 +983,22 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
         if brightness is not None:
              # Check if state_str is one of our debug strings before appending brightness
              if state_str not in ("[No Data]", "[State Missing]"):
-                 state_str += f" @ {brightness}%" # Append brightness if state is valid
+                 state_str += f" ({brightness})"
 
         # Add control hint if selected
         if is_selected:
             # Only add control hint if we have actual state data
             if state_str not in ("[No Data]", "[State Missing]"):
-                state_str += " [Enter: Toggle]"
-                state_attr = curses.color_pair(2) | curses.A_BOLD # Highlight selected row
+                 state_str += " [Enter to Control]"
+                 # Override state_attr only if adding hint
+                 state_attr = curses.color_pair(7) | curses.A_BOLD
             else:
-                state_attr = curses.color_pair(7) | curses.A_BOLD # Highlight error state even if selected
+                 # If selected but no data/state, show different hint
+                 state_str += " [No State Data]"
+                 state_attr = curses.color_pair(5) | curses.A_BOLD # Yellow/Bold
+        # Ensure state_attr is set correctly if not selected but in an error state
         elif state_str in ("[No Data]", "[State Missing]"):
-             state_attr = curses.color_pair(7) # Red for errors if not selected
+             pass # Already set above based on the error condition
         # else: # If not selected and not error state, state_attr is already 'attr'
 
         stdscr.addnstr(row, state_start, state_str.ljust(col_state_w), col_state_w, state_attr)
@@ -985,9 +1008,19 @@ def draw_lights_tab(stdscr, h, w, max_rows, state, items): # Accept items
     if state.get('_copy_action', False):
         if total:
             item_to_copy = items[selected_idx]
-            copy_text = json.dumps(item_to_copy, indent=2, default=str) # Pretty print
-            copy_to_clipboard(copy_text)
-            copy_msg = f"Light state JSON copied."
+            # Copy relevant info (similar to mapped devices)
+            copy_data = {
+                "mapping": item_to_copy.get('mapping_config', {}),
+                "last_state": item_to_copy.get('last_decoded_data', {}),
+                "last_raw_values": item_to_copy.get('last_raw_values', {}),
+                "last_updated": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item_to_copy.get('last_updated'))),
+                "dgn": item_to_copy.get('dgn_hex'),
+                "instance": item_to_copy.get('instance'),
+                "entity_id": item_to_copy.get('entity_id') # Add entity_id
+            }
+            txt = json.dumps(copy_data, indent=2)
+            copy_to_clipboard(txt)
+            copy_msg = f"Light '{item_to_copy.get('friendly_name')}' data copied."
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
@@ -1019,11 +1052,11 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
     # Sort the passed-in names list based on the passed-in recs data
     sort_mode = state['sort_mode']
     if sort_mode == 0: # A->Z
-        names.sort(key=str.lower)
+        names.sort()
     elif sort_mode == 1: # Newest
         names.sort(key=lambda n: recs.get(n, {}).get('last_received', 0), reverse=True)
-    else: # Oldest (sort_mode == 2)
-        names.sort(key=lambda n: recs.get(n, {}).get('first_received', float('inf')))
+    else: # Oldest
+        names.sort(key=lambda n: recs.get(n, {}).get('first_received', 0))
 
     total = len(names)
     selected_idx = state['selected_idx']
@@ -1051,69 +1084,53 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
     for idx in range(v_offset, min(v_offset + max_rows, total)):
         row = 4 + idx - v_offset
         name = names[idx]
-        rec = recs.get(name, {})
-        last_rx = rec.get('last_received', 0)
-        age = time.time() - last_rx if last_rx else float('inf')
-        # Dim older messages
-        attr = curses.color_pair(3)
-        if age > 10: attr |= curses.A_DIM
-        if idx == selected_idx: attr = curses.color_pair(2) | curses.A_BOLD
-
-        stdscr.addnstr(row, left_pad, name.ljust(left_cw), left_cw, attr)
+        is_selected = (idx == selected_idx)
+        attr = curses.color_pair(2) | curses.A_BOLD if is_selected else curses.color_pair(3)
+        # Show time since last seen
+        rec_data = recs.get(name, {})
+        time_since = time.time() - rec_data.get('last_received', time.time())
+        time_str = f" ({time_since:.1f}s)" if time_since < 600 else "" # Show if < 10 mins
+        display_name = (name + time_str).ljust(left_cw)
+        stdscr.addnstr(row, left_pad, display_name, left_cw, attr)
 
     # Right panes: raw/decoded + spec
     if total:
-        selected_name = names[selected_idx]
-        rec = recs.get(selected_name, {})
-        spec = rec.get('spec', {})
-        decoded = rec.get('decoded', {})
-        raw_id = rec.get('raw_id', 'N/A')
-        raw_data = rec.get('raw_data', 'N/A')
-        last_rx = rec.get('last_received', 0)
-        age_str = f"{time.time() - last_rx:.1f}s ago" if last_rx else "never"
+        rec = recs.get(names[selected_idx], {}) # Use .get for safety
+        if rec: # Only draw if record exists
+            # Raw ID & data
+            stdscr.addnstr(4, mid_start, f"ID  : {rec.get('raw_id', 'N/A')}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
+            stdscr.addnstr(5, mid_start, f"Data: {rec.get('raw_data', 'N/A')}".ljust(mid_cw), mid_cw, curses.color_pair(4) | curses.A_BOLD)
+            stdscr.addnstr(6, mid_start, f"IFace:{interface}".ljust(mid_cw), mid_cw, curses.color_pair(6))
+            # Decoded signals
+            line_offset = 8
+            decoded_data = rec.get('decoded', {})
+            for i, (s, v) in enumerate(decoded_data.items()):
+                row = line_offset + i
+                if row < h - 2:
+                    stdscr.addnstr(row, mid_start, f"{s}: {v}".ljust(mid_cw), mid_cw)
+            # Full spec JSON
+            try:
+                spec_data = rec.get('spec', {})
+                spec_lines = json.dumps(spec_data, indent=2).splitlines()
+                for i, ln in enumerate(spec_lines):
+                    row = 4 + i
+                    if row < h - 2:
+                        # Highlight DGN if present
+                        spec_attr = curses.color_pair(3)
+                        if '"dgn_hex":' in ln:
+                            spec_attr = curses.color_pair(5) | curses.A_BOLD
+                        stdscr.addnstr(row, spec_start, ln.ljust(spec_cw), spec_cw, spec_attr)
+            except Exception as e:
+                 stdscr.addnstr(4, spec_start, f"Error dumping spec: {e}", spec_cw, curses.A_BOLD | curses.color_pair(5))
 
-        # --- Middle Pane (Raw/Decoded) ---
-        y = 4
-        # Raw ID/Data
-        stdscr.addnstr(y, mid_start, f"ID: {raw_id}".ljust(mid_cw), mid_cw, curses.color_pair(4))
-        y += 1
-        stdscr.addnstr(y, mid_start, f"Data: {raw_data}".ljust(mid_cw), mid_cw, curses.color_pair(4))
-        y += 1
-        stdscr.addnstr(y, mid_start, f"Last: {age_str}".ljust(mid_cw), mid_cw, curses.A_DIM)
-        y += 2
-        # Decoded Signals
-        stdscr.addnstr(y, mid_start, "Decoded Signals:".ljust(mid_cw), mid_cw, curses.A_UNDERLINE)
-        y += 1
-        for name, val in decoded.items():
-            if y >= h - 2: break
-            line = f"- {name}: {val}"
-            stdscr.addnstr(y, mid_start, line.ljust(mid_cw), mid_cw, curses.color_pair(3))
-            y += 1
-
-        # --- Spec Pane ---
-        y = 4
-        stdscr.addnstr(y, spec_start, "Spec Details:".ljust(spec_cw), spec_cw, curses.A_UNDERLINE)
-        y += 1
-        # Use textwrap for potentially long spec JSON
-        spec_str = json.dumps(spec, indent=2)
-        spec_lines = spec_str.splitlines()
-        for line in spec_lines:
-            if y >= h - 2: break
-            wrapped_lines = textwrap.wrap(line, spec_cw)
-            for sub_line in wrapped_lines:
-                if y >= h - 2: break
-                stdscr.addnstr(y, spec_start, sub_line.ljust(spec_cw), spec_cw, curses.color_pair(6))
-                y += 1
-            if y >= h - 2: break
 
     # --- Copy Action for Raw Tab ---
     if state.get('_copy_action', False):
         if total:
-            selected_name = names[selected_idx]
-            rec_to_copy = recs.get(selected_name, {})
-            copy_text = json.dumps(rec_to_copy, indent=2, default=str) # Pretty print
-            copy_to_clipboard(copy_text)
-            copy_msg = f"Raw record JSON for '{selected_name}' copied."
+            rec_to_copy = recs.get(names[selected_idx], {})
+            txt = json.dumps(rec_to_copy.get('spec', {}), indent=2)
+            copy_to_clipboard(txt)
+            copy_msg = f"Spec for '{names[selected_idx]}' copied."
             copy_time = time.time()
         state['_copy_action'] = False # Reset flag
 
@@ -1484,8 +1501,7 @@ if __name__ == '__main__':
                     'last_updated': 0, # Placeholder
                     'last_interface': 'N/A',
                     'last_raw_values': {},
-                    # Change initial state from 'unavailable' to 'OFF' with 0 brightness
-                    'last_decoded_data': {'state': 'OFF', 'brightness': 0},
+                    'last_decoded_data': {'state': 'unavailable'}, # Initial state
                     'mapping_config': config,
                     # DGN/Instance might not be directly in this config if template was used,
                     # but command info is in light_command_info. We can add them if needed for display.
