@@ -1145,7 +1145,7 @@ def draw_raw_can_tab(stdscr, h, w, max_rows, state, interface, names, recs): # A
 def _send_new_brightness(item, delta_pct):
     """
     Adjust brightness by delta_pct (e.g. +10 or -10), clamp 0–100,
-    and send exactly the same CAN command frame you already build.
+    send the CAN frame twice, and optimistically update the UI.
     """
     entity_id = item['entity_id']
     cfg       = light_command_info[entity_id]
@@ -1157,12 +1157,11 @@ def _send_new_brightness(item, delta_pct):
 
     # compute new UI brightness
     with light_states_lock:
-        current = item.get('last_decoded_data',{}).get('brightness',0)
+        current = item['last_decoded_data'].get('brightness', 0)
     new_ui  = max(0, min(100, current + delta_pct))
-    # build CAN brightness scale
-    new_can = min(0xC8, new_ui * 2)
+    new_can = min(0xC8, new_ui * 2)  # scale to 0–200
 
-    # (re-use your PGN→ID logic)
+    # rebuild the CAN ID (same as your ON/OFF logic)
     dgn = cfg['dgn']; inst = cfg['instance']
     prio=6; sa=0xF9; da=0xFF
     dp=(dgn>>16)&1; pf=(dgn>>8)&0xFF
@@ -1172,9 +1171,28 @@ def _send_new_brightness(item, delta_pct):
         ps=dgn&0xFF
         can_id=(prio<<26)|(dp<<24)|(pf<<16)|(ps<<8)|sa
 
-    data=bytes([inst,0x7C,new_can,0x00,0x00,0xFF,0xFF,0xFF])
-    send_can_command(bus, can_id, data)
-    copy_msg = f"{item['friendly_name']} → {new_ui}%"
+    # build the brightness‐set payload
+    data = bytes([inst, 0x7C, new_can, 0x00, 0x00, 0xFF, 0xFF, 0xFF])
+
+    # --- Send it twice like your ON/OFF ---
+    first_ok = send_can_command(bus, can_id, data)
+    if first_ok:
+        # optimistic UI update
+        with light_states_lock:
+            ent = light_device_states.get(entity_id)
+            if ent:
+                ent['last_decoded_data']['brightness'] = new_ui
+                ent['last_decoded_data']['state'] = 'ON' if new_ui > 0 else 'OFF'
+                ent['last_updated'] = time.time()
+
+        time.sleep(0.05)
+        second_ok = send_can_command(bus, can_id, data)
+        if second_ok:
+            copy_msg = f"{item['friendly_name']}: set to {new_ui}% (2/2)"
+        else:
+            copy_msg = f"{item['friendly_name']}: set to {new_ui}% (1/2 failed)"
+    else:
+        copy_msg = f"{item['friendly_name']}: brightness cmd failed"
     copy_time = time.time()
 
 # Modify handle_input to use active_buses
