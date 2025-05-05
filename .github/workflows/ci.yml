@@ -31,4 +31,5 @@ jobs:
       - name: Build NixOS system (ARM64)
         run: |
           nix build --system aarch64-linux \
-            .#nixosConfigurations.nixpi.config.system.build.toplevel
+            .#nixosConfigurations.nixpi.config.system.build.toplevel \
+            | cachix push carpenike
