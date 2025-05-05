@@ -11,19 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Load Cachix cache
-        uses: cachix/cachix-action@v15
-        with:
-          name: carpenike
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          push: true
-
       - name: Install Nix (flakes)
         uses: cachix/install-nix-action@v17
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
+      - name: Load Cachix cache
+        uses: cachix/cachix-action@v15
+        with:
+          name: carpenike
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Update flake.lock
         run: nix flake update --recreate-lock-file
 
