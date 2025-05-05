@@ -6,6 +6,8 @@ on:
   push:
     branches: [ main ]
 
+  workflow_dispatch:
+
 jobs:
   build-and-check:
     runs-on: ubuntu-22.04-arm    # ← ARM64 GitHub‑hosted runner
