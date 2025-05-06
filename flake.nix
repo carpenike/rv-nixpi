@@ -32,6 +32,9 @@
       src   = inputs.rvc2api; # Use the flake input as the source
       # It will pick up pyproject.toml for deps
       format = "pyproject"; # Explicitly specify format
+
+      # Add build dependencies explicitly
+      buildInputs = with pkgs.python3Packages; [ setuptools wheel ];
     };
 
     # Revert to fetching nixos-hardware separately
