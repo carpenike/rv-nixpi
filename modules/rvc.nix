@@ -124,7 +124,8 @@ in
           # Use the uvicorn package provided by nixpkgs directly
           ExecStart = lib.concatStringsSep " " [
             "${pkgs.python3Packages.uvicorn}/bin/uvicorn"
-            "src.core_daemon.app:app"
+            # Reference the app module directly, assuming it's in site-packages
+            "core_daemon.app:app" 
             "--host" "0.0.0.0"
             # Env vars moved to Environment directive below
           ];
@@ -135,8 +136,8 @@ in
             "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
             "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
             "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # Ensure python can find the source code from the package root
-            "PYTHONPATH=${config.services.rvc2api.package}"
+            # Point PYTHONPATH to the site-packages directory within the built package
+            "PYTHONPATH=${config.services.rvc2api.package}/${pkgs.python3.sitePackages}"
           ];
           Restart    = "always";
           RestartSec = 5;
