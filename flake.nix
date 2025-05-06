@@ -26,7 +26,7 @@
     pkgs   = nixpkgs.legacyPackages.${system};
 
     # Build the rvc2api Python package
-    rvc2api = pkgs.mkPythonPackage {
+    rvc2api = pkgs.python3Packages.buildPythonPackage {
       pname = "rvc2api";
       src   = rvc2api;
       # It will pick up pyproject.toml for deps
