@@ -135,8 +135,8 @@ in
             "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
             "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
             "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # Ensure python can find the source code from the package
-            "PYTHONPATH=${config.services.rvc2api.package}/${pkgs.python3.sitePackages}/"
+            # Ensure python can find the source code from the package root
+            "PYTHONPATH=${config.services.rvc2api.package}"
           ];
           Restart    = "always";
           RestartSec = 5;
