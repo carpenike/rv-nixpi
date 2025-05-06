@@ -29,7 +29,7 @@
     rvc2api = pkgs.python3Packages.buildPythonPackage {
       pname = "rvc2api";
       version = "0.1.0"; # Re-added: Explicit version needed for evaluation
-      src   = rvc2api;
+      src   = inputs.rvc2api; # Use the flake input as the source
       # It will pick up pyproject.toml for deps
       format = "pyproject"; # Explicitly specify format
     };
