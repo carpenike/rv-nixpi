@@ -13,6 +13,18 @@ let
     pyperclip
   ]);
 
+  # Python environment specifically for the rvc2api service
+  rvc2apiPythonEnv = pkgs.python3.withPackages (ps: [
+    ps.uvicorn             # Include uvicorn
+    config.services.rvc2api.package # Include the rvc2api package itself
+    # Dependencies of rvc2api should be pulled in automatically by the package
+    # but explicitly add python-can if needed (check rvc2api pyproject.toml)
+    ps.python-can
+    ps.fastapi
+    ps.pydantic
+    ps.pyyaml
+  ]);
+
 in
 {
   options.services.rvc = {
@@ -121,23 +133,23 @@ in
         wantedBy    = [ "multi-user.target" ];
 
         serviceConfig = {
-          # Run the uvicorn module using the Python interpreter from the rvc2api package
+          # Run uvicorn using the dedicated Python environment
           ExecStart = lib.concatStringsSep " " [
-            "${config.services.rvc2api.package}/bin/python"  # Use the package's python
-            "-m" "uvicorn"                                  # Run uvicorn as a module
+            "${rvc2apiPythonEnv}/bin/python"  # Use the env's python
+            "-m" "uvicorn"                   # Run uvicorn as a module
             "core_daemon.app:app" 
             "--host" "0.0.0.0"
+            # Add --port 8000 explicitly if desired, otherwise defaults to 8000
+            # "--port" "8000"
           ];
-          # Set environment variables for the service
+          # Set environment variables for the application logic
           Environment = [
             "CAN_BUSTYPE=${config.services.rvc2api.bustype}"
             "CAN_CHANNELS=${lib.concatStringsSep "," config.services.rvc2api.channels}"
             "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
             "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
             "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # PYTHONPATH might not be strictly needed when using the package's python,
-            # but doesn't hurt.
-            "PYTHONPATH=${config.services.rvc2api.package}/${pkgs.python3.sitePackages}"
+            # PYTHONPATH should not be needed when using python.withPackages
           ];
           Restart    = "always";
           RestartSec = 5;
