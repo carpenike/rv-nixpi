@@ -75,11 +75,13 @@
     ];
 
   in {
-    packages.${system}.rvc2api = rvc2api;
-    packages.${system}.sdcard = nixos-generators.nixosGenerate {
-      system = system;
-      format = "sd-aarch64";
-      modules = commonModules;
+    packages.${system} = {
+      rvc2api = rvc2api;
+      sdcard = nixos-generators.nixosGenerate {
+        system = system;
+        format = "sd-aarch64";
+        modules = commonModules;
+      };
     };
 
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
