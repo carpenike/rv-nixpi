@@ -121,13 +121,12 @@ in
         wantedBy    = [ "multi-user.target" ];
 
         serviceConfig = {
-          # Use the uvicorn package provided by nixpkgs directly
+          # Run the uvicorn module using the Python interpreter from the rvc2api package
           ExecStart = lib.concatStringsSep " " [
-            "${pkgs.python3Packages.uvicorn}/bin/uvicorn"
-            # Reference the app module directly, assuming it's in site-packages
+            "${config.services.rvc2api.package}/bin/python"  # Use the package's python
+            "-m" "uvicorn"                                  # Run uvicorn as a module
             "core_daemon.app:app" 
             "--host" "0.0.0.0"
-            # Env vars moved to Environment directive below
           ];
           # Set environment variables for the service
           Environment = [
@@ -136,7 +135,8 @@ in
             "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
             "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
             "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # Point PYTHONPATH to the site-packages directory within the built package
+            # PYTHONPATH might not be strictly needed when using the package's python,
+            # but doesn't hurt.
             "PYTHONPATH=${config.services.rvc2api.package}/${pkgs.python3.sitePackages}"
           ];
           Restart    = "always";
