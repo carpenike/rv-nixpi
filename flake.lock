@@ -1,5 +1,23 @@
 {
   "nodes": {
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "nixlib": {
       "locked": {
         "lastModified": 1736643958,
@@ -61,16 +79,17 @@
     },
     "rvc2api": {
       "inputs": {
+        "flake-utils": "flake-utils",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1746493911,
-        "narHash": "sha256-QrA9Zfpzjx6bViSDOOjRMqiuhAA4tEEqaLTm/U0qBoM=",
+        "lastModified": 1746494402,
+        "narHash": "sha256-/j3+ZqavnX+DFCzGCqJS61d6wgchBOSWzWHrkjYlohI=",
         "owner": "carpenike",
         "repo": "rvc2api",
-        "rev": "90551dd24ef0acf1df963ac9539daf9a684e3f33",
+        "rev": "4d90280912a884fa56d766c804637ce304ab39d3",
         "type": "github"
       },
       "original": {
@@ -96,6 +115,21 @@
       "original": {
         "owner": "mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
         "type": "github"
       }
     }
