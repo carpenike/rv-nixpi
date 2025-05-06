@@ -151,11 +151,11 @@
         "poetry2nix": "poetry2nix"
       },
       "locked": {
-        "lastModified": 1746497202,
-        "narHash": "sha256-p2E6tGruimjv2+vYMvmCB7J2qELtDFKtZjWJObvxy38=",
+        "lastModified": 1746497413,
+        "narHash": "sha256-w/Orxb9+1UscXC5G1P8eIvsre8nA85F++OqW7VMBZF4=",
         "owner": "carpenike",
         "repo": "rvc2api",
-        "rev": "1d0cd106dba1437860fd4ddbcfb091cb90c89522",
+        "rev": "3b9881fd84591745d54d51e69e4be2e39929b0fc",
         "type": "github"
       },
       "original": {
