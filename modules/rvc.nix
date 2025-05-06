@@ -125,6 +125,9 @@ in
       environment.etc."rvc2api/rvc.json".source         = config.services.rvc2api.specFile;
       environment.etc."rvc2api/device_mapping.yml".source = config.services.rvc2api.mappingFile;
 
+      # Open firewall port if service is enabled
+      networking.firewall.allowedTCPPorts = [ 8000 ];
+
       # systemd unit for rvc2api
       systemd.services.rvc2api = {
         description = "RV‑C HTTP/WebSocket API";
