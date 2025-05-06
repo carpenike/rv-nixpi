@@ -28,6 +28,7 @@
     # Build the rvc2api Python package
     rvc2api = pkgs.python3Packages.buildPythonPackage {
       pname = "rvc2api";
+      # version = "0.1.0"; # Removed: Let buildPythonPackage read from pyproject.toml
       src   = rvc2api;
       # It will pick up pyproject.toml for deps
     };
