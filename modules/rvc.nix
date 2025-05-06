@@ -20,6 +20,40 @@ in
     debugTools.enable = lib.mkEnableOption "Enable RVC CANbus debugging tools";
   };
 
+  # New service: HTTP/WebSocket API for CANbus
+  options.services.rvc2api = {
+    enable      = lib.mkEnableOption "Run the rvc2api FastAPI CANbus service";
+    package     = lib.mkOption {
+      type        = lib.types.package;
+      description = "The Python package providing the rvc2api service";
+    };
+    specFile    = lib.mkOption {
+      type        = lib.types.str;
+      default     = "/etc/rvc2api/rvc.json";
+      description = "Path to the RV‑C spec JSON";
+    };
+    mappingFile = lib.mkOption {
+      type        = lib.types.str;
+      default     = "/etc/rvc2api/device_mapping.yml";
+      description = "Path to the device‑mapping YAML";
+    };
+    channels    = lib.mkOption {
+      type        = lib.types.listOf lib.types.str;
+      default     = [ "can0" "can1" ];
+      description = "SocketCAN interfaces to listen on";
+    };
+    bustype     = lib.mkOption {
+      type        = lib.types.str;
+      default     = "socketcan";
+      description = "python‑can bus type";
+    };
+    bitrate     = lib.mkOption {
+      type        = lib.types.int;
+      default     = 500000;
+      description = "CAN bus bitrate";
+    };
+  };
+
   config = lib.mkMerge [
     # --- Shared Config Deployment (rvc-config.nix content) ---
     (lib.mkIf (config.services.rvc.console.enable || config.services.rvc.debugTools.enable) {
@@ -72,6 +106,33 @@ in
       ];
       # Deploy the live decoder script needed by rvc-can-test
       environment.etc."nixos/files/live_can_decoder.py".source = ./live_can_decoder.py;
+    })
+    # Deploy the API service only if enabled
+    (lib.mkIf config.services.rvc2api.enable {
+      # Ensure the spec & mapping live on disk
+      environment.etc."rvc2api/rvc.json".source         = config.services.rvc2api.specFile;
+      environment.etc."rvc2api/device_mapping.yml".source = config.services.rvc2api.mappingFile;
+
+      # systemd unit for rvc2api
+      systemd.services.rvc2api = {
+        description = "RV‑C HTTP/WebSocket API";
+        after       = [ "network.target" "can0.service" "can1.service" ];
+        requires    = [ "can0.service" "can1.service" ];
+        wantedBy    = [ "multi-user.target" ];
+
+        serviceConfig = {
+          ExecStart = lib.concatStringsSep " " [
+            "${config.services.rvc2api.package}/bin/uvicorn"
+            "src.core_daemon.app:app"
+            "--host" "0.0.0.0"
+            "--env"  "CAN_BUSTYPE=${config.services.rvc2api.bustype}"
+            "--env"  "CAN_CHANNELS=${lib.concatStringsSep "," config.services.rvc2api.channels}"
+            "--env"  "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
+          ];
+          Restart    = "always";
+          RestartSec = 5;
+        };
+      };
     })
   ];
 }

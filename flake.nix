@@ -14,13 +14,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Optional app input
-    # rvc-app.url = "github:yourusername/rvc-app";
+    rvc2api = {
+      url = "github:carpenike/rvc2api";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixos-generators, sops-nix, ... }@inputs:
+  outputs = { self, nixpkgs, nixos-generators, sops-nix, rvc2api, ... }@inputs:
   let
     system = "aarch64-linux";
+    pkgs   = nixpkgs.legacyPackages.${system};
+
+    # Build the rvc2api Python package
+    rvc2api = pkgs.mkPythonPackage {
+      pname = "rvc2api";
+      src   = rvc2api;
+      # It will pick up pyproject.toml for deps
+    };
 
     # Revert to fetching nixos-hardware separately
     nixosHardware = fetchTarball {
@@ -65,6 +75,7 @@
     ];
 
   in {
+    packages.${system}.rvc2api = rvc2api;
     packages.${system}.sdcard = nixos-generators.nixosGenerate {
       system = system;
       format = "sd-aarch64";
@@ -78,7 +89,14 @@
         {
           services.rvc.console.enable = true;    # Enable the console app
           services.rvc.debugTools.enable = true; # Enable the debug tools
-          # Add other system-specific settings here if needed
+          # Enable the new FastAPI CANbus API
+          services.rvc2api.enable      = true;
+          services.rvc2api.package     = rvc2api;
+          services.rvc2api.specFile    = "/etc/nixos/files/rvc.json";
+          services.rvc2api.mappingFile = "/etc/nixos/files/device_mapping.yml";
+          services.rvc2api.channels    = [ "can0" "can1" ];
+          services.rvc2api.bustype     = "socketcan";
+          services.rvc2api.bitrate     = 500000;
         }
       ];
     };
