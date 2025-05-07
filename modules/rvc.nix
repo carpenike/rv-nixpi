@@ -142,7 +142,7 @@ in
             "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
             "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
             "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # Optional: Set uvicorn host/port/loglevel if you want to override app.py defaults via systemd
+            # Optional: Set uvicorn host/port/loglevel if you want to override main.py defaults via systemd
             # "RVC2API_HOST=0.0.0.0"
             # "RVC2API_PORT=8000"
             # "RVC2API_LOG_LEVEL=info"
