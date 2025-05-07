@@ -15,14 +15,8 @@ let
 
   # Python environment specifically for the rvc2api service
   rvc2apiPythonEnv = pkgs.python3.withPackages (ps: [
-    ps.uvicorn             # Include uvicorn
-    config.services.rvc2api.package # Include the rvc2api package itself
-    # Dependencies of rvc2api should be pulled in automatically by the package
-    # but explicitly add python-can if needed (check rvc2api pyproject.toml)
-    ps.python-can
-    ps.fastapi
-    ps.pydantic
-    ps.pyyaml
+    config.services.rvc2api.package # This should bring in all its Python deps including uvicorn
+    # Dependencies like python-can, fastapi, pydantic, pyyaml are now managed by the rvc2api package itself
   ]);
 
 in
@@ -137,22 +131,21 @@ in
 
         serviceConfig = {
           # Run uvicorn using the dedicated Python environment
-          ExecStart = lib.concatStringsSep " " [
-            "${rvc2apiPythonEnv}/bin/python"  # Use the env's python
-            "-m" "uvicorn"                   # Run uvicorn as a module
-            "core_daemon.app:app" 
-            "--host" "0.0.0.0"
-            # Add --port 8000 explicitly if desired, otherwise defaults to 8000
-            # "--port" "8000"
-          ];
+          ExecStart = "${config.services.rvc2api.package}/bin/rvc2api-daemon"; # Use the script entry point
+
           # Set environment variables for the application logic
+          # The rvc2api-daemon script (core_daemon.app:main) will pick up RVC2API_HOST, RVC2API_PORT, RVC2API_LOG_LEVEL
+          # It also uses CAN_BUSTYPE, CAN_CHANNELS, CAN_BITRATE, CAN_SPEC_PATH, CAN_MAP_PATH
           Environment = [
             "CAN_BUSTYPE=${config.services.rvc2api.bustype}"
             "CAN_CHANNELS=${lib.concatStringsSep "," config.services.rvc2api.channels}"
             "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
             "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
             "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # PYTHONPATH should not be needed when using python.withPackages
+            # Optional: Set uvicorn host/port/loglevel if you want to override app.py defaults via systemd
+            # "RVC2API_HOST=0.0.0.0"
+            # "RVC2API_PORT=8000"
+            # "RVC2API_LOG_LEVEL=info"
           ];
           Restart    = "always";
           RestartSec = 5;
