@@ -85,11 +85,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1746673844,
-        "narHash": "sha256-r1uH34FLvrjV6aDq4NnnV8OVzbMvoMmg1ZZ7LzDoFtI=",
+        "lastModified": 1746674047,
+        "narHash": "sha256-OH/5pnwzo9Ml7nFfUtX1rGOeW3CfJxZAx6RnQqyf/DE=",
         "owner": "carpenike",
         "repo": "rvc2api",
-        "rev": "5343b63dd5eb2b27b85079ab2208b1b4a786bf30",
+        "rev": "62c8fdaa801fecf30d6fd3e9c10beb3ec3e2b251",
         "type": "github"
       },
       "original": {
