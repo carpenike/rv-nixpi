@@ -69,6 +69,21 @@
         "type": "indirect"
       }
     },
+    "nixpkgsUnstable": {
+      "locked": {
+        "lastModified": 1746663147,
+        "narHash": "sha256-Ua0drDHawlzNqJnclTJGf87dBmaO/tn7iZ+TCkTRpRc=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "dda3dcd3fe03e991015e9a74b22d35950f264a54",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-unstable",
+        "type": "indirect"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1746576598,
@@ -89,6 +104,7 @@
       "inputs": {
         "nixos-generators": "nixos-generators",
         "nixpkgs": "nixpkgs",
+        "nixpkgsUnstable": "nixpkgsUnstable",
         "rvc2api": "rvc2api",
         "sops-nix": "sops-nix"
       }
@@ -99,11 +115,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1746809226,
-        "narHash": "sha256-CunxrFt8hpYgJAwcKcD1HYpg6BQCtFVcmmbzbbICaxw=",
+        "lastModified": 1746811478,
+        "narHash": "sha256-mJRaQG/gZgC/EdZqgfQ5ShufI7BWKce6CHgr3ZCclzY=",
         "owner": "carpenike",
         "repo": "rvc2api",
-        "rev": "6adebdad2b6657060393be6b119f0d22ab27c93b",
+        "rev": "a397dac08f135f5a484063a87268d38827e3ec46",
         "type": "github"
       },
       "original": {
