@@ -20,7 +20,7 @@
       "can-gw"
     ];
 
-    initrd.kernelModules = [ "dwc2" ];
+    initrd.kernelModules = [ "dwc2" "btrfs" ]; # Ensure BTRFS is available for mounting SSD
 
     extraModprobeConfig = ''
       options g_serial use_acm=1
