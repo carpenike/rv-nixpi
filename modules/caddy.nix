@@ -41,9 +41,9 @@ in
   # Only apply config when rvcaddy is enabled, with assertions
   config = mkIf cfg.enable (let
     # Ensure ACME email is a non-empty string
-    _ = lib.assertString cfg.acmeEmail;
+    _emailOk = lib.assertString cfg.acmeEmail;
     # Ensure the Cloudflare API token file actually exists
-    _ = if !builtins.pathExists cfg.cloudflareApiTokenFile then builtins.error "services.rvcaddy.cloudflareApiTokenFile: file does not exist" else null;
+    _tokenFileExists = if !builtins.pathExists cfg.cloudflareApiTokenFile then builtins.error "services.rvcaddy.cloudflareApiTokenFile: file does not exist" else null;
   in {
     services.caddy = {
       enable = true;
