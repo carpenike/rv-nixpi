@@ -44,8 +44,6 @@
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
-      # Pass the full nixpkgsUnstable input to the caddy module
-      ((import ./modules/caddy.nix) { unstablePkgs = inputs.nixpkgsUnstable; })
       ./modules/canbus.nix
       ./modules/glances-web.nix
       ./modules/hwclock.nix
@@ -96,17 +94,6 @@
           services.rvc2api.bustype     = "socketcan";
           services.rvc2api.bitrate     = 500000;
 
-          # Enable Caddy reverse proxy (options are now defined in modules/caddy.nix)
-          services.rvcaddy = {
-            enable = true;
-            hostname = "rvc.holtel.io";
-            acmeEmail = "ryan@ryanholt.net";
-            proxyTarget = "http://localhost:8000"; # rvc2api default
-            cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
-          };
-
-          # Ensure Caddy user can access the sops-managed secret # This is now handled in modules/caddy.nix
-          # users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
         })
       ];
     };
