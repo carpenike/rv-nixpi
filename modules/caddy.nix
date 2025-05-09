@@ -10,7 +10,7 @@ in
   # Import the Caddy NixOS module from the unstable channel.
   # This makes the unstable Caddy options (like environmentFile) available.
   imports = [
-    unstablePkgs.nixosModules.caddy # This ensures services.caddy options are from unstable
+    "${unstablePkgs}/nixos/modules/services/web-servers/caddy/default.nix" # Direct path to the module
   ];
 
   options.services.rvcaddy = {
