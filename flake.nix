@@ -43,6 +43,7 @@
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
+      ./modules/caddy.nix # Added Caddy module
       ./modules/canbus.nix
       ./modules/glances-web.nix
       ./modules/hwclock.nix
@@ -81,19 +82,29 @@
       system = system;
       modules = commonModules ++ [
         # <<< Add your settings here >>>
-        {
+        ({ config, ... }: { # Wrap the anonymous module in a function that takes config
           services.rvc.console.enable = true;    # Enable the console app
           services.rvc.debugTools.enable = true; # Enable the debug tools
           # Enable the new FastAPI CANbus API
           services.rvc2api.enable      = true;
-          # Use the defaultPackage from the rvc2api flake input for the current system
           services.rvc2api.package     = inputs.rvc2api.defaultPackage.${system};
           services.rvc2api.specFile    = "/etc/nixos/files/rvc.json";
           services.rvc2api.mappingFile = "/etc/nixos/files/device_mapping.yml";
           services.rvc2api.channels    = [ "can0" "can1" ];
           services.rvc2api.bustype     = "socketcan";
           services.rvc2api.bitrate     = 500000;
-        }
+
+          # Enable Caddy reverse proxy
+          services.rvcaddy = {
+            enable = true;
+            hostname = "rvc.holtel.io";
+            proxyTarget = "http://localhost:8000"; # rvc2api default
+            cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
+          };
+
+          # Ensure Caddy user can access the sops-managed secret
+          users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
+        })
       ];
     };
 
