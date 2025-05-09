@@ -16,7 +16,7 @@
 
     rvc2api = {
       url = "github:carpenike/rvc2api";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs"; # Removed to allow rvc2api to use its own nixpkgs input
     };
   };
 
