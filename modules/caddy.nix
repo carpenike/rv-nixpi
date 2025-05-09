@@ -7,12 +7,6 @@ let
   cfg = config.services.rvcaddy; # Options for our custom wrapper module
 in
 {
-  # Import the Caddy NixOS module from the unstable channel.
-  # This makes the unstable Caddy options (like environmentFile) available.
-  imports = [
-    "${unstablePkgs}/nixos/modules/services/web-servers/caddy/default.nix" # Direct path to the module
-  ];
-
   options.services.rvcaddy = {
     enable = mkEnableOption "Enable Caddy reverse proxy for rvc.holtel.io (via rvcaddy module)";
 
