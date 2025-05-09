@@ -40,22 +40,19 @@ in
 
   # Only apply config when rvcaddy is enabled, with assertions
   config = mkIf cfg.enable (let
-    # Ensure ACME email is a non-empty string
     _emailOk = lib.assertString cfg.acmeEmail;
-    # Ensure the Cloudflare API token file actually exists
     _tokenFileExists = if !builtins.pathExists cfg.cloudflareApiTokenFile then builtins.error "services.rvcaddy.cloudflareApiTokenFile: file does not exist" else null;
   in {
     services.caddy = {
       enable = true;
-      package = pkgs.caddy.override {
-        plugins = [ pkgs.caddyPlugins.cloudflare ];
-      };
+      package = pkgs.caddy.override { plugins = [ pkgs.caddyPlugins.cloudflare ]; };
 
       # Set the ACME email for certificate issuance
       email = cfg.acmeEmail;
 
-      environmentVariables = {
-        CLOUDFLARE_API_TOKEN_FILE = cfg.cloudflareApiTokenFile;
+      # Expose CF token file path via systemd environment
+      serviceConfig = {
+        Environment = [ "CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}" ];
       };
 
       virtualHosts."${cfg.hostname}" = {
