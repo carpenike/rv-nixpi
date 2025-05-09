@@ -43,7 +43,7 @@
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
-      # ./modules/caddy.nix
+      ./modules/caddy.nix
       ./modules/canbus.nix
       ./modules/glances-web.nix
       ./modules/hwclock.nix
@@ -95,15 +95,15 @@
           services.rvc2api.bitrate     = 500000;
 
           # Enable Caddy reverse proxy
-          # services.rvcaddy = {
-          #   enable = false;
-          #   hostname = "rvc.holtel.io";
-          #   proxyTarget = "http://localhost:8000"; # rvc2api default
-          #   cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
-          # };
+          services.rvcaddy = {
+            enable = false;
+            hostname = "rvc.holtel.io";
+            proxyTarget = "http://localhost:8000"; # rvc2api default
+            cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
+          };
 
           # Ensure Caddy user can access the sops-managed secret
-          # users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
+          users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
         })
       ];
     };
