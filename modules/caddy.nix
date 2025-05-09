@@ -50,10 +50,8 @@ in
       # Set the ACME email for certificate issuance
       email = cfg.acmeEmail;
 
-      # Expose CF token file path via systemd environment
-      serviceConfig = {
-        Environment = [ "CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}" ];
-      };
+      # Expose CF token file path via systemd environmentFile (supported Caddy option)
+      environmentFile = cfg.cloudflareApiTokenFile;
 
       virtualHosts."${cfg.hostname}" = {
         extraConfig = ''
