@@ -54,6 +54,11 @@ in
       package = pkgsUnstable.caddy.override { plugins = [ pkgsUnstable.caddyPlugins.cloudflare ]; };
       email = cfg.acmeEmail;
 
+      # Use services.caddy.environmentFile to provide the Cloudflare API token path
+      environmentFile = pkgs.writeText "caddy-cloudflare-env" ''
+        CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}
+      '';
+
       virtualHosts."${cfg.hostname}" = {
         extraConfig = ''
           reverse_proxy ${cfg.proxyTarget}
@@ -63,11 +68,6 @@ in
         '';
       };
     };
-
-    # Inject Cloudflare token file into the Caddy systemd service environment
-    systemd.services.caddy.serviceConfig.Environment = [
-      "CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}"
-    ];
 
     # Open HTTP/HTTPS ports
     networking.firewall.allowedTCPPorts = [ 80 443 ];
