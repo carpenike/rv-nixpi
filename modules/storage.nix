@@ -32,7 +32,7 @@
   #   or a module like `impermanence`).
 
   fileSystems."/var/log" = {
-    device = "/dev/disk/by-id/ata-TS256GMSA230S_J268760585-part1"; # <-- Updated SSD ID
+    device = "/dev/disk/by-id/usb-SABRENT_ASM1153E_0000000000B7-0:0-part1"; # <-- Updated SSD ID
     fsType = "btrfs";
     options = [ "defaults" "nofail" "subvol=@var_log" "compress=zstd" ];
     # 'nofail' allows the system to boot even if the SSD is not found.
@@ -40,14 +40,14 @@
   };
 
   fileSystems."/var/cache" = {
-    device = "/dev/disk/by-id/ata-TS256GMSA230S_J268760585-part1"; # <-- Updated SSD ID (same partition as /var/log)
+    device = "/dev/disk/by-id/usb-SABRENT_ASM1153E_0000000000B7-0:0-part1"; # <-- Updated SSD ID (same partition as /var/log)
     fsType = "btrfs";
     options = [ "defaults" "nofail" "subvol=@var_cache" "compress=zstd" ];
   };
 
   # Persistent configuration for rvc2api on the SSD
   fileSystems."/srv/rvc2api/config" = {
-    device = "/dev/disk/by-id/ata-TS256GMSA230S_J268760585-part1"; # Same SSD partition
+    device = "/dev/disk/by-id/usb-SABRENT_ASM1153E_0000000000B7-0:0-part1"; # Same SSD partition, updated ID
     fsType = "btrfs";
     options = [ "defaults" "nofail" "subvol=@rvc2api_config" "compress=zstd" ];
     # 'nofail' ensures the system boots if the SSD or subvolume isn't found.
