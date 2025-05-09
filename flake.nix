@@ -96,7 +96,7 @@
 
           # Enable Caddy reverse proxy
           services.rvcaddy = {
-            enable = true;
+            enable = false;
             hostname = "rvc.holtel.io";
             proxyTarget = "http://localhost:8000"; # rvc2api default
             cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
