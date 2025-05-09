@@ -68,8 +68,8 @@
 
   in {
     packages.${system} = {
-      # Use the package from the rvc2api flake input
-      rvc2api = inputs.rvc2api.packages.${system}.default;
+      # Use the defaultPackage from the rvc2api flake input for the current system
+      rvc2api = inputs.rvc2api.defaultPackage.${system};
       sdcard = nixos-generators.nixosGenerate {
         system = system;
         format = "sd-aarch64";
@@ -86,8 +86,8 @@
           services.rvc.debugTools.enable = true; # Enable the debug tools
           # Enable the new FastAPI CANbus API
           services.rvc2api.enable      = true;
-          # Use the package from the rvc2api flake input
-          services.rvc2api.package     = inputs.rvc2api.packages.${system}.default;
+          # Use the defaultPackage from the rvc2api flake input for the current system
+          services.rvc2api.package     = inputs.rvc2api.defaultPackage.${system};
           services.rvc2api.specFile    = "/etc/nixos/files/rvc.json";
           services.rvc2api.mappingFile = "/etc/nixos/files/device_mapping.yml";
           services.rvc2api.channels    = [ "can0" "can1" ];

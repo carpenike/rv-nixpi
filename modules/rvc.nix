@@ -13,12 +13,6 @@ let
     pyperclip
   ]);
 
-  # Python environment specifically for the rvc2api service
-  rvc2apiPythonEnv = pkgs.python3.withPackages (ps: [
-    config.services.rvc2api.package # This should bring in all its Python deps including uvicorn
-    # Dependencies like python-can, fastapi, pydantic, pyyaml are now managed by the rvc2api package itself
-  ]);
-
 in
 {
   options.services.rvc = {
@@ -64,7 +58,8 @@ in
     # --- Shared Config Deployment (rvc-config.nix content) ---
     (lib.mkIf (config.services.rvc.console.enable || config.services.rvc.debugTools.enable) {
       environment.etc."nixos/files/rvc.json".source = ../config/rvc/rvc.json;
-      environment.etc."nixos/files/device_mapping.yaml".source = ../config/rvc/device_mapping.yml;
+      # Ensure the destination file is device_mapping.yml, matching the source and other references
+      environment.etc."nixos/files/device_mapping.yml".source = ../config/rvc/device_mapping.yml;
     })
 
     # --- Console Configuration (rvc-console.nix content) ---
@@ -75,7 +70,8 @@ in
           set -euo pipefail
           SCRIPT_PATH="/etc/nixos/files/rvc-console.py"
           RVC_SPEC="/etc/nixos/files/rvc.json"
-          DEVICE_MAP="/etc/nixos/files/device_mapping.yaml"
+          # Updated to use .yml extension for consistency
+          DEVICE_MAP="/etc/nixos/files/device_mapping.yml"
           if [ ! -f "$SCRIPT_PATH" ]; then echo "Error: Console script not found at $SCRIPT_PATH" >&2; exit 1; fi
           if [ ! -f "$RVC_SPEC" ]; then echo "Warning: RVC spec not found at $RVC_SPEC." >&2; fi
           if [ ! -f "$DEVICE_MAP" ]; then echo "Warning: Device mapping not found at $DEVICE_MAP." >&2; fi
