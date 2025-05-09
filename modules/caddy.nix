@@ -38,20 +38,18 @@ in
     };
   };
 
-  # Only apply config when rvcaddy is enabled, with assertions
+  # Apply config only when rvcaddy is enabled, with validation
   config = mkIf cfg.enable (let
-    _emailOk = lib.assertString cfg.acmeEmail;
-    _tokenFileExists = if !builtins.pathExists cfg.cloudflareApiTokenFile then builtins.error "services.rvcaddy.cloudflareApiTokenFile: file does not exist" else null;
+    _ensureEmail = lib.assertString cfg.acmeEmail;
+    _ensureTokenFile = if !builtins.pathExists cfg.cloudflareApiTokenFile then
+      builtins.error "services.rvcaddy.cloudflareApiTokenFile: file does not exist"
+    else null;
   in {
+    # Core Caddy service configuration
     services.caddy = {
       enable = true;
       package = pkgs.caddy.override { plugins = [ pkgs.caddyPlugins.cloudflare ]; };
-
-      # Set the ACME email for certificate issuance
       email = cfg.acmeEmail;
-
-      # Expose CF token file path via systemd environmentFile (supported Caddy option)
-      environmentFile = cfg.cloudflareApiTokenFile;
 
       virtualHosts."${cfg.hostname}" = {
         extraConfig = ''
@@ -63,7 +61,12 @@ in
       };
     };
 
-    # Open HTTP/HTTPS ports for Caddy
+    # Inject Cloudflare token file into the Caddy systemd service environment
+    systemd.services.caddy.serviceConfig.Environment = [
+      "CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}"
+    ];
+
+    # Open HTTP/HTTPS ports
     networking.firewall.allowedTCPPorts = [ 80 443 ];
   });
 }
