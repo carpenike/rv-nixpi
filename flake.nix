@@ -20,7 +20,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixos-generators, sops-nix, rvc2api, ... }@inputs:
+  outputs = { nixpkgs, nixos-generators, sops-nix, ... }@inputs:
   let
     system = "aarch64-linux";
 
@@ -75,10 +75,9 @@
       system = system;
       modules = commonModules ++ [
 
-        ({ config, ... }: { # Wrap the anonymous module in a function that takes config
-          services.rvc.console.enable = true;    # Enable the console app
-          services.rvc.debugTools.enable = true; # Enable the debug tools
-          # Enable the new FastAPI CANbus API
+        ({ ... }: { 
+          services.rvc.console.enable = true;
+          services.rvc.debugTools.enable = true;
           services.rvc2api.enable      = true;
           services.rvc2api.package     = inputs.rvc2api.defaultPackage.${system};
           services.rvc2api.specFile    = "/etc/nixos/files/rvc.json";
