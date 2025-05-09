@@ -1,15 +1,20 @@
-{ pkgsUnstable }: # Custom arguments
+{ unstablePkgs }: # Argument is the full nixpkgsUnstable flake input
 
 { config, pkgs, lib, ... }: # Standard NixOS module arguments
 
 with lib;
-
 let
-  cfg = config.services.rvcaddy;
+  cfg = config.services.rvcaddy; # Options for our custom wrapper module
 in
 {
+  # Import the Caddy NixOS module from the unstable channel.
+  # This makes the unstable Caddy options (like environmentFile) available.
+  imports = [
+    unstablePkgs.nixosModules.caddy # This ensures services.caddy options are from unstable
+  ];
+
   options.services.rvcaddy = {
-    enable = mkEnableOption "Enable Caddy reverse proxy for rvc.holtel.io";
+    enable = mkEnableOption "Enable Caddy reverse proxy for rvc.holtel.io (via rvcaddy module)";
 
     hostname = mkOption {
       type = types.str;
@@ -40,24 +45,21 @@ in
     };
   };
 
-  # Apply config only when rvcaddy is enabled, with validation
-  config = mkIf cfg.enable (let
-    _ensureEmail = lib.assertString cfg.acmeEmail;
-    _ensureTokenFile = if !builtins.pathExists cfg.cloudflareApiTokenFile then
-      builtins.error "services.rvcaddy.cloudflareApiTokenFile: file does not exist"
-    else null;
-  in {
-    # Core Caddy service configuration
+  config = mkIf cfg.enable {
+    # Configure the services.caddy options (now from the unstable module)
     services.caddy = {
-      enable = true;
-      # Use pkgsUnstable for Caddy and its plugin
-      package = pkgsUnstable.caddy.override { plugins = [ pkgsUnstable.caddyPlugins.cloudflare ]; };
+      enable = true; # This enables the Caddy service itself
+      # Use the Caddy package and plugin from the unstable channel's packages
+      # pkgs.system here refers to the system of the main configuration (stable)
+      package = unstablePkgs.legacyPackages.${pkgs.system}.caddy.override {
+        plugins = [ unstablePkgs.legacyPackages.${pkgs.system}.caddyPlugins.cloudflare ];
+      };
       email = cfg.acmeEmail;
 
-      # Use services.caddy.environmentFile to provide the Cloudflare API token path
-      environmentFile = pkgs.writeText "caddy-cloudflare-env" ''
+      # environmentFile is now a valid option due to importing unstablePkgs.nixosModules.caddy
+      environmentFile = pkgs.writeText "caddy-rvcaddy-env" ''
         CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}
-      '';
+      ''; # pkgs.writeText from stable pkgs is fine here
 
       virtualHosts."${cfg.hostname}" = {
         extraConfig = ''
@@ -69,7 +71,10 @@ in
       };
     };
 
-    # Open HTTP/HTTPS ports
     networking.firewall.allowedTCPPorts = [ 80 443 ];
-  });
+
+    # Ensure Caddy user can access the sops-managed secret
+    # config.sops.secrets.* is available because sops-nix module is in commonModules
+    users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
+  };
 }
