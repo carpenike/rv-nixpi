@@ -17,7 +17,6 @@
 
     rvc2api = {
       url = "github:carpenike/rvc2api";
-      # inputs.nixpkgs.follows = "nixpkgs"; # Removed to allow rvc2api to use its own nixpkgs input
     };
   };
 
@@ -31,7 +30,6 @@
       sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
     };
 
-    # Re-add the overlay to suppress module errors
     allowMissingModulesOverlay = final: super: {
       makeModulesClosure = args:
         super.makeModulesClosure (args // { allowMissing = true; });
@@ -60,16 +58,11 @@
       ./modules/ssh.nix
       ./modules/sudo.nix
       ./modules/systemPackages.nix
-      # ./modules/rvc-config.nix # Removed: Handled by rvc.nix
-      # ./modules/rvc-debug-tools.nix # Removed: Handled by rvc.nix
-      # ./modules/rvc-console.nix # Removed: Handled by rvc.nix
-      ./modules/rvc.nix # Added: Parent module for RVC features
-      # (./modules/systemPackages.nix { rvcApp = inputs.rvc-app; })
+      ./modules/rvc.nix
     ];
 
   in {
     packages.${system} = {
-      # Use the defaultPackage from the rvc2api flake input for the current system
       rvc2api = inputs.rvc2api.defaultPackage.${system};
       sdcard = nixos-generators.nixosGenerate {
         system = system;
