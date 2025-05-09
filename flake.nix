@@ -81,7 +81,7 @@
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       system = system;
       modules = commonModules ++ [
-        # <<< Add your settings here >>>
+
         ({ config, ... }: { # Wrap the anonymous module in a function that takes config
           services.rvc.console.enable = true;    # Enable the console app
           services.rvc.debugTools.enable = true; # Enable the debug tools
@@ -95,15 +95,15 @@
           services.rvc2api.bitrate     = 500000;
 
           # Enable Caddy reverse proxy
-          services.rvcaddy = {
-            enable = false;
-            hostname = "rvc.holtel.io";
-            proxyTarget = "http://localhost:8000"; # rvc2api default
-            cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
-          };
+          # services.rvcaddy = {
+          #   enable = false;
+          #   hostname = "rvc.holtel.io";
+          #   proxyTarget = "http://localhost:8000"; # rvc2api default
+          #   cloudflareApiTokenFile = config.sops.secrets.cloudflare_api_token.path;
+          # };
 
           # Ensure Caddy user can access the sops-managed secret
-          users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
+          # users.users.caddy.extraGroups = [ config.sops.secrets.cloudflare_api_token.group ];
         })
       ];
     };
