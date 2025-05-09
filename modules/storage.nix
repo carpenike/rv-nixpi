@@ -45,6 +45,16 @@
     options = [ "defaults" "nofail" "subvol=@var_cache" "compress=zstd" ];
   };
 
+  # Persistent configuration for rvc2api on the SSD
+  fileSystems."/srv/rvc2api/config" = {
+    device = "/dev/disk/by-id/ata-TS256GMSA230S_J268760585-part1"; # Same SSD partition
+    fsType = "btrfs";
+    options = [ "defaults" "nofail" "subvol=@rvc2api_config" "compress=zstd" ];
+    # 'nofail' ensures the system boots if the SSD or subvolume isn't found.
+    # This directory will be owned by root by default.
+    # You might need to adjust permissions or ownership depending on how rvc2api runs.
+  };
+
   # If your application uses a specific directory for ephemeral data,
   # you could also mount that as tmpfs:
   #

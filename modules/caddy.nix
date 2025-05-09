@@ -48,22 +48,29 @@ in
   config = mkIf cfg.enable {
     # Configure the services.caddy options (now from the unstable module)
     services.caddy = {
-      enable = true; # This enables the Caddy service itself
-      # Use the Caddy package and plugin from the unstable channel's packages
-      # pkgs.system here refers to the system of the main configuration (stable)
+      enable  = true;
+
+      # ← point to the real caddy package in the unstable set, with the Cloudflare plugin
       package = unstablePkgs.legacyPackages.${pkgs.system}.caddy.override {
         plugins = [ unstablePkgs.legacyPackages.${pkgs.system}.caddyPlugins.cloudflare ];
       };
+
+      # global email for ACME (required by useACMEHost)
       email = cfg.acmeEmail;
 
-      # environmentFile is now a valid option due to importing unstablePkgs.nixosModules.caddy
-      environmentFile = pkgs.writeText "caddy-rvcaddy-env" ''
+      # pass your Cloudflare API token via env
+      environmentFile = pkgs.writeText "caddy-env" ''
         CLOUDFLARE_API_TOKEN_FILE=${cfg.cloudflareApiTokenFile}
-      ''; # pkgs.writeText from stable pkgs is fine here
+      '';
 
       virtualHosts."${cfg.hostname}" = {
+        hostName    = [ cfg.hostname ];
+        useACMEHost = true;
+
         extraConfig = ''
           reverse_proxy ${cfg.proxyTarget}
+
+          # tell Caddy to use DNS-01 challenge via Cloudflare
           tls {
             dns cloudflare {env.CLOUDFLARE_API_TOKEN_FILE}
           }
