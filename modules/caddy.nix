@@ -1,4 +1,6 @@
-{ config, pkgs, lib, ... }:
+{ pkgsUnstable }: # Custom arguments
+
+{ config, pkgs, lib, ... }: # Standard NixOS module arguments
 
 with lib;
 
@@ -48,7 +50,8 @@ in
     # Core Caddy service configuration
     services.caddy = {
       enable = true;
-      package = pkgs.caddy.override { plugins = [ pkgs.caddyPlugins.cloudflare ]; };
+      # Use pkgsUnstable for Caddy and its plugin
+      package = pkgsUnstable.caddy.override { plugins = [ pkgsUnstable.caddyPlugins.cloudflare ]; };
       email = cfg.acmeEmail;
 
       virtualHosts."${cfg.hostname}" = {

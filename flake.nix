@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-24.11";
+    nixpkgsUnstable.url = "nixpkgs/nixos-unstable";
 
     nixos-generators = {
       url = "github:nix-community/nixos-generators";
@@ -43,7 +44,9 @@
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
-      ./modules/caddy.nix
+      # Modified to correctly pass pkgsUnstable by importing the module file
+      # and then calling the resulting function with the desired arguments.
+      ((import ./modules/caddy.nix) { pkgsUnstable = inputs.nixpkgsUnstable.legacyPackages.${system}; })
       ./modules/canbus.nix
       ./modules/glances-web.nix
       ./modules/hwclock.nix
