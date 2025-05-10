@@ -43,6 +43,7 @@
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
       ./modules/canbus.nix
+      ./modules/cloudflared.nix
       ./modules/glances-web.nix
       ./modules/hwclock.nix
       ./modules/watchdog.nix
@@ -86,6 +87,11 @@
           services.rvc2api.bustype     = "socketcan";
           services.rvc2api.bitrate     = 500000;
 
+          services.cloudflared = {
+            enable = true;
+            hostname = "rvc.holtel.io";
+            service = "http://localhost:8000";
+          };
         })
       ];
     };
