@@ -112,15 +112,15 @@ in
     # Deploy the API service only if enabled
     (lib.mkIf config.services.rvc2api.enable {
       # Ensure the spec & mapping live on disk
-      environment.etc."rvc2api/rvc.json".source         = config.services.rvc2api.specFile;
-      environment.etc."rvc2api/device_mapping.yml".source = config.services.rvc2api.mappingFile;
+      # environment.etc."rvc2api/rvc.json".source         = config.services.rvc2api.specFile;
+      # environment.etc."rvc2api/device_mapping.yml".source = config.services.rvc2api.mappingFile;
 
       # Open firewall port if service is enabled
       networking.firewall.allowedTCPPorts = [ 8000 ];
 
       # systemd unit for rvc2api
       systemd.services.rvc2api = {
-        description = "RV‑C HTTP/WebSocket API";
+        description = "RV-C HTTP/WebSocket API";
         after       = [ "network.target" "can0.service" "can1.service" ];
         requires    = [ "can0.service" "can1.service" ];
         wantedBy    = [ "multi-user.target" ];

@@ -92,6 +92,12 @@
             hostname = "rvc.holtel.io";
             service = "http://localhost:8000";
           };
+          services.rvcCaddy = {
+            enable = true;
+            hostname = "rvc.holtel.io";
+            backendPort = 8000;
+            email = "ryan@ryanholt.net";
+          };
         })
       ];
     };
