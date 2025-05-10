@@ -42,6 +42,7 @@
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
+      ./modules/caddy.nix
       ./modules/canbus.nix
       ./modules/cloudflared.nix
       ./modules/glances-web.nix
