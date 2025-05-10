@@ -53,7 +53,7 @@ in {
         #   group = config.services.caddy.group; # Caddy service group
         #   mode = "0400"; # Read-only for the Caddy user
         # };
-        sops.secrets.cloudflared_tunnel_credentials = {
+        cloudflared_tunnel_credentials = {
           owner = "cloudflared";
           group = "cloudflared";
           mode = "0400";
