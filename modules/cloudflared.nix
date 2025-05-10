@@ -5,20 +5,24 @@ let
 in {
   options.services.rvcCloudflared = {
     enable = lib.mkEnableOption "Enable the Cloudflare Tunnel daemon";
+
     configFile = lib.mkOption {
       type = lib.types.path;
       default = "/etc/cloudflared/config.yml";
       description = "Path to the cloudflared tunnel configuration file";
     };
+
     credentialsFile = lib.mkOption {
       type = lib.types.path;
       default = config.sops.secrets.cloudflared_tunnel_credentials.path;
       description = "Path to the cloudflared tunnel credentials file (from SOPS)";
     };
+
     hostname = lib.mkOption {
       type = lib.types.str;
       description = "Hostname for ingress (Cloudflare DNS)";
     };
+
     service = lib.mkOption {
       type = lib.types.str;
       default = "http://localhost:8000";
@@ -27,7 +31,6 @@ in {
   };
 
   config = {
-    # ensure user is always created so SOPS can write the file
     users.users.${cloudflaredUser} = {
       isSystemUser = true;
       group = cloudflaredUser;
@@ -35,7 +38,6 @@ in {
 
     users.groups.${cloudflaredUser} = {};
 
-    # only install the rest if enabled
     config = lib.mkIf config.services.rvcCloudflared.enable {
       environment.systemPackages = with pkgs; [ cloudflared ];
 
