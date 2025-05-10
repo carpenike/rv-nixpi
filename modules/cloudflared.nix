@@ -38,28 +38,26 @@ in {
 
     users.groups.${cloudflaredUser} = {};
 
-    config = lib.mkIf config.services.rvcCloudflared.enable {
-      environment.systemPackages = with pkgs; [ cloudflared ];
+    environment.systemPackages = lib.mkIf config.services.rvcCloudflared.enable (with pkgs; [ cloudflared ]);
 
-      environment.etc."cloudflared/config.yml".text = ''
-        tunnel: ${builtins.baseNameOf config.services.rvcCloudflared.credentialsFile}
-        credentials-file: ${config.services.rvcCloudflared.credentialsFile}
+    environment.etc."cloudflared/config.yml".text = lib.mkIf config.services.rvcCloudflared.enable ''
+      tunnel: ${builtins.baseNameOf config.services.rvcCloudflared.credentialsFile}
+      credentials-file: ${config.services.rvcCloudflared.credentialsFile}
 
-        ingress:
-          - hostname: ${config.services.rvcCloudflared.hostname}
-            service: ${config.services.rvcCloudflared.service}
-          - service: http_status:404
-      '';
+      ingress:
+        - hostname: ${config.services.rvcCloudflared.hostname}
+          service: ${config.services.rvcCloudflared.service}
+        - service: http_status:404
+    '';
 
-      systemd.services.cloudflared = {
-        description = "Cloudflare Tunnel Daemon";
-        after = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = {
-          ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --config ${config.services.rvcCloudflared.configFile} run";
-          Restart = "always";
-          User = cloudflaredUser;
-        };
+    systemd.services.cloudflared = lib.mkIf config.services.rvcCloudflared.enable {
+      description = "Cloudflare Tunnel Daemon";
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+      serviceConfig = {
+        ExecStart = "${pkgs.cloudflared}/bin/cloudflared tunnel --config ${config.services.rvcCloudflared.configFile} run";
+        Restart = "always";
+        User = cloudflaredUser;
       };
     };
   };
