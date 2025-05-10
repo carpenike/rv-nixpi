@@ -87,7 +87,7 @@
           services.rvc2api.bustype     = "socketcan";
           services.rvc2api.bitrate     = 500000;
 
-          services.cloudflared = {
+          services.rvcCloudflared = {
             enable = true;
             hostname = "rvc.holtel.io";
             service = "http://localhost:8000";

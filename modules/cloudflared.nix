@@ -4,7 +4,7 @@
 let
   cloudflaredUser = "cloudflared";
 in {
-  options.services.cloudflared = {
+  options.services.rvcCloudflared = {
     enable = lib.mkEnableOption "Enable the Cloudflare Tunnel daemon";
 
     configFile = lib.mkOption {
