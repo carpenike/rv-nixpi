@@ -33,7 +33,7 @@
         "type": "github"
       }
     },
-    "nixosGenerators": {
+    "nixos-generators": {
       "inputs": {
         "nixlib": "nixlib",
         "nixpkgs": [
@@ -102,11 +102,11 @@
     },
     "root": {
       "inputs": {
-        "nixosGenerators": "nixosGenerators",
+        "nixos-generators": "nixos-generators",
         "nixpkgs": "nixpkgs",
         "nixpkgsUnstable": "nixpkgsUnstable",
         "rvc2api": "rvc2api",
-        "sopsNix": "sopsNix"
+        "sops-nix": "sops-nix"
       }
     },
     "rvc2api": {
@@ -128,7 +128,7 @@
         "type": "github"
       }
     },
-    "sopsNix": {
+    "sops-nix": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
