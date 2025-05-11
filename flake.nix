@@ -22,7 +22,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, … }@inputs:
+  outputs = { self, nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, ... }@inputs:
   let
     system = "aarch64-linux";
 
@@ -79,7 +79,7 @@
       modules = commonModules ++ [
         # ────────────────────────────────────────────────────────────────────
         # your site‑specific overrides: rvc, rvc2api, cloudflared, caddy
-        ( { config, pkgs, lib, … }: {
+        ( { config, pkgs, lib, ... }: {
             services.rvc.console.enable    = true;
             services.rvc.debugTools.enable = true;
 
