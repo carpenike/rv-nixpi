@@ -2,41 +2,46 @@
   description = "Raspberry Pi 4 Base System for RV CANbus Filtering with SOPS & Impermanence (NixOS 24.11)";
 
   inputs = {
-    # Stable channel for everything else
-    nixpkgs         = { url = "nixpkgs/nixos-24.11"; };
-    # Only use unstable to build caddy.withPlugins
+    # Stable channel for the bulk of your system
+    nixpkgs = { url = "nixpkgs/nixos-24.11"; };
+
+    # Only pull in unstable to build Caddy with plugins
     nixpkgsUnstable = { url = "nixpkgs/nixos-unstable"; };
 
-    nixos-generators = {
-      url                = "github:nix-community/nixos-generators";
+    # Rename hyphenated flakes to valid identifiers
+    nixosGenerators = {
+      url                  = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    sopsNix = {
+      url                  = "github:mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    sops-nix = {
-      url                = "github:mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    rvc2api = {
-      url                = "github:carpenike/rvc2api";
-    };
+    rvc2api = { url = "github:carpenike/rvc2api"; };
   };
 
-  outputs = { self, nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, ... }@inputs:
-  let
+  outputs = { self
+            , nixpkgs
+            , nixpkgsUnstable
+            , nixosGenerators
+            , sopsNix
+            , rvc2api
+            , ... }: let
+
     system = "aarch64-linux";
 
-    # Pi‑hardware support
+    # Pi‑4 hardware support
     nixosHardware = builtins.fetchTarball {
       url    = "https://github.com/NixOS/nixos-hardware/archive/8f44cbb48c2f4a54e35d991a903a8528178ce1a8.tar.gz";
       sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
     };
 
-    # All your “common” modules
+    # All of your common modules
     commonModules = [
       ./hardware-configuration.nix
       "${nixosHardware}/raspberry-pi/4"
-      sops-nix.nixosModules.sops
+      sopsNix.nixosModules.sops
 
       ./modules/bootstrap-check.nix
       ./modules/caddy.nix
@@ -61,24 +66,29 @@
     ];
 
   in {
-    # 1) Standalone packages (rvc2api and sdcard image)
+    ############################################################################
+    # 1) Standalone packages (rvc2api & SD‑card image)
+    ############################################################################
     packages.${system} = {
       rvc2api = rvc2api.defaultPackage.${system};
 
-      sdcard = nixos-generators.nixosGenerate {
+      sdcard = nixosGenerators.nixosGenerate {
         system  = system;
         format  = "sd-aarch64";
         modules = commonModules;
       };
     };
 
-    # 2) NixOS system definition
+    ############################################################################
+    # 2) Your NixOS system configuration
+    ############################################################################
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       inherit system;
 
       modules = commonModules ++ [
+
         # ────────────────────────────────────────────────────────────────────
-        # your site‑specific overrides: rvc, rvc2api, cloudflared, caddy
+        # site‑specific overrides for rvc, rvc2api, cloudflared, caddy
         ( { config, pkgs, lib, ... }: {
             services.rvc.console.enable    = true;
             services.rvc.debugTools.enable = true;
@@ -111,27 +121,31 @@
 
       # ────────────────────────────────────────────────────────────────────
       # overlays: allowMissingModules + Caddy→unstable.withPlugins
+      # ────────────────────────────────────────────────────────────────────
       nixpkgs.overlays = [
-        # a) allow your modules to reference missing attributes without breaking
+
+        # a) let your modules reference missing attrs without breaking
         (final: super: {
           makeModulesClosure = args:
             super.makeModulesClosure (args // { allowMissing = true; });
         })
 
-        # b) override pkgs.caddy by pulling the unstable build + Cloudflare plugin
+        # b) override pkgs.caddy with the unstable build + Cloudflare plugin
         (final: super: let
           unstable = nixpkgsUnstable.legacyPackages.${system};
         in {
           caddy = unstable.caddy.withPlugins {
-            plugins = [ "github.com/caddy-dns/cloudflare@v0.2.1" ];
-            # first build will error with “got: sha256-…”; copy that here:
+            plugins = [ "github.com/caddy-dns/cloudflare@v0.2.5" ];
+            # first build will print “got: sha256‑…”; paste that here:
             # hash = "sha256-…";
           };
         })
       ];
     };
 
-    # 3) Dev shell
+    ############################################################################
+    # 3) Development shell
+    ############################################################################
     devShells.${system}.default = import ./devshell.nix {
       inherit (nixpkgs.legacyPackages.${system}) pkgs;
     };
