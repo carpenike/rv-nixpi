@@ -48,11 +48,11 @@ in {
         RVPROBLEMS_WIFI_SSID = {};
         RVPROBLEMS_WIFI_PASSWORD = {};
         # Cloudflare API token for Caddy DNS challenge
-        cloudflare_api_token = {
-          owner = config.services.caddy.user;  # Caddy service user
-          group = config.services.caddy.group; # Caddy service group
-          mode = "0400"; # Read-only for the Caddy user
-        };
+        # cloudflare_api_token = {
+        #   owner = config.services.caddy.user;  # Caddy service user
+        #   group = config.services.caddy.group; # Caddy service group
+        #   mode = "0400"; # Read-only for the Caddy user
+        # };
         cloudflared_tunnel_credentials = {
           owner = "cloudflared";
           group = "cloudflared";
