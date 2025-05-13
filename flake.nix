@@ -51,8 +51,7 @@
           caddy = unstablePkgs.caddy.withPlugins {
             # Include Cloudflare DNS provider plugin
             plugins = [ "github.com/caddy-dns/cloudflare@v0.2.1" ];
-            # Replace with the hash from `nix build .#caddy` output
-            # hash = "sha256-F/jqR4iEsklJFycTjSaW8B/V3iTGqqGOzwYBUXxRKrc=";
+            hash = "sha256-saKJatiBZ4775IV2C5JLOmZ4BwHKFtRZan94aS5pO90";
           };
         })
       ];
