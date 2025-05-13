@@ -2,10 +2,10 @@
   description = "Raspberry Pi 4 Base System for RV CANbus Filtering with SOPS & Impermanence (NixOS 24.11)";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.11";
-    nixpkgsUnstable.url = "nixpkgs/nixos-unstable";
+    nixpkgs           = { url = "nixpkgs/nixos-24.11"; };
+    nixpkgsUnstable   = { url = "nixpkgs/nixos-unstable"; };
 
-    nixos-generators = {
+    nixos-generators  = {
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -20,29 +20,50 @@
     };
   };
 
-  outputs = { nixpkgs, nixos-generators, sops-nix, ... }@inputs:
+  outputs = { self, nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, ... }@inputs:
   let
     system = "aarch64-linux";
 
-    # Revert to fetching nixos-hardware separately
+    # Fetch nixos-hardware separately
     nixosHardware = fetchTarball {
       url = "https://github.com/NixOS/nixos-hardware/archive/8f44cbb48c2f4a54e35d991a903a8528178ce1a8.tar.gz";
       sha256 = "0glwldwckhdarp6lgv6pia64w4r0c4r923ijq20dcxygyzchy7ai";
     };
 
+    # Overlay to allow missing modules
     allowMissingModulesOverlay = final: super: {
       makeModulesClosure = args:
         super.makeModulesClosure (args // { allowMissing = true; });
     };
 
+    # 1) Import unstable channel once
+    unstablePkgs = import nixpkgsUnstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
+
+    # 2) Import stable pkgs, shadowing caddy with plugin-enabled build from unstable
+    pkgs = import nixpkgs {
+      inherit system;
+      overlays = [
+        allowMissingModulesOverlay
+        (final: prev: {
+          caddy = unstablePkgs.caddy.withPlugins {
+            # Include Cloudflare DNS provider plugin
+            plugins = [ "github.com/caddy-dns/cloudflare@v0.2.1" ];
+            # Replace with the hash from `nix build .#caddy` output
+            # hash = "sha256-F/jqR4iEsklJFycTjSaW8B/V3iTGqqGOzwYBUXxRKrc=";
+          };
+        })
+      ];
+    };
+
     commonModules = [
       { nixpkgs.overlays = [ allowMissingModulesOverlay ]; }
       ./hardware-configuration.nix
-      # Use the fetched nixos-hardware path
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
-      # ./modules/caddy.nix
       ./modules/canbus.nix
       ./modules/cloudflared.nix
       ./modules/glances-web.nix
@@ -62,61 +83,62 @@
       ./modules/systemPackages.nix
       ./modules/rvc.nix
     ];
-
-  in {
+  in
+  {
     packages.${system} = {
-      rvc2api = inputs.rvc2api.defaultPackage.${system};
-      sdcard = nixos-generators.nixosGenerate {
-        system = system;
-        format = "sd-aarch64";
+      rvc2api = rvc2api.defaultPackage.${system};
+      sdcard  = nixos-generators.nixosGenerate {
+        inherit system;
+        format  = "sd-aarch64";
         modules = commonModules;
       };
     };
 
+    # Use the flake input's lib.nixosSystem, passing our overlaid pkgs via specialArgs
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
-      system = system;
+      inherit system;
+      specialArgs = { inherit pkgs; };
       modules = commonModules ++ [
-        inputs.rvc2api.nixosModules.rvc2api
-        ({ ... }: {
+        rvc2api.nixosModules.rvc2api
+        ({ config, pkgs, ... }: {
           rvc2api.settings = {
             canbus = {
               channels = [ "can0" "can1" ];
-              bustype = "socketcan";
-              bitrate = 500000;
+              bustype  = "socketcan";
+              bitrate  = 500000;
             };
-            # rvcSpecPath = "/etc/nixos/files/rvc.json";
-            # deviceMappingPath = "/etc/nixos/files/device_mapping.yml";
-            pushover = {
-              enable = false;
-              # apiToken = "...";
-              # userKey = "...";
-            };
-            uptimerobot = {
-              enable = false;
-              # apiKey = "...";
-            };
+            pushover    = { enable = false; };
+            uptimerobot = { enable = false; };
           };
-          rvc2api.package = inputs.rvc2api.packages.aarch64-linux.rvc2api;
-          # ...other service configs...
-          services.rvc.console.enable = true;
+          rvc2api.package = rvc2api.packages.${system}.rvc2api;
+
+          services.rvc.console.enable    = true;
           services.rvc.debugTools.enable = true;
           services.rvcCloudflared = {
-            enable = true;
+            enable   = true;
             hostname = "rvc.holtel.io";
-            service = "http://localhost:8000";
+            service  = "http://localhost:8000";
           };
-          # services.rvcCaddy = {
-          #   enable = false;
-          #   hostname = "rvc.holtel.io";
-          #   backendPort = 80;
-          #   email = "ryan@ryanholt.net";
-          # };
+
+          # Configure the NixOS Caddy module directly:
+          services.caddy = {
+            enable  = true;
+            package = pkgs.caddy;
+            email   = "ryan@ryanholt.net";
+            # Use DNS-01 via Cloudflare
+            extraConfig = ''
+              tls {
+                dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+              }
+              reverse_proxy localhost:8000
+            '';
+          };
         })
       ];
     };
 
-    devShells.${system}.default = import ./devshell.nix {
-      inherit (nixpkgs.legacyPackages.${system}) pkgs;
+    devShells.${system}.default = pkgs.mkShell {
+      buildInputs = [ pkgs.caddy ];
     };
   };
 }
