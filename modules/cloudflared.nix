@@ -2,8 +2,11 @@
 
 let
   cloudflaredUser = "cloudflared";
+  # Strip .json extension from the credentials filename via substring
   credsBase = builtins.baseNameOf config.services.rvcCloudflared.credentialsFile;
-  tunnelID = lib.strings.replaceSuffix ".json" "" credsBase;
+  credsLen  = builtins.stringLength credsBase;
+  # remove last 5 chars (".json")
+  tunnelID  = builtins.substring 0 (credsLen - 5) credsBase;
 in {
   options.services.rvcCloudflared = {
     enable = lib.mkEnableOption "Enable the Cloudflare Tunnel daemon";
@@ -25,7 +28,6 @@ in {
       description = "External hostname (Cloudflare DNS) for ingress";
     };
 
-    # Use https://localhost for portability (default port 443)
     service = lib.mkOption {
       type = lib.types.str;
       default = "https://localhost";
