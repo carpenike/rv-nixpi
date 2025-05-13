@@ -96,6 +96,7 @@
               # apiKey = "...";
             };
           };
+          rvc2api.package = inputs.rvc2api.packages.aarch64-linux.rvc2api;
           # ...other service configs...
           services.rvc.console.enable = true;
           services.rvc.debugTools.enable = true;
