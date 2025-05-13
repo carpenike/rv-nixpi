@@ -127,7 +127,7 @@
             virtualHosts."rvc.holtel.io".extraConfig = ''
                 tls {
                   dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-                  resolver 1.1.1.1
+                  resolvers 1.1.1.1
                 }
                 reverse_proxy http://localhost:8000
             '';
