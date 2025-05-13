@@ -130,11 +130,7 @@
             ''; 
             # environmentFile = "${config.sops.secrets.cloudflare_api_token.path}";
           };
-          systemd.services.caddy.preStart = ''
-            echo "CLOUDFLARE_API_TOKEN=$(cat /run/secrets/cloudflare_api_token)" > /run/secrets/cloudflare_api_token_env
-            chmod 600 /run/secrets/cloudflare_api_token_env
-          '';
-          # systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/cloudflare_api_token_env";
+          systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
           networking.firewall.allowedTCPPorts = [ 80 443 ];
         })
       ];
