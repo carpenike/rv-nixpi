@@ -104,12 +104,12 @@
             hostname = "rvc.holtel.io";
             service = "http://localhost:8000";
           };
-          services.rvcCaddy = {
-            enable = false;
-            hostname = "rvc.holtel.io";
-            backendPort = 80;
-            email = "ryan@ryanholt.net";
-          };
+          # services.rvcCaddy = {
+          #   enable = false;
+          #   hostname = "rvc.holtel.io";
+          #   backendPort = 80;
+          #   email = "ryan@ryanholt.net";
+          # };
         })
       ];
     };
