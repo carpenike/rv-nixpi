@@ -132,7 +132,6 @@
                   dns cloudflare {env.CLOUDFLARE_API_TOKEN}
                 }
             '';
-            # environmentFile = "${config.sops.secrets.cloudflare_api_token.path}";
           };
           systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
           networking.firewall.allowedTCPPorts = [ 80 443 ];
