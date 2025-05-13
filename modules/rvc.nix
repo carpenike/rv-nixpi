@@ -27,31 +27,6 @@ in
       type        = lib.types.package;
       description = "The Python package providing the rvc2api service";
     };
-    specFile    = lib.mkOption {
-      type        = lib.types.str;
-      default     = "/etc/rvc2api/rvc.json";
-      description = "Path to the RV‑C spec JSON";
-    };
-    mappingFile = lib.mkOption {
-      type        = lib.types.str;
-      default     = "/etc/rvc2api/device_mapping.yml";
-      description = "Path to the device‑mapping YAML";
-    };
-    channels    = lib.mkOption {
-      type        = lib.types.listOf lib.types.str;
-      default     = [ "can0" "can1" ];
-      description = "SocketCAN interfaces to listen on";
-    };
-    bustype     = lib.mkOption {
-      type        = lib.types.str;
-      default     = "socketcan";
-      description = "python‑can bus type";
-    };
-    bitrate     = lib.mkOption {
-      type        = lib.types.int;
-      default     = 500000;
-      description = "CAN bus bitrate";
-    };
   };
 
   config = lib.mkMerge [
@@ -111,42 +86,8 @@ in
     })
     # Deploy the API service only if enabled
     (lib.mkIf config.services.rvc2api.enable {
-      # Ensure the spec & mapping live on disk
-      # environment.etc."rvc2api/rvc.json".source         = config.services.rvc2api.specFile;
-      # environment.etc."rvc2api/device_mapping.yml".source = config.services.rvc2api.mappingFile;
-
       # Open firewall port if service is enabled
       networking.firewall.allowedTCPPorts = [ 8000 ];
-
-      # systemd unit for rvc2api
-      systemd.services.rvc2api = {
-        description = "RV-C HTTP/WebSocket API";
-        after       = [ "network.target" "can0.service" "can1.service" ];
-        requires    = [ "can0.service" "can1.service" ];
-        wantedBy    = [ "multi-user.target" ];
-
-        serviceConfig = {
-          # Run uvicorn using the dedicated Python environment
-          ExecStart = "${config.services.rvc2api.package}/bin/rvc2api-daemon"; # Use the script entry point
-
-          # Set environment variables for the application logic
-          # The rvc2api-daemon script (core_daemon.app:main) will pick up RVC2API_HOST, RVC2API_PORT, RVC2API_LOG_LEVEL
-          # It also uses CAN_BUSTYPE, CAN_CHANNELS, CAN_BITRATE, CAN_SPEC_PATH, CAN_MAP_PATH
-          Environment = [
-            "CAN_BUSTYPE=${config.services.rvc2api.bustype}"
-            "CAN_CHANNELS=${lib.concatStringsSep "," config.services.rvc2api.channels}"
-            "CAN_BITRATE=${toString config.services.rvc2api.bitrate}"
-            # "CAN_SPEC_PATH=/etc/rvc2api/rvc.json"
-            # "CAN_MAP_PATH=/etc/rvc2api/device_mapping.yml"
-            # Optional: Set uvicorn host/port/loglevel if you want to override main.py defaults via systemd
-            # "RVC2API_HOST=0.0.0.0"
-            # "RVC2API_PORT=8000"
-            # "RVC2API_LOG_LEVEL=info"
-          ];
-          Restart    = "always";
-          RestartSec = 5;
-        };
-      };
     })
   ];
 }
