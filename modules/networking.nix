@@ -24,6 +24,11 @@
     };
   };
 
+  networking.sysctl = {
+    "net.core.rmem_max" = 7500000;
+    "net.core.wmem_max" = 7500000;
+  };
+
   systemd.tmpfiles.rules = [
     # Initial placement for first boot (used only if file doesn't already exist)
     "C /var/lib/iwd/iot.psk 0600 root root - ${config.sops.secrets.IOT_WIFI_PASSWORD.path}"
