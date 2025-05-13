@@ -42,7 +42,7 @@
       "${nixosHardware}/raspberry-pi/4"
       sops-nix.nixosModules.sops
       ./modules/bootstrap-check.nix
-      ./modules/caddy.nix
+      # ./modules/caddy.nix  # Removed: now using official NixOS Caddy module with overlay
       ./modules/canbus.nix
       ./modules/cloudflared.nix
       ./modules/glances-web.nix
@@ -77,26 +77,27 @@
       system = system;
       modules = commonModules ++ [
         inputs.rvc2api.nixosModules.rvc2api
-        ({ ... }: {
+        ({ pkgs, ... }: {
+          nixpkgs.overlays = [
+            (final: prev: {
+              caddy = inputs.nixpkgsUnstable.legacyPackages.${system}.caddy.withPlugins (p: [ p.cloudflare-dns ]);
+            })
+          ];
+
           rvc2api.settings = {
             canbus = {
               channels = [ "can0" "can1" ];
               bustype = "socketcan";
               bitrate = 500000;
             };
-            # rvcSpecPath = "/etc/nixos/files/rvc.json";
-            # deviceMappingPath = "/etc/nixos/files/device_mapping.yml";
             pushover = {
               enable = false;
-              # apiToken = "...";
-              # userKey = "...";
             };
             uptimerobot = {
               enable = false;
-              # apiKey = "...";
             };
           };
-          # ...other service configs...
+
           services.rvc.console.enable = true;
           services.rvc.debugTools.enable = true;
           services.rvcCloudflared = {
@@ -104,11 +105,22 @@
             hostname = "rvc.holtel.io";
             service = "http://localhost:8000";
           };
-          services.rvcCaddy = {
+
+          services.caddy = {
             enable = true;
-            hostname = "rvc.holtel.io";
-            backendPort = 80;
+            package = pkgs.caddy;
             email = "ryan@ryanholt.net";
+            config = ''
+              rvc.holtel.io {
+                reverse_proxy localhost:8000
+                tls {
+                  dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+                }
+              }
+            '';
+            environment = {
+              CLOUDFLARE_API_TOKEN = builtins.readFile "/run/secrets/cloudflare_api_token";
+            };
           };
         })
       ];
