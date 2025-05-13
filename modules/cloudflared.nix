@@ -20,17 +20,19 @@ in {
 
     hostname = lib.mkOption {
       type = lib.types.str;
-      description = "Hostname for ingress (Cloudflare DNS)";
+      description = "External hostname (Cloudflare DNS) for ingress";
     };
 
+    # The local service endpoint. Use localhost for portability if your Caddy box IP may change.
     service = lib.mkOption {
       type = lib.types.str;
-      default = "http://localhost:8000";
-      description = "Local service to proxy to";
+      default = "https://localhost:443";
+      description = "Local service to proxy to (Caddy endpoint listening on 443)";
     };
   };
 
   config = {
+    # Create a system user for cloudflared
     users.users.${cloudflaredUser} = {
       isSystemUser = true;
       group = cloudflaredUser;
@@ -38,8 +40,10 @@ in {
 
     users.groups.${cloudflaredUser} = {};
 
+    # Install the cloudflared binary
     environment.systemPackages = lib.mkIf config.services.rvcCloudflared.enable (with pkgs; [ cloudflared ]);
 
+    # Generate the cloudflared config.yml
     environment.etc."cloudflared/config.yml".text = lib.mkIf config.services.rvcCloudflared.enable ''
       tunnel: ${builtins.baseNameOf config.services.rvcCloudflared.credentialsFile}
       credentials-file: ${config.services.rvcCloudflared.credentialsFile}
@@ -47,9 +51,13 @@ in {
       ingress:
         - hostname: ${config.services.rvcCloudflared.hostname}
           service: ${config.services.rvcCloudflared.service}
+          originRequest:
+            serverName: ${config.services.rvcCloudflared.hostname}
+            noTLSVerify: true
         - service: http_status:404
     '';
 
+    # Define the systemd service
     systemd.services.cloudflared = lib.mkIf config.services.rvcCloudflared.enable {
       description = "Cloudflare Tunnel Daemon";
       after = [ "network.target" ];
