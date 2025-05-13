@@ -126,7 +126,7 @@
             email   = "ryan@ryanholt.net";
             virtualHosts."rvc.holtel.io".extraConfig = ''
                 tls {
-                  dns cloudflare {$CLOUDFLARE_API_TOKEN}
+                  dns cloudflare {env.CLOUDFLARE_API_TOKEN}
                 }
                 reverse_proxy http://localhost:8000
             ''; 
