@@ -134,7 +134,7 @@
             echo "CLOUDFLARE_API_TOKEN=$(cat /run/secrets/cloudflare_api_token)" > /run/secrets/cloudflare_api_token_env
             chmod 600 /run/secrets/cloudflare_api_token_env
           '';
-          systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/cloudflare_api_token_env";
+          # systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/cloudflare_api_token_env";
           networking.firewall.allowedTCPPorts = [ 80 443 ];
         })
       ];
