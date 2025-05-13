@@ -76,18 +76,29 @@
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       system = system;
       modules = commonModules ++ [
-
-        ({ ... }: { 
+        inputs.rvc2api.nixosModules.rvc2api
+        ({ ... }: {
+          rvc2api.settings = {
+            canbus = {
+              channels = [ "can0" "can1" ];
+              bustype = "socketcan";
+              bitrate = 500000;
+            };
+            # rvcSpecPath = "/etc/nixos/files/rvc.json";
+            # deviceMappingPath = "/etc/nixos/files/device_mapping.yml";
+            pushover = {
+              enable = false;
+              # apiToken = "...";
+              # userKey = "...";
+            };
+            uptimerobot = {
+              enable = false;
+              # apiKey = "...";
+            };
+          };
+          # ...other service configs...
           services.rvc.console.enable = true;
           services.rvc.debugTools.enable = true;
-          services.rvc2api.enable      = true;
-          services.rvc2api.package     = inputs.rvc2api.defaultPackage.${system};
-          services.rvc2api.specFile    = "/etc/nixos/files/rvc.json";
-          services.rvc2api.mappingFile = "/etc/nixos/files/device_mapping.yml";
-          services.rvc2api.channels    = [ "can0" "can1" ];
-          services.rvc2api.bustype     = "socketcan";
-          services.rvc2api.bitrate     = 500000;
-
           services.rvcCloudflared = {
             enable = true;
             hostname = "rvc.holtel.io";
