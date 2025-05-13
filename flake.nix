@@ -133,7 +133,7 @@
             '';
           };
           systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
-          networking.firewall.allowedTCPPorts = [ 80 443 ];
+          networking.firewall.allowedTCPPorts = [ 80 443 8000 ];
         })
       ];
     };
