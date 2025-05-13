@@ -116,7 +116,7 @@
           services.rvcCloudflared = {
             enable   = true;
             hostname = "rvc.holtel.io";
-            service  = "http://localhost:8000";
+            service  = "https://localhost";
           };
 
           # Configure the NixOS Caddy module directly:
