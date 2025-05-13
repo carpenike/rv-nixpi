@@ -48,17 +48,17 @@ in {
         RVPROBLEMS_WIFI_SSID = {};
         RVPROBLEMS_WIFI_PASSWORD = {};
         # Cloudflare API token for Caddy DNS challenge
-        cloudflare_api_token = {
-          owner = config.services.caddy.user;  # Caddy service user
-          group = config.services.caddy.group; # Caddy service group
-          mode = "0400"; # Read-only for the Caddy user
-        };
-        # cloudflared_tunnel_credentials = {
-        #   owner = "cloudflared";
-        #   group = "cloudflared";
-        #   mode = "0400";
-        #   path = "/etc/cloudflared/2e9bd6fe-a25a-4bb0-89a5-fa1f69d62b97.json";  # Must match what's in config.yml
-        # }; 
+        # cloudflare_api_token = {
+        #   owner = config.services.caddy.user;  # Caddy service user
+        #   group = config.services.caddy.group; # Caddy service group
+        #   mode = "0400"; # Read-only for the Caddy user
+        # };
+        cloudflared_tunnel_credentials = {
+          owner = "cloudflared";
+          group = "cloudflared";
+          mode = "0400";
+          path = "/etc/cloudflared/2e9bd6fe-a25a-4bb0-89a5-fa1f69d62b97.json";  # Must match what's in config.yml
+        }; 
 
       };
     };
