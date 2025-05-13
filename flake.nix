@@ -101,6 +101,7 @@
         rvc2api.nixosModules.rvc2api
         ({ config, pkgs, ... }: {
           rvc2api.settings = {
+            modelSelector = "2021_Entegra_Aspire_44R";
             canbus = {
               channels = [ "can0" "can1" ];
               bustype  = "socketcan";
