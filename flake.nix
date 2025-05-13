@@ -125,12 +125,10 @@
             package = pkgs.caddy;
             email   = "ryan@ryanholt.net";
             virtualHosts."rvc.holtel.io".extraConfig = ''
-                reverse_proxy http://localhost:8000
-            ''; 
-            globalConfig =  ''
                 tls {
                   dns cloudflare {env.CLOUDFLARE_API_TOKEN}
                 }
+                reverse_proxy http://localhost:8000
             '';
           };
           systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
