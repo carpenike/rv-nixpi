@@ -2,6 +2,8 @@
 
 let
   cloudflaredUser = "cloudflared";
+  credsBase = builtins.baseNameOf config.services.rvcCloudflared.credentialsFile;
+  tunnelID = lib.strings.replaceSuffix ".json" "" credsBase;
 in {
   options.services.rvcCloudflared = {
     enable = lib.mkEnableOption "Enable the Cloudflare Tunnel daemon";
@@ -23,11 +25,11 @@ in {
       description = "External hostname (Cloudflare DNS) for ingress";
     };
 
-    # The local service endpoint. Use localhost for portability if your Caddy box IP may change.
+    # Use https://localhost for portability (default port 443)
     service = lib.mkOption {
       type = lib.types.str;
-      default = "https://localhost:443";
-      description = "Local service to proxy to (Caddy endpoint listening on 443)";
+      default = "https://localhost";
+      description = "Local service to proxy to (Caddy endpoint listening on HTTPS)";
     };
   };
 
@@ -37,7 +39,6 @@ in {
       isSystemUser = true;
       group = cloudflaredUser;
     };
-
     users.groups.${cloudflaredUser} = {};
 
     # Install the cloudflared binary
@@ -45,7 +46,7 @@ in {
 
     # Generate the cloudflared config.yml
     environment.etc."cloudflared/config.yml".text = lib.mkIf config.services.rvcCloudflared.enable ''
-      tunnel: ${builtins.baseNameOf config.services.rvcCloudflared.credentialsFile}
+      tunnel: ${tunnelID}
       credentials-file: ${config.services.rvcCloudflared.credentialsFile}
 
       ingress:
