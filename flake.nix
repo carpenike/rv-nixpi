@@ -125,7 +125,9 @@
             package = pkgs.caddy;
             email   = "ryan@ryanholt.net";
             virtualHosts."rvc.holtel.io".extraConfig = ''
-                dns cloudflare {$CLOUDFLARE_API_TOKEN}
+                tls {
+                  dns cloudflare {$CLOUDFLARE_API_TOKEN}
+                }
                 reverse_proxy http://localhost:8000
             ''; 
             # environmentFile = "${config.sops.secrets.cloudflare_api_token.path}";
