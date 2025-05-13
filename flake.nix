@@ -124,14 +124,17 @@
             enable  = true;
             package = pkgs.caddy;
             email   = "ryan@ryanholt.net";
-            # Use DNS-01 via Cloudflare
-            extraConfig = ''
-              tls {
-                dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-              }
-              reverse_proxy localhost:8000
-            '';
+            virtualHosts."rvc.holtel.io".extraConfig = ''
+                dns cloudflare {$CLOUDFLARE_API_TOKEN}
+                reverse_proxy http://localhost:8000
+            ''; 
+            # environmentFile = "${config.sops.secrets.cloudflare_api_token.path}";
           };
+          systemd.services.caddy.preStart = ''
+            echo "CLOUDFLARE_API_TOKEN=$(cat /run/secrets/cloudflare_api_token)" > /run/secrets/cloudflare_api_token_env
+            chmod 600 /run/secrets/cloudflare_api_token_env
+          '';
+          systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/cloudflare_api_token_env";
         })
       ];
     };
