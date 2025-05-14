@@ -115,11 +115,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1747177762,
-        "narHash": "sha256-YKRsyu02zxpwvNB+7aJ/rhJtd84BaD53ZttEs5B+D6k=",
+        "lastModified": 1747184966,
+        "narHash": "sha256-dytqLmQyvabSjutfWEGBN6gZ9vuRIS+wQdbPu0xKFQo=",
         "owner": "carpenike",
         "repo": "rvc2api",
-        "rev": "03a597b2886f38d78814bfb69583159da1c40941",
+        "rev": "78e4e7ca1c5d750bfcec30c877c475259517b8bf",
         "type": "github"
       },
       "original": {
