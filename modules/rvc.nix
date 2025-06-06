@@ -20,14 +20,7 @@ in
     debugTools.enable = lib.mkEnableOption "Enable RVC CANbus debugging tools";
   };
 
-  # New service: HTTP/WebSocket API for CANbus
-  options.services.rvc2api = {
-    enable      = lib.mkEnableOption "Run the rvc2api FastAPI CANbus service";
-    package     = lib.mkOption {
-      type        = lib.types.package;
-      description = "The Python package providing the rvc2api service";
-    };
-  };
+  # No need to define rvc2api options here - they're defined in the proper rvc2api NixOS module
 
   config = lib.mkMerge [
     # --- Shared Config Deployment (rvc-config.nix content) ---
@@ -84,10 +77,7 @@ in
       # Deploy the live decoder script needed by rvc-can-test
       environment.etc."nixos/files/live_can_decoder.py".source = ./live_can_decoder.py;
     })
-    # Deploy the API service only if enabled
-    (lib.mkIf config.services.rvc2api.enable {
-      # Open firewall port if service is enabled
-      networking.firewall.allowedTCPPorts = [ 8000 ];
-    })
+    # Note: rvc2api service is now fully managed by the rvc2api NixOS module
+    # Additional customizations can be done in the main configuration
   ];
 }

@@ -20,7 +20,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, ... }@inputs:
+  outputs = { nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, ... }@inputs:
   let
     system = "aarch64-linux";
 
@@ -85,10 +85,13 @@
   in
   {
     packages.${system} = {
-      rvc2api = rvc2api.defaultPackage.${system};
-      sdcard  = nixos-generators.nixosGenerate {
+      # Re-export rvc2api package for convenience
+      rvc2api = rvc2api.packages.${system}.rvc2api;
+      
+      # Main SD card image
+      sdcard = nixos-generators.nixosGenerate {
         inherit system;
-        format  = "sd-aarch64";
+        format = "sd-aarch64";
         modules = commonModules;
       };
     };
@@ -96,46 +99,13 @@
     # Use the flake input's lib.nixosSystem, passing our overlaid pkgs via specialArgs
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit pkgs; };
+      specialArgs = { inherit pkgs rvc2api; };
       modules = commonModules ++ [
+        # Import the rvc2api NixOS module
         rvc2api.nixosModules.rvc2api
-        ({ config, pkgs, ... }: {
-          rvc2api.settings = {
-            modelSelector = "2021_Entegra_Aspire_44R";
-            canbus = {
-              channels = [ "can0" "can1" ];
-              bustype  = "socketcan";
-              bitrate  = 500000;
-            };
-            pushover    = { enable = false; };
-            uptimerobot = { enable = false; };
-          };
-          rvc2api.package = rvc2api.packages.${system}.rvc2api;
-
-          services.rvc.console.enable    = true;
-          services.rvc.debugTools.enable = true;
-          services.rvcCloudflared = {
-            enable   = true;
-            hostname = "rvc.holtel.io";
-            service  = "https://localhost";
-          };
-
-          # Configure the NixOS Caddy module directly:
-          services.caddy = {
-            enable  = true;
-            package = pkgs.caddy;
-            email   = "ryan@ryanholt.net";
-            virtualHosts."rvc.holtel.io".extraConfig = ''
-                tls {
-                  dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-                  resolvers 1.1.1.1
-                }
-                reverse_proxy http://localhost:8000
-            '';
-          };
-          systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
-          networking.firewall.allowedTCPPorts = [ 80 443 8000 ];
-        })
+        
+        # Configure rvc2api service
+        ./modules/rvc2api-config.nix
       ];
     };
 
