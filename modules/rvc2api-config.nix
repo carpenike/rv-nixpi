@@ -109,14 +109,19 @@
   };
 
   # Configure Caddy to serve React frontend and proxy API
-  services.rvcCaddy = {
-    enable = true;
-    hostname = "rvc.holtel.io";
-    backendPort = 8000;
-    email = "ryan@ryanholt.net";
-    reactDistPath = "${rvc2api.packages.${pkgs.system}.frontend}";
-  };
-
-  # Open port 8000 for direct backend access (if needed)
-  networking.firewall.allowedTCPPorts = [ 8000 ];
+  services.caddy = {
+    enable  = true;
+    #package = pkgs.caddy;
+    email   = "ryan@ryanholt.net";
+    virtualHosts."rvc.holtel.io".extraConfig = ''
+      tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+        resolvers 1.1.1.1
+      }
+      reverse_proxy http://localhost:8000
+      '';
+};
+systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
+# Open port 8000 for direct backend access (if needed)
+networking.firewall.allowedTCPPorts = [ 8000 ];
 }

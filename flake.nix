@@ -45,6 +45,7 @@
     # 2) Import stable pkgs, shadowing caddy with plugin-enabled build from unstable
     pkgs = import nixpkgs {
       inherit system;
+      config = { allowUnfree = true; };
       overlays = [
         allowMissingModulesOverlay
         (final: prev: {
@@ -98,8 +99,8 @@
 
     # Use the flake input's lib.nixosSystem, passing our overlaid pkgs via specialArgs
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
-      inherit system;
-      specialArgs = { inherit pkgs rvc2api; };
+      inherit system pkgs;
+      specialArgs = { inherit rvc2api; };
       modules = commonModules ++ [
         # Import the rvc2api NixOS module
         rvc2api.nixosModules.rvc2api
