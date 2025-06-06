@@ -110,26 +110,42 @@
 
   # Configure Caddy to serve React frontend and proxy API
   services.caddy = {
-    enable  = true;
-    #package = pkgs.caddy;
-    email   = "ryan@ryanholt.net";
+    enable = true;
+    email = "ryan@ryanholt.net";
     virtualHosts."rvc.holtel.io".extraConfig = ''
       tls {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
         resolvers 1.1.1.1
       }
-      reverse_proxy http://localhost:8000
+
+      # Health endpoints - proxy to FastAPI backend
+      handle_path /health {
+        reverse_proxy http://localhost:8000
+      }
+      handle_path /healthz {
+        reverse_proxy http://localhost:8000
+      }
+      handle_path /readyz {
+        reverse_proxy http://localhost:8000
+      }
+      handle_path /metrics {
+        reverse_proxy http://localhost:8000
+      }
+
       # API routes - proxy to FastAPI backend
       handle_path /api/* {
         reverse_proxy http://localhost:8000
       }
 
-      # WebSocket endpoint
+      # WebSocket endpoints - proxy to FastAPI backend
+      handle_path /ws/* {
+        reverse_proxy http://localhost:8000
+      }
       handle_path /ws {
         reverse_proxy http://localhost:8000
       }
 
-      # API docs endpoints
+      # FastAPI docs and schema - proxy to FastAPI backend
       handle_path /docs* {
         reverse_proxy http://localhost:8000
       }
@@ -140,15 +156,15 @@
         reverse_proxy http://localhost:8000
       }
 
-      # Serve static frontend files from separate package
+      # Serve static frontend files for everything else
       handle {
         root * ${coachiq.packages.${pkgs.system}.frontend}
         try_files {path} /index.html
         file_server
       }
-      '';
-};
-systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
-# Open port 8000 for direct backend access (if needed)
-networking.firewall.allowedTCPPorts = [ 8000 443 ];
+    '';
+  };
+  systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
+  # Open port 8000 for direct backend access (if needed)
+  networking.firewall.allowedTCPPorts = [ 8000 443 ];
 }
