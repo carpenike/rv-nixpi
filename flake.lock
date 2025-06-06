@@ -9,13 +9,13 @@
         "lastModified": 1749232034,
         "narHash": "sha256-EFNwTZlamSAJkV5Vj6FYrQP9Nbx9+kupIT3OiVacygQ=",
         "owner": "carpenike",
-        "repo": "rvc2api",
+        "repo": "coachiq",
         "rev": "dfffd737e4583e0588f717f68541c4cc185a1231",
         "type": "github"
       },
       "original": {
         "owner": "carpenike",
-        "repo": "rvc2api",
+        "repo": "coachiq",
         "type": "github"
       }
     },

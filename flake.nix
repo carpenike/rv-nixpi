@@ -16,7 +16,7 @@
     };
 
     coachiq = {
-      url = "github:carpenike/rvc2api";
+      url = "github:carpenike/coachiq";
     };
   };
 
