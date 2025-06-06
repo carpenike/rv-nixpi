@@ -1,5 +1,24 @@
 {
   "nodes": {
+    "coachiq": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1749232034,
+        "narHash": "sha256-EFNwTZlamSAJkV5Vj6FYrQP9Nbx9+kupIT3OiVacygQ=",
+        "owner": "carpenike",
+        "repo": "rvc2api",
+        "rev": "dfffd737e4583e0588f717f68541c4cc185a1231",
+        "type": "github"
+      },
+      "original": {
+        "owner": "carpenike",
+        "repo": "rvc2api",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -56,17 +75,18 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1748995628,
-        "narHash": "sha256-bFufQGSAEYQgjtc4wMrobS5HWN0hDP+ZX+zthYcml9U=",
+        "lastModified": 1747958103,
+        "narHash": "sha256-qmmFCrfBwSHoWw7cVK4Aj+fns+c54EBP8cGqp/yK410=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "8eb3b6a2366a7095939cd22f0dc0e9991313294b",
+        "rev": "fe51d34885f7b5e3e7b59572796e1bcb427eccb1",
         "type": "github"
       },
       "original": {
-        "id": "nixpkgs",
-        "ref": "nixos-24.11",
-        "type": "indirect"
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
       }
     },
     "nixpkgsUnstable": {
@@ -86,46 +106,26 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1747958103,
-        "narHash": "sha256-qmmFCrfBwSHoWw7cVK4Aj+fns+c54EBP8cGqp/yK410=",
+        "lastModified": 1748995628,
+        "narHash": "sha256-bFufQGSAEYQgjtc4wMrobS5HWN0hDP+ZX+zthYcml9U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "fe51d34885f7b5e3e7b59572796e1bcb427eccb1",
+        "rev": "8eb3b6a2366a7095939cd22f0dc0e9991313294b",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixpkgs-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
+        "id": "nixpkgs",
+        "ref": "nixos-24.11",
+        "type": "indirect"
       }
     },
     "root": {
       "inputs": {
+        "coachiq": "coachiq",
         "nixos-generators": "nixos-generators",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_2",
         "nixpkgsUnstable": "nixpkgsUnstable",
-        "rvc2api": "rvc2api",
         "sops-nix": "sops-nix"
-      }
-    },
-    "rvc2api": {
-      "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs_2"
-      },
-      "locked": {
-        "lastModified": 1749230343,
-        "narHash": "sha256-zIM7tfEde/emIzIz7sppX/Gi/kadkHwk0vkhIEyrZzM=",
-        "owner": "carpenike",
-        "repo": "rvc2api",
-        "rev": "1ed3f1d1f8d13a225eb03f5b89f4720c3de6001b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "carpenike",
-        "repo": "rvc2api",
-        "type": "github"
       }
     },
     "sops-nix": {

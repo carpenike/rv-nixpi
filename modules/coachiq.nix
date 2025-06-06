@@ -1,19 +1,19 @@
-{ config, pkgs, lib, rvc2api, ... }:
+{ config, pkgs, lib, coachiq, ... }:
 
 {
-  # Enable and configure rvc2api service
-  rvc2api = {
+  # Enable and configure coachiq service
+  coachiq = {
     enable = true;
     
     # Use the package from the flake input (this is the default, but explicit is good)
-    # package = inputs.rvc2api.packages.${pkgs.system}.rvc2api; # No need to set this as it's the default
-    
+    # package = inputs.coachiq.packages.${pkgs.system}.coachiq; # No need to set this as it's the default
+
     settings = {
       # App metadata
-      appName = "rvc2api";
+      appName = "CoachIQ";
       appVersion = "0.0.0";
-      appDescription = "API for RV-C CANbus";
-      appTitle = "RV-C API";
+      appDescription = "API for CoachIQ";
+      appTitle = "CoachIQ API";
       
       # Server settings (new structured format)
       server = {

@@ -15,12 +15,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    rvc2api = {
+    coachiq = {
       url = "github:carpenike/rvc2api";
     };
   };
 
-  outputs = { nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, rvc2api, ... }@inputs:
+  outputs = { nixpkgs, nixpkgsUnstable, nixos-generators, sops-nix, coachiq, ... }@inputs:
   let
     system = "aarch64-linux";
 
@@ -86,8 +86,8 @@
   in
   {
     packages.${system} = {
-      # Re-export rvc2api package for convenience
-      rvc2api = rvc2api.packages.${system}.rvc2api;
+      # Re-export coachiq package for convenience
+      coachiq = coachiq.packages.${system}.coachiq;
       
       # Main SD card image
       sdcard = nixos-generators.nixosGenerate {
@@ -100,13 +100,13 @@
     # Use the flake input's lib.nixosSystem, passing our overlaid pkgs via specialArgs
     nixosConfigurations.nixpi = nixpkgs.lib.nixosSystem {
       inherit system pkgs;
-      specialArgs = { inherit rvc2api; };
+      specialArgs = { inherit coachiq; };
       modules = commonModules ++ [
-        # Import the rvc2api NixOS module
-        rvc2api.nixosModules.rvc2api
+        # Import the coachiq NixOS module
+        coachiq.nixosModules.coachiq
         
-        # Configure rvc2api service
-        ./modules/rvc2api-config.nix
+        # Configure coachiq service
+        ./modules/coachiq.nix
       ];
     };
 
