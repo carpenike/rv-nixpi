@@ -119,6 +119,33 @@
         resolvers 1.1.1.1
       }
       reverse_proxy http://localhost:8000
+      # API routes - proxy to FastAPI backend
+      handle_path /api/* {
+        reverse_proxy http://localhost:8000
+      }
+
+      # WebSocket endpoint
+      handle_path /ws {
+        reverse_proxy http://localhost:8000
+      }
+
+      # API docs endpoints
+      handle_path /docs* {
+        reverse_proxy http://localhost:8000
+      }
+      handle_path /redoc* {
+        reverse_proxy http://localhost:8000
+      }
+      handle_path /openapi.json {
+        reverse_proxy http://localhost:8000
+      }
+
+      # Serve static frontend files from separate package
+      handle {
+        root * ${coachiq.packages.${pkgs.system}.frontend}
+        try_files {path} /index.html
+        file_server
+      }
       '';
 };
 systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
