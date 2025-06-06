@@ -123,5 +123,5 @@
 };
 systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
 # Open port 8000 for direct backend access (if needed)
-networking.firewall.allowedTCPPorts = [ 8000 ];
+networking.firewall.allowedTCPPorts = [ 8000 443 ];
 }
