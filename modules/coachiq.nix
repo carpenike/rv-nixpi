@@ -55,6 +55,11 @@
         channels = [ "can0" "can1" ];
         bustype = "socketcan";
         bitrate = 500000;
+
+        interfaceMappings = {
+          house = "can1";                # House systems -> can1
+          chassis = "can0";              # Chassis systems -> can0
+        };
       };
       
       # Feature flags (new structured format)
