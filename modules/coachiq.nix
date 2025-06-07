@@ -10,45 +10,45 @@
 
     settings = {
       # App metadata
-      appName = "CoachIQ";
-      appVersion = "0.0.0";
-      appDescription = "API for CoachIQ";
-      appTitle = "CoachIQ API";
+      # appName = "CoachIQ";
+      # appVersion = "0.0.0";
+      # appDescription = "API for CoachIQ";
+      # appTitle = "CoachIQ API";
       
       # Server settings (new structured format)
       server = {
         host = "0.0.0.0";  # Bind to all interfaces
         port = 8000;
-        workers = 1;
-        reload = false;
-        debug = false;
-        rootPath = "";
-        accessLog = true;
-        keepAliveTimeout = 5;
-        timeoutGracefulShutdown = 30;
-        timeoutNotify = 30;
-        workerClass = "uvicorn.workers.UvicornWorker";
-        workerConnections = 1000;
-        serverHeader = true;
-        dateHeader = true;
+        # workers = 1;
+        # reload = false;
+        # debug = false;
+        # rootPath = "";
+        # accessLog = true;
+        # keepAliveTimeout = 5;
+        # timeoutGracefulShutdown = 30;
+        # timeoutNotify = 30;
+        # workerClass = "uvicorn.workers.UvicornWorker";
+        # workerConnections = 1000;
+        # serverHeader = true;
+        # dateHeader = true;
       };
       
       # Logging settings (new structured format)
-      logging = {
-        level = "INFO";
-        format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s";
-        logToFile = false;
-        maxFileSize = 10485760;  # 10MB
-        backupCount = 5;
-      };
+      # logging = {
+      #   level = "INFO";
+      #   format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s";
+      #   logToFile = false;
+      #   maxFileSize = 10485760;  # 10MB
+      #   backupCount = 5;
+      # };
       
       # CORS settings
-      cors = {
-        allowedOrigins = [ "*" ];
-        allowedCredentials = true;
-        allowedMethods = [ "*" ];
-        allowedHeaders = [ "*" ];
-      };
+      # cors = {
+      #   allowedOrigins = [ "*" ];
+      #   allowedCredentials = true;
+      #   allowedMethods = [ "*" ];
+      #   allowedHeaders = [ "*" ];
+      # };
       
       # CANbus settings
       canbus = {
@@ -96,7 +96,7 @@
       # deviceMappingPath = "/etc/nixos/files/device_mapping.yml";
       
       # GitHub update checking
-      githubUpdateRepo = "carpenike/rvc2api";
+      githubUpdateRepo = "carpenike/coachiq";
     };
   };
 
