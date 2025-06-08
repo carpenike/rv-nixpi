@@ -169,6 +169,25 @@
       }
     '';
   };
+
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "coachiq-migrate" ''
+      set -e
+      echo "Running CoachIQ database migrations..."
+
+      # Set environment to match your service
+      export COACHIQ_DATABASE__SQLITE_PATH="/var/lib/coachiq/coachiq.db"
+      export COACHIQ_PERSISTENCE__ENABLED=true
+      export COACHIQ_PERSISTENCE__DATA_DIR="/var/lib/coachiq"
+
+      # Run migrations using the packaged alembic
+      cd ${coachiq.packages.${pkgs.system}.coachiq}/lib/python*/site-packages
+      ${coachiq.packages.${pkgs.system}.coachiq}/bin/alembic upgrade head
+
+      echo "Migrations completed successfully"
+    '')
+  ];
+
   systemd.services.caddy.serviceConfig.EnvironmentFile = "/run/secrets/caddy_cloudflare_env";
   # Open port 8000 for direct backend access (if needed)
   networking.firewall.allowedTCPPorts = [ 8000 443 ];
