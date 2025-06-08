@@ -6,11 +6,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1749390822,
-        "narHash": "sha256-Hr8bTs86hjcrT85QWu0CqoENnjbWFMCsCHo5MIFP70o=",
+        "lastModified": 1749415674,
+        "narHash": "sha256-TE5RS13h9/ritx2N9eDXOpoRlVgeSJThu88AD4XieKk=",
         "owner": "carpenike",
         "repo": "coachiq",
-        "rev": "683aa930df3213b193705d46a765256882d248e3",
+        "rev": "fcac469a01508481c7ea16c08fa261c89661b2ce",
         "type": "github"
       },
       "original": {
@@ -91,11 +91,11 @@
     },
     "nixpkgsUnstable": {
       "locked": {
-        "lastModified": 1749143949,
-        "narHash": "sha256-QuUtALJpVrPnPeozlUG/y+oIMSLdptHxb3GK6cpSVhA=",
+        "lastModified": 1749285348,
+        "narHash": "sha256-frdhQvPbmDYaScPFiCnfdh3B/Vh81Uuoo0w5TkWmmjU=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d3d2d80a2191a73d1e86456a751b83aa13085d7d",
+        "rev": "3e3afe5174c561dee0df6f2c2b2236990146329f",
         "type": "github"
       },
       "original": {
