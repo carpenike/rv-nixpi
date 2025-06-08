@@ -89,7 +89,7 @@
       controllerSourceAddr = "0xF9";
       
       # RVC configuration
-      modelSelector = "2021_Entegra_Aspire_44R";
+      rvcCoachModel = "2021_Entegra_Aspire_44R";
       
       # Path settings - point to files in /etc/nixos/files/
       # rvcSpecPath = "/etc/nixos/files/rvc.json";
