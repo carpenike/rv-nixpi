@@ -124,40 +124,40 @@
       }
 
       # Health endpoints - proxy to FastAPI backend
-      handle_path /health {
+      handle /health {
         reverse_proxy http://localhost:8000
       }
-      handle_path /healthz {
+      handle /healthz {
         reverse_proxy http://localhost:8000
       }
-      handle_path /readyz {
+      handle /readyz {
         reverse_proxy http://localhost:8000
       }
-      handle_path /metrics {
+      handle /metrics {
         reverse_proxy http://localhost:8000
       }
 
       # API routes - proxy to FastAPI backend
-      handle_path /api/* {
+      handle /api/* {
         reverse_proxy http://localhost:8000
       }
 
       # WebSocket endpoints - proxy to FastAPI backend
-      handle_path /ws/* {
+      handle /ws/* {
         reverse_proxy http://localhost:8000
       }
-      handle_path /ws {
+      handle /ws {
         reverse_proxy http://localhost:8000
       }
 
       # FastAPI docs and schema - proxy to FastAPI backend
-      handle_path /docs* {
+      handle /docs* {
         reverse_proxy http://localhost:8000
       }
-      handle_path /redoc* {
+      handle /redoc* {
         reverse_proxy http://localhost:8000
       }
-      handle_path /openapi.json {
+      handle /openapi.json {
         reverse_proxy http://localhost:8000
       }
 
