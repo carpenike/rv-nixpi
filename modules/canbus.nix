@@ -221,7 +221,7 @@
     after = [ "can0.service" "can1.service" ];
     requires = [ "can0.service" "can1.service" ];
     serviceConfig = {
-      ExecStart = "${pkgs.can-utils}/bin/cangw -A -s can0 -d can1 -f 19FFAA4F~1FFFFFFF";
+      ExecStart = "${pkgs.can-utils}/bin/cangw -A -s can0 -d can1 -e -f 19FFAA4F~1FFFFFFF";
       Restart = "on-failure";
       RestartSec = "5s";
       # Run as root
@@ -236,7 +236,7 @@
     after = [ "can0.service" "can1.service" ];
     requires = [ "can0.service" "can1.service" ];
     serviceConfig = {
-      ExecStart = "${pkgs.can-utils}/bin/cangw -A -s can1 -d can0 -f 19FFAA4F~1FFFFFFF";
+      ExecStart = "${pkgs.can-utils}/bin/cangw -A -s can1 -d can0 -e -f 19FFAA4F~1FFFFFFF";
       Restart = "on-failure";
       RestartSec = "5s";
       # Run as root
