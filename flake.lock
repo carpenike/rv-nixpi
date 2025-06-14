@@ -6,11 +6,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1749867613,
-        "narHash": "sha256-0tgHIwGmiJaZK7JGbcNQWkH99RvKQUL6aO7sdqhIeFQ=",
+        "lastModified": 1749868097,
+        "narHash": "sha256-7MqlEOt1rWa+qkOUT+uLgC7d2WJ/m5q493GlQo5QR5M=",
         "owner": "carpenike",
         "repo": "coachiq",
-        "rev": "4633f3bac93e2ed15ceb2de8ef8b073e3225c15b",
+        "rev": "a90cdfe1ac24385e89d074380034c2583f0ec797",
         "type": "github"
       },
       "original": {
