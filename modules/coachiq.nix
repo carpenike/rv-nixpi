@@ -63,15 +63,15 @@
       };
       
       # Feature flags (new structured format)
-      features = {
-        enableMaintenanceTracking = false;
-        enableNotifications = false;
-        enableUptimerobot = false;
-        enablePushover = false;
-        enableVectorSearch = true;
-        enableApiDocs = true;
-        enableMetrics = true;
-      };
+      # features = {
+      #   enableMaintenanceTracking = false;
+      #   enableNotifications = false;
+      #   enableUptimerobot = false;
+      #   enablePushover = false;
+      #   enableVectorSearch = true;
+      #   enableApiDocs = true;
+      #   enableMetrics = true;
+      # };
       
       # Notification settings (new structured format)
       notifications = {
@@ -83,6 +83,10 @@
         
         # UptimeRobot settings (when features.enableUptimerobot = true)
         # uptimerobotApiKey = "your-api-key";
+      };
+
+      security = {
+        tlsTerminationIsExternal = true;
       };
       
       # Controller settings
@@ -126,39 +130,65 @@
       # Health endpoints - proxy to FastAPI backend
       handle /health {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
+
       handle /healthz {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
+
       handle /readyz {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
+
       handle /metrics {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
 
       # API routes - proxy to FastAPI backend
       handle /api/* {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
 
       # WebSocket endpoints - proxy to FastAPI backend
       handle /ws/* {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
+
       handle /ws {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
 
       # FastAPI docs and schema - proxy to FastAPI backend
       handle /docs* {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
+
       handle /redoc* {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
+
       handle /openapi.json {
         reverse_proxy http://localhost:8000
+        header_up X-Forwarded-Proto https
+        header_up X-Real-IP {remote_host}
       }
 
       # Serve static frontend files for everything else
@@ -166,6 +196,14 @@
         root * ${coachiq.packages.${pkgs.system}.frontend}
         try_files {path} /index.html
         file_server
+      }
+
+      header {
+          Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+          X-Content-Type-Options nosniff
+          X-Frame-Options DENY
+          X-XSS-Protection "1; mode=block"
+          Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws: wss:;"
       }
     '';
   };
